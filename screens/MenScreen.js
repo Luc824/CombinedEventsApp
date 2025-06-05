@@ -1,26 +1,24 @@
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
-export default function HomeScreen({ navigation }) {
+export default function MenScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Combined Events Calculator</Text>
-      <Text style={styles.subtitle}>
-        Calculate your points for combined events
-      </Text>
+      <Text style={styles.title}>Men's Events</Text>
+      <Text style={styles.subtitle}>Choose your event</Text>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Men")}
+          onPress={() => navigation.navigate("Decathlon")}
         >
-          <Text style={styles.buttonText}>Men's Events</Text>
+          <Text style={styles.buttonText}>Decathlon</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Women")}
+          onPress={() => navigation.navigate("Heptathlon")}
         >
-          <Text style={styles.buttonText}>Women's Events</Text>
+          <Text style={styles.buttonText}>Heptathlon</Text>
         </TouchableOpacity>
       </View>
     </View>
