@@ -9,9 +9,9 @@ import {
   Platform,
 } from "react-native";
 
-// Decathlon events with their formulas
-const DECATHLON_EVENTS = [
-  { name: "100m", formula: (time) => 25.4347 * Math.pow(18 - time, 1.81) },
+// Men's Heptathlon events with their formulas
+const HEPTATHLON_EVENTS = [
+  { name: "60m", formula: (time) => 58.015 * Math.pow(11.5 - time, 1.81) },
   {
     name: "Long Jump",
     formula: (distance) => 0.14354 * Math.pow(distance * 100 - 220, 1.4),
@@ -24,24 +24,15 @@ const DECATHLON_EVENTS = [
     name: "High Jump",
     formula: (height) => 0.8465 * Math.pow(height * 100 - 75, 1.42),
   },
-  { name: "400m", formula: (time) => 1.53775 * Math.pow(82 - time, 1.81) },
   {
-    name: "110m Hurdles",
-    formula: (time) => 5.74352 * Math.pow(28.5 - time, 1.92),
-  },
-  {
-    name: "Discus",
-    formula: (distance) => 12.91 * Math.pow(distance - 4, 1.1),
+    name: "60m Hurdles",
+    formula: (time) => 20.5173 * Math.pow(15.5 - time, 1.92),
   },
   {
     name: "Pole Vault",
     formula: (height) => 0.2797 * Math.pow(height * 100 - 100, 1.35),
   },
-  {
-    name: "Javelin",
-    formula: (distance) => 10.14 * Math.pow(distance - 7, 1.08),
-  },
-  { name: "1500m", formula: (time) => 0.03768 * Math.pow(480 - time, 1.85) },
+  { name: "1000m", formula: (time) => 0.08713 * Math.pow(305 - time, 1.85) },
 ];
 
 // Convert time string (mm:ss.ms) to seconds
@@ -63,17 +54,17 @@ const convertTimeToSeconds = (timeStr) => {
   return 0;
 };
 
-export default function DecathlonScreen() {
-  const [results, setResults] = useState(Array(10).fill(""));
-  const [points, setPoints] = useState(Array(10).fill(0));
+export default function MenHeptathlonScreen() {
+  const [results, setResults] = useState(Array(7).fill(""));
+  const [points, setPoints] = useState(Array(7).fill(0));
 
   const calculatePoints = (value, index) => {
     if (!value) return 0;
-    const event = DECATHLON_EVENTS[index];
+    const event = HEPTATHLON_EVENTS[index];
     try {
-      // Convert time to seconds for 1500m
+      // Convert time to seconds for 1000m
       const inputValue =
-        index === 9 ? convertTimeToSeconds(value) : parseFloat(value);
+        index === 6 ? convertTimeToSeconds(value) : parseFloat(value);
       return Math.round(event.formula(inputValue));
     } catch (error) {
       return 0;
@@ -94,11 +85,11 @@ export default function DecathlonScreen() {
   };
 
   const getDay1Total = () => {
-    return points.slice(0, 5).reduce((sum, point) => sum + point, 0);
+    return points.slice(0, 4).reduce((sum, point) => sum + point, 0);
   };
 
   const getDay2Total = () => {
-    return points.slice(5, 10).reduce((sum, point) => sum + point, 0);
+    return points.slice(4, 7).reduce((sum, point) => sum + point, 0);
   };
 
   const getTotalPoints = () => {
@@ -106,7 +97,7 @@ export default function DecathlonScreen() {
   };
 
   const renderEventInput = (event, index) => {
-    const is1500m = index === 9;
+    const is1000m = index === 6;
     return (
       <View key={index} style={styles.eventContainer}>
         <Text style={styles.eventName}>{event.name}</Text>
@@ -115,14 +106,14 @@ export default function DecathlonScreen() {
             style={styles.input}
             value={results[index]}
             onChangeText={(text) => handleInputChange(text, index)}
-            keyboardType={is1500m ? "numbers-and-punctuation" : "decimal-pad"}
-            placeholder={is1500m ? "mm:ss.ms" : "Enter result"}
+            keyboardType={is1000m ? "numbers-and-punctuation" : "decimal-pad"}
+            placeholder={is1000m ? "mm:ss.ms" : "Enter result"}
           />
           <Text style={styles.points}>{points[index]} pts</Text>
         </View>
-        {is1500m && (
+        {is1000m && (
           <Text style={styles.helperText}>
-            Enter time as mm:ss.ms (e.g., 4:30.45)
+            Enter time as mm:ss.ms (e.g., 2:30.45)
           </Text>
         )}
       </View>
@@ -135,11 +126,11 @@ export default function DecathlonScreen() {
       style={styles.container}
     >
       <ScrollView style={styles.scrollView}>
-        <Text style={styles.title}>Decathlon Calculator</Text>
+        <Text style={styles.title}>Men's Heptathlon Calculator</Text>
 
         {/* Day 1 Events */}
         <Text style={styles.dayTitle}>Day 1</Text>
-        {DECATHLON_EVENTS.slice(0, 5).map((event, index) =>
+        {HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
           renderEventInput(event, index)
         )}
         <Text style={styles.dayTotal}>
@@ -148,8 +139,8 @@ export default function DecathlonScreen() {
 
         {/* Day 2 Events */}
         <Text style={styles.dayTitle}>Day 2</Text>
-        {DECATHLON_EVENTS.slice(5, 10).map((event, index) =>
-          renderEventInput(event, index + 5)
+        {HEPTATHLON_EVENTS.slice(4, 7).map((event, index) =>
+          renderEventInput(event, index + 4)
         )}
         <Text style={styles.dayTotal}>
           Day 2 Total: {getDay2Total()} points

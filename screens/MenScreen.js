@@ -16,7 +16,7 @@ export default function MenScreen({ navigation }) {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Heptathlon")}
+          onPress={() => navigation.navigate("MenHeptathlon")}
         >
           <Text style={styles.buttonText}>Heptathlon</Text>
         </TouchableOpacity>
