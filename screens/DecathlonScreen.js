@@ -44,23 +44,46 @@ const DECATHLON_EVENTS = [
   { name: "1500m", formula: (time) => 0.03768 * Math.pow(480 - time, 1.85) },
 ];
 
+// Specific placeholders for each event
+const PLACEHOLDERS = [
+  "10.55", // 100m
+  "7.80", // Long Jump
+  "16.00", // Shot Put
+  "2.05", // High Jump
+  "48.42", // 400m
+  "13.75", // 110m Hurdles
+  "50.54", // Discus Throw
+  "5.45", // Pole Vault
+  "71.90", // Javelin Throw
+  "4:36.11", // 1500m
+];
+
 // Convert time string (mm:ss.ms) to seconds
 const convertTimeToSeconds = (timeStr) => {
   if (!timeStr) return 0;
 
-  // Handle decimal format (backward compatibility)
-  if (timeStr.includes(".")) {
-    return parseFloat(timeStr);
-  }
+  // Ensure any commas are converted to decimal points
+  timeStr = timeStr.replace(",", ".");
 
-  // Handle mm:ss.ms format
   const parts = timeStr.split(":");
+
   if (parts.length === 2) {
-    const [minutes, seconds] = parts;
-    return parseFloat(minutes) * 60 + parseFloat(seconds);
+    // This handles "mm:ss.ms" or "mm:ss" formats
+    const minutes = parseFloat(parts[0]);
+    const secondsAndMs = parseFloat(parts[1]);
+
+    // Basic validation: ensure minutes and seconds are valid numbers
+    if (isNaN(minutes) || isNaN(secondsAndMs)) {
+      return 0;
+    }
+
+    return minutes * 60 + secondsAndMs;
+  } else if (parts.length === 1 && !isNaN(parseFloat(parts[0]))) {
+    // This handles cases where only seconds (with or without milliseconds) are entered, like "32.11"
+    return parseFloat(parts[0]);
   }
 
-  return 0;
+  return 0; // Return 0 for any other invalid format
 };
 
 export default function DecathlonScreen() {
@@ -74,7 +97,7 @@ export default function DecathlonScreen() {
       // Convert time to seconds for 1500m
       const inputValue =
         index === 9 ? convertTimeToSeconds(value) : parseFloat(value);
-      return Math.round(event.formula(inputValue));
+      return Math.floor(event.formula(inputValue));
     } catch (error) {
       return 0;
     }
@@ -82,7 +105,12 @@ export default function DecathlonScreen() {
 
   const handleInputChange = (text, index) => {
     // Convert comma to decimal point
-    const formattedText = text.replace(",", ".");
+    let formattedText = text.replace(",", ".");
+
+    // For 1500m, restrict input to numbers, ":", and "."
+    if (index === 9) {
+      formattedText = formattedText.replace(/[^0-9.:]/g, "");
+    }
 
     const newResults = [...results];
     newResults[index] = formattedText;
@@ -116,15 +144,11 @@ export default function DecathlonScreen() {
             value={results[index]}
             onChangeText={(text) => handleInputChange(text, index)}
             keyboardType={is1500m ? "numbers-and-punctuation" : "decimal-pad"}
-            placeholder={is1500m ? "mm:ss.ms" : "Enter result"}
+            placeholder={is1500m ? PLACEHOLDERS[index] : PLACEHOLDERS[index]}
+            placeholderTextColor="#888"
           />
           <Text style={styles.points}>{points[index]} pts</Text>
         </View>
-        {is1500m && (
-          <Text style={styles.helperText}>
-            Enter time as mm:ss.ms (e.g., 4:30.45)
-          </Text>
-        )}
       </View>
     );
   };
@@ -243,11 +267,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-  },
-  helperText: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 5,
-    fontStyle: "italic",
   },
 });

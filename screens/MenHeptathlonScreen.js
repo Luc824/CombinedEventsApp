@@ -32,26 +32,46 @@ const HEPTATHLON_EVENTS = [
     name: "Pole Vault",
     formula: (height) => 0.2797 * Math.pow(height * 100 - 100, 1.35),
   },
-  { name: "1000m", formula: (time) => 0.08713 * Math.pow(305 - time, 1.85) },
+  { name: "1000m", formula: (time) => 0.08713 * Math.pow(305.5 - time, 1.85) },
+];
+
+// Specific placeholders for each event
+const HEPTATHLON_PLACEHOLDERS = [
+  "6.79", // 60m
+  "8.16", // Long Jump
+  "14.56", // Shot Put
+  "2.03", // High Jump
+  "7.68", // 60m Hurdles
+  "5.20", // Pole Vault
+  "2:32.77", // 1000m
 ];
 
 // Convert time string (mm:ss.ms) to seconds
 const convertTimeToSeconds = (timeStr) => {
   if (!timeStr) return 0;
 
-  // Handle decimal format (backward compatibility)
-  if (timeStr.includes(".")) {
-    return parseFloat(timeStr);
-  }
+  // Ensure any commas are converted to decimal points
+  timeStr = timeStr.replace(",", ".");
 
-  // Handle mm:ss.ms format
   const parts = timeStr.split(":");
+
   if (parts.length === 2) {
-    const [minutes, seconds] = parts;
-    return parseFloat(minutes) * 60 + parseFloat(seconds);
+    // This handles "mm:ss.ms" or "mm:ss" formats
+    const minutes = parseFloat(parts[0]);
+    const secondsAndMs = parseFloat(parts[1]);
+
+    // Basic validation: ensure minutes and seconds are valid numbers
+    if (isNaN(minutes) || isNaN(secondsAndMs)) {
+      return 0;
+    }
+
+    return minutes * 60 + secondsAndMs;
+  } else if (parts.length === 1 && !isNaN(parseFloat(parts[0]))) {
+    // This handles cases where only seconds (with or without milliseconds) are entered, like "32.11"
+    return parseFloat(parts[0]);
   }
 
-  return 0;
+  return 0; // Return 0 for any other invalid format
 };
 
 export default function MenHeptathlonScreen() {
@@ -65,7 +85,7 @@ export default function MenHeptathlonScreen() {
       // Convert time to seconds for 1000m
       const inputValue =
         index === 6 ? convertTimeToSeconds(value) : parseFloat(value);
-      return Math.round(event.formula(inputValue));
+      return Math.floor(event.formula(inputValue));
     } catch (error) {
       return 0;
     }
@@ -73,7 +93,12 @@ export default function MenHeptathlonScreen() {
 
   const handleInputChange = (text, index) => {
     // Convert comma to decimal point
-    const formattedText = text.replace(",", ".");
+    let formattedText = text.replace(",", ".");
+
+    // For 1000m, restrict input to numbers, ":", and "."
+    if (index === 6) {
+      formattedText = formattedText.replace(/[^0-9.:]/g, "");
+    }
 
     const newResults = [...results];
     newResults[index] = formattedText;
@@ -107,15 +132,15 @@ export default function MenHeptathlonScreen() {
             value={results[index]}
             onChangeText={(text) => handleInputChange(text, index)}
             keyboardType={is1000m ? "numbers-and-punctuation" : "decimal-pad"}
-            placeholder={is1000m ? "mm:ss.ms" : "Enter result"}
+            placeholder={
+              is1000m
+                ? HEPTATHLON_PLACEHOLDERS[index]
+                : HEPTATHLON_PLACEHOLDERS[index]
+            }
+            placeholderTextColor="#888"
           />
           <Text style={styles.points}>{points[index]} pts</Text>
         </View>
-        {is1000m && (
-          <Text style={styles.helperText}>
-            Enter time as mm:ss.ms (e.g., 2:30.45)
-          </Text>
-        )}
       </View>
     );
   };
@@ -234,11 +259,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-  },
-  helperText: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 5,
-    fontStyle: "italic",
   },
 });
