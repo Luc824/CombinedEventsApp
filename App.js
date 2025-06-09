@@ -7,6 +7,8 @@ import MenScreen from "./screens/MenScreen";
 import WomenScreen from "./screens/WomenScreen";
 import DecathlonScreen from "./screens/DecathlonScreen";
 import MenHeptathlonScreen from "./screens/MenHeptathlonScreen";
+import WomenHeptathlonScreen from "./screens/WomenHeptathlonScreen";
+import WomenPentathlonScreen from "./screens/WomenPentathlonScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +65,28 @@ export default function App() {
           component={MenHeptathlonScreen}
           options={{
             title: "Men's Heptathlon Calculator",
+            headerStyle: {
+              backgroundColor: "#2196F3",
+            },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="WomenHeptathlon"
+          component={WomenHeptathlonScreen}
+          options={{
+            title: "Women's Heptathlon Calculator",
+            headerStyle: {
+              backgroundColor: "#2196F3",
+            },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="WomenPentathlon"
+          component={WomenPentathlonScreen}
+          options={{
+            title: "Women's Pentathlon Calculator",
             headerStyle: {
               backgroundColor: "#2196F3",
             },

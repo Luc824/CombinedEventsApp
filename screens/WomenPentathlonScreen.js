@@ -9,82 +9,73 @@ import {
   Platform,
 } from "react-native";
 
-// Men's Heptathlon events with their formulas
-const HEPTATHLON_EVENTS = [
-  { name: "60m", formula: (time) => 58.015 * Math.pow(11.5 - time, 1.81) },
+// Women's Pentathlon events with their formulas
+const WOMEN_PENTATHLON_EVENTS = [
   {
-    name: "Long Jump",
-    formula: (distance) => 0.14354 * Math.pow(distance * 100 - 220, 1.4),
-  },
-  {
-    name: "Shot Put",
-    formula: (distance) => 51.39 * Math.pow(distance - 1.5, 1.05),
+    name: "60m Hurdles",
+    formula: (time) => 20.0479 * Math.pow(17.0 - time, 1.835),
   },
   {
     name: "High Jump",
-    formula: (height) => 0.8465 * Math.pow(height * 100 - 75, 1.42),
+    formula: (height) => 1.84523 * Math.pow(height - 75, 1.348),
   },
   {
-    name: "60m Hurdles",
-    formula: (time) => 20.5173 * Math.pow(15.5 - time, 1.92),
+    name: "Shot Put",
+    formula: (distance) => 56.0211 * Math.pow(distance - 1.5, 1.05),
   },
   {
-    name: "Pole Vault",
-    formula: (height) => 0.2797 * Math.pow(height * 100 - 100, 1.35),
+    name: "Long Jump",
+    formula: (distance) => 0.188807 * Math.pow(distance - 210, 1.41),
   },
-  { name: "1000m", formula: (time) => 0.08713 * Math.pow(305.5 - time, 1.85) },
+  { name: "800m", formula: (time) => 0.11193 * Math.pow(254 - time, 1.88) },
 ];
 
 // Specific placeholders for each event
-const HEPTATHLON_PLACEHOLDERS = [
-  "6.79", // 60m
-  "8.16", // Long Jump
-  "14.56", // Shot Put
-  "2.03", // High Jump
-  "7.68", // 60m Hurdles
-  "5.20", // Pole Vault
-  "2:32.77", // 1000m
+const PENTATHLON_PLACEHOLDERS = [
+  "8.23", // 60m Hurdles
+  "1.92", // High Jump (meters)
+  "15.54", // Shot Put (meters)
+  "6.59", // Long Jump (meters)
+  "2:13.60", // 800m
 ];
 
 // Convert time string (mm:ss.ms) to seconds
 const convertTimeToSeconds = (timeStr) => {
   if (!timeStr) return 0;
-
-  // Ensure any commas are converted to decimal points
-  timeStr = timeStr.replace(",", ".");
+  timeStr = timeStr.replace(",", "."); // Ensure any commas are converted to decimal points
 
   const parts = timeStr.split(":");
 
   if (parts.length === 2) {
-    // This handles "mm:ss.ms" or "mm:ss" formats
     const minutes = parseFloat(parts[0]);
     const secondsAndMs = parseFloat(parts[1]);
-
-    // Basic validation: ensure minutes and seconds are valid numbers
-    if (isNaN(minutes) || isNaN(secondsAndMs)) {
-      return 0;
-    }
-
+    if (isNaN(minutes) || isNaN(secondsAndMs)) return 0;
     return minutes * 60 + secondsAndMs;
   } else if (parts.length === 1 && !isNaN(parseFloat(parts[0]))) {
-    // This handles cases where only seconds (with or without milliseconds) are entered, like "32.11"
     return parseFloat(parts[0]);
   }
-
-  return 0; // Return 0 for any other invalid format
+  return 0;
 };
 
-export default function MenHeptathlonScreen() {
-  const [results, setResults] = useState(Array(7).fill(""));
-  const [points, setPoints] = useState(Array(7).fill(0));
+export default function WomenPentathlonScreen() {
+  const [results, setResults] = useState(Array(5).fill(""));
+  const [points, setPoints] = useState(Array(5).fill(0));
 
   const calculatePoints = (value, index) => {
     if (!value) return 0;
-    const event = HEPTATHLON_EVENTS[index];
+    const event = WOMEN_PENTATHLON_EVENTS[index];
+    let inputValue = parseFloat(value);
+
     try {
-      // Convert time to seconds for 1000m
-      const inputValue =
-        index === 6 ? convertTimeToSeconds(value) : parseFloat(value);
+      // Handle specific input types for formulas
+      if (event.name === "60m Hurdles" || event.name === "800m") {
+        inputValue = convertTimeToSeconds(value);
+      } else if (event.name === "High Jump" || event.name === "Long Jump") {
+        // Convert meters to centimeters for jumping event formulas
+        inputValue = parseFloat(value) * 100;
+      }
+      // For Shot Put, value is already in meters, which is correct for formula
+
       return Math.floor(event.formula(inputValue));
     } catch (error) {
       return 0;
@@ -92,11 +83,11 @@ export default function MenHeptathlonScreen() {
   };
 
   const handleInputChange = (text, index) => {
-    // Convert comma to decimal point
     let formattedText = text.replace(",", ".");
+    const eventName = WOMEN_PENTATHLON_EVENTS[index].name;
 
-    // For 1000m, restrict input to numbers, ":", and "."
-    if (index === 6) {
+    // Restrict input for time events to numbers, ":", and "."
+    if (eventName === "60m Hurdles" || eventName === "800m") {
       formattedText = formattedText.replace(/[^0-9.:]/g, "");
     }
 
@@ -109,20 +100,16 @@ export default function MenHeptathlonScreen() {
     setPoints(newPoints);
   };
 
-  const getDay1Total = () => {
-    return points.slice(0, 4).reduce((sum, point) => sum + point, 0);
-  };
-
-  const getDay2Total = () => {
-    return points.slice(4, 7).reduce((sum, point) => sum + point, 0);
-  };
-
   const getTotalPoints = () => {
     return points.reduce((sum, point) => sum + point, 0);
   };
 
   const renderEventInput = (event, index) => {
-    const is1000m = index === 6;
+    const isTimeEvent = event.name === "60m Hurdles" || event.name === "800m";
+
+    // Determine placeholder text
+    let placeholderText = PENTATHLON_PLACEHOLDERS[index];
+
     return (
       <View key={index} style={styles.eventContainer}>
         <Text style={styles.eventName}>{event.name}</Text>
@@ -131,12 +118,10 @@ export default function MenHeptathlonScreen() {
             style={styles.input}
             value={results[index]}
             onChangeText={(text) => handleInputChange(text, index)}
-            keyboardType={is1000m ? "numbers-and-punctuation" : "decimal-pad"}
-            placeholder={
-              is1000m
-                ? HEPTATHLON_PLACEHOLDERS[index]
-                : HEPTATHLON_PLACEHOLDERS[index]
+            keyboardType={
+              isTimeEvent ? "numbers-and-punctuation" : "decimal-pad"
             }
+            placeholder={placeholderText}
             placeholderTextColor="#888"
           />
           <Text style={styles.points}>{points[index]} pts</Text>
@@ -151,25 +136,12 @@ export default function MenHeptathlonScreen() {
       style={styles.container}
     >
       <ScrollView style={styles.scrollView}>
-        <Text style={styles.title}>Men's Heptathlon Calculator</Text>
+        <Text style={styles.title}>Women's Pentathlon Calculator</Text>
 
-        {/* Day 1 Events */}
-        <Text style={styles.dayTitle}>Day 1</Text>
-        {HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
+        {/* Events */}
+        {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
           renderEventInput(event, index)
         )}
-        <Text style={styles.dayTotal}>
-          Day 1 Total: {getDay1Total()} points
-        </Text>
-
-        {/* Day 2 Events */}
-        <Text style={styles.dayTitle}>Day 2</Text>
-        {HEPTATHLON_EVENTS.slice(4, 7).map((event, index) =>
-          renderEventInput(event, index + 4)
-        )}
-        <Text style={styles.dayTotal}>
-          Day 2 Total: {getDay2Total()} points
-        </Text>
 
         {/* Total Score */}
         <View style={styles.totalContainer}>
@@ -185,7 +157,7 @@ export default function MenHeptathlonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#fff",
   },
   scrollView: {
     flex: 1,
@@ -194,20 +166,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#2196F3",
     marginBottom: 20,
     textAlign: "center",
   },
   dayTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#333",
     marginTop: 20,
     marginBottom: 10,
   },
   eventContainer: {
     marginBottom: 15,
-    backgroundColor: "#282828",
+    backgroundColor: "#f5f5f5",
     padding: 15,
     borderRadius: 10,
   },
@@ -215,7 +187,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#fff",
+    color: "#333",
   },
   inputContainer: {
     flexDirection: "row",
@@ -226,25 +198,24 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderWidth: 1,
-    borderColor: "transparent",
+    borderColor: "#ddd",
     borderRadius: 5,
     paddingHorizontal: 10,
-    backgroundColor: "#282828",
+    backgroundColor: "#fff",
     marginRight: 10,
-    placeholderTextColor: "#888",
-    color: "#fff",
+    // Removed placeholderTextColor from here as it's a direct prop of TextInput
   },
   points: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#2196F3",
     minWidth: 80,
     textAlign: "right",
   },
   dayTotal: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#333",
     marginTop: 10,
     marginBottom: 20,
     textAlign: "right",
@@ -253,7 +224,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 40,
     padding: 20,
-    backgroundColor: "#333",
+    backgroundColor: "#2196F3",
     borderRadius: 10,
   },
   totalScore: {

@@ -193,7 +193,7 @@ export default function DecathlonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
   },
   scrollView: {
     flex: 1,
@@ -202,20 +202,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#2196F3",
+    color: "#fff",
     marginBottom: 20,
     textAlign: "center",
   },
   dayTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#fff",
     marginTop: 20,
     marginBottom: 10,
   },
   eventContainer: {
     marginBottom: 15,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#282828",
     padding: 15,
     borderRadius: 10,
   },
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#333",
+    color: "#fff",
   },
   inputContainer: {
     flexDirection: "row",
@@ -234,23 +234,25 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "transparent",
     borderRadius: 5,
     paddingHorizontal: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#282828",
     marginRight: 10,
+    placeholderTextColor: "#888",
+    color: "#fff",
   },
   points: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2196F3",
+    color: "#fff",
     minWidth: 80,
     textAlign: "right",
   },
   dayTotal: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: "#fff",
     marginTop: 10,
     marginBottom: 20,
     textAlign: "right",
@@ -259,7 +261,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 40,
     padding: 20,
-    backgroundColor: "#2196F3",
+    backgroundColor: "#333",
     borderRadius: 10,
   },
   totalScore: {
@@ -267,5 +269,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
+  },
+  helperText: {
+    fontSize: 12,
+    color: "#666",
+    fontStyle: "italic",
   },
 });

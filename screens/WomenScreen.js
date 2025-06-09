@@ -9,14 +9,14 @@ export default function WomenScreen({ navigation }) {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Heptathlon")}
+          onPress={() => navigation.navigate("WomenHeptathlon")}
         >
           <Text style={styles.buttonText}>Heptathlon</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("Pentathlon")}
+          onPress={() => navigation.navigate("WomenPentathlon")}
         >
           <Text style={styles.buttonText}>Pentathlon</Text>
         </TouchableOpacity>
