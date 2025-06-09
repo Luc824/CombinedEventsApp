@@ -37,13 +37,13 @@ const WOMEN_HEPTATHLON_EVENTS = [
 
 // Specific placeholders for each event
 const HEPTATHLON_PLACEHOLDERS = [
-  "13.85", // 100m Hurdles
-  "1.82", // High Jump (meters)
-  "17.07", // Shot Put (meters)
-  "23.80", // 200m
-  "6.48", // Long Jump (meters)
-  "57.18", // Javelin Throw (meters)
-  "2:07.63", // 800m
+  "12.69", // 100m Hurdles
+  "1.86", // High Jump (meters)
+  "15.80", // SHot Put (meters)
+  "22.56", // 200m
+  "7.27", // Long Jump (meters)
+  "45.66", // Javelin Throw (meters)
+  "2:08.51", // 800m
 ];
 
 // Convert time string (mm:ss.ms) to seconds
@@ -75,11 +75,7 @@ export default function WomenHeptathlonScreen() {
 
     try {
       // Handle specific input types for formulas
-      if (
-        event.name === "100m Hurdles" ||
-        event.name === "200m" ||
-        event.name === "800m"
-      ) {
+      if (event.name === "800m") {
         inputValue = convertTimeToSeconds(value);
       } else if (event.name === "High Jump" || event.name === "Long Jump") {
         // Convert meters to centimeters for jumping event formulas
@@ -98,11 +94,7 @@ export default function WomenHeptathlonScreen() {
     const eventName = WOMEN_HEPTATHLON_EVENTS[index].name;
 
     // Restrict input for time events to numbers, ":", and "."
-    if (
-      eventName === "100m Hurdles" ||
-      eventName === "200m" ||
-      eventName === "800m"
-    ) {
+    if (eventName === "800m") {
       formattedText = formattedText.replace(/[^0-9.:]/g, "");
     }
 
@@ -128,10 +120,7 @@ export default function WomenHeptathlonScreen() {
   };
 
   const renderEventInput = (event, index) => {
-    const isTimeEvent =
-      event.name === "100m Hurdles" ||
-      event.name === "200m" ||
-      event.name === "800m";
+    const isTimeEvent = event.name === "800m";
 
     // Determine placeholder text
     let placeholderText = HEPTATHLON_PLACEHOLDERS[index];
@@ -139,19 +128,15 @@ export default function WomenHeptathlonScreen() {
     return (
       <View key={index} style={styles.eventContainer}>
         <Text style={styles.eventName}>{event.name}</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={results[index]}
-            onChangeText={(text) => handleInputChange(text, index)}
-            keyboardType={
-              isTimeEvent ? "numbers-and-punctuation" : "decimal-pad"
-            }
-            placeholder={placeholderText}
-            placeholderTextColor="#888"
-          />
-          <Text style={styles.points}>{points[index]} pts</Text>
-        </View>
+        <TextInput
+          style={styles.input}
+          value={results[index]}
+          onChangeText={(text) => handleInputChange(text, index)}
+          keyboardType={isTimeEvent ? "numbers-and-punctuation" : "decimal-pad"}
+          placeholder={placeholderText}
+          placeholderTextColor="#888"
+        />
+        <Text style={styles.points}>{points[index]} Points</Text>
       </View>
     );
   };
@@ -162,30 +147,34 @@ export default function WomenHeptathlonScreen() {
       style={styles.container}
     >
       <ScrollView style={styles.scrollView}>
-        <Text style={styles.title}>Women's Heptathlon Calculator</Text>
+        {/* <Text style={styles.title}>Women's Heptathlon Calculator</Text> */}
 
         {/* Day 1 Events */}
         <Text style={styles.dayTitle}>Day 1</Text>
         {WOMEN_HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
           renderEventInput(event, index)
         )}
-        <Text style={styles.dayTotal}>
-          Day 1 Total: {getDay1Total()} points
-        </Text>
+        <View style={styles.dayTotalContainer}>
+          <Text style={styles.dayTotalText}>
+            Day 1: {getDay1Total()} Points
+          </Text>
+        </View>
 
         {/* Day 2 Events */}
         <Text style={styles.dayTitle}>Day 2</Text>
         {WOMEN_HEPTATHLON_EVENTS.slice(4, 7).map((event, index) =>
           renderEventInput(event, index + 4)
         )}
-        <Text style={styles.dayTotal}>
-          Day 2 Total: {getDay2Total()} points
-        </Text>
+        <View style={styles.dayTotalContainer}>
+          <Text style={styles.dayTotalText}>
+            Day 2: {getDay2Total()} Points
+          </Text>
+        </View>
 
         {/* Total Score */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalScore}>
-            Total Score: {getTotalPoints()} points
+          <Text style={styles.totalScoreText}>
+            Total: {getTotalPoints()} Points
           </Text>
         </View>
       </ScrollView>
@@ -196,86 +185,88 @@ export default function WomenHeptathlonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
   },
   scrollView: {
     flex: 1,
-    padding: 20,
+    padding: 10, // Reduced padding
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#2196F3",
-    marginBottom: 20,
-    textAlign: "center",
+    // Removed as the title is now handled by navigation
+    // fontSize: 24,
+    // fontWeight: "bold",
+    // color: "#fff",
+    // marginBottom: 10,
+    // textAlign: "center",
   },
   dayTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
-    marginTop: 20,
-    marginBottom: 10,
+    color: "#fff",
+    marginTop: 10,
+    marginBottom: 5,
   },
   eventContainer: {
-    marginBottom: 15,
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
-  },
-  eventName: {
-    fontSize: 16,
-    fontWeight: "bold",
     marginBottom: 5,
-    color: "#333",
-  },
-  inputContainer: {
+    backgroundColor: "#282828",
+    padding: 8,
+    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
+  eventName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 10,
+    color: "#fff",
+    minWidth: 80,
+  },
+  inputContainer: {},
   input: {
     flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
+    height: 35,
+    borderWidth: 0,
+    borderRadius: 20,
     paddingHorizontal: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#333",
     marginRight: 10,
-    // Removed placeholderTextColor from here as it's a direct prop of TextInput
+    color: "#fff",
   },
   points: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2196F3",
+    color: "#fff",
     minWidth: 80,
     textAlign: "right",
   },
-  dayTotal: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginTop: 10,
-    marginBottom: 20,
-    textAlign: "right",
-  },
-  totalContainer: {
-    marginTop: 20,
-    marginBottom: 40,
-    padding: 20,
-    backgroundColor: "#2196F3",
+  dayTotalContainer: {
+    backgroundColor: "#282828",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderRadius: 10,
+    marginTop: 8,
+    marginBottom: 8,
+    alignItems: "center",
   },
-  totalScore: {
-    fontSize: 24,
+  dayTotalText: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
   },
-  helperText: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 5,
-    fontStyle: "italic",
+  totalContainer: {
+    marginTop: 8,
+    marginBottom: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "#282828",
+    borderRadius: 10,
+  },
+  totalScoreText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });

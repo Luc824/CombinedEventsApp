@@ -68,7 +68,7 @@ export default function WomenPentathlonScreen() {
 
     try {
       // Handle specific input types for formulas
-      if (event.name === "60m Hurdles" || event.name === "800m") {
+      if (event.name === "800m") {
         inputValue = convertTimeToSeconds(value);
       } else if (event.name === "High Jump" || event.name === "Long Jump") {
         // Convert meters to centimeters for jumping event formulas
@@ -87,7 +87,7 @@ export default function WomenPentathlonScreen() {
     const eventName = WOMEN_PENTATHLON_EVENTS[index].name;
 
     // Restrict input for time events to numbers, ":", and "."
-    if (eventName === "60m Hurdles" || eventName === "800m") {
+    if (eventName === "800m") {
       formattedText = formattedText.replace(/[^0-9.:]/g, "");
     }
 
@@ -105,7 +105,7 @@ export default function WomenPentathlonScreen() {
   };
 
   const renderEventInput = (event, index) => {
-    const isTimeEvent = event.name === "60m Hurdles" || event.name === "800m";
+    const isTimeEvent = event.name === "800m";
 
     // Determine placeholder text
     let placeholderText = PENTATHLON_PLACEHOLDERS[index];
@@ -113,19 +113,15 @@ export default function WomenPentathlonScreen() {
     return (
       <View key={index} style={styles.eventContainer}>
         <Text style={styles.eventName}>{event.name}</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={results[index]}
-            onChangeText={(text) => handleInputChange(text, index)}
-            keyboardType={
-              isTimeEvent ? "numbers-and-punctuation" : "decimal-pad"
-            }
-            placeholder={placeholderText}
-            placeholderTextColor="#888"
-          />
-          <Text style={styles.points}>{points[index]} pts</Text>
-        </View>
+        <TextInput
+          style={styles.input}
+          value={results[index]}
+          onChangeText={(text) => handleInputChange(text, index)}
+          keyboardType={isTimeEvent ? "numbers-and-punctuation" : "decimal-pad"}
+          placeholder={placeholderText}
+          placeholderTextColor="#888"
+        />
+        <Text style={styles.points}>{points[index]} Points</Text>
       </View>
     );
   };
@@ -136,7 +132,7 @@ export default function WomenPentathlonScreen() {
       style={styles.container}
     >
       <ScrollView style={styles.scrollView}>
-        <Text style={styles.title}>Women's Pentathlon Calculator</Text>
+        {/* <Text style={styles.title}>Women's Pentathlon Calculator</Text> */}
 
         {/* Events */}
         {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
@@ -145,8 +141,8 @@ export default function WomenPentathlonScreen() {
 
         {/* Total Score */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalScore}>
-            Total Score: {getTotalPoints()} points
+          <Text style={styles.totalScoreText}>
+            Total: {getTotalPoints()} Points
           </Text>
         </View>
       </ScrollView>
@@ -157,86 +153,67 @@ export default function WomenPentathlonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
   },
   scrollView: {
     flex: 1,
-    padding: 20,
+    padding: 10, // Reduced padding
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#2196F3",
-    marginBottom: 20,
-    textAlign: "center",
+    // Removed as the title is now handled by navigation
+    // fontSize: 24,
+    // fontWeight: "bold",
+    // color: "#fff",
+    // marginBottom: 10,
+    // textAlign: "center",
   },
-  dayTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginTop: 20,
-    marginBottom: 10,
-  },
+  dayTitle: {},
   eventContainer: {
-    marginBottom: 15,
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 10,
-  },
-  eventName: {
-    fontSize: 16,
-    fontWeight: "bold",
     marginBottom: 5,
-    color: "#333",
-  },
-  inputContainer: {
+    backgroundColor: "#282828",
+    padding: 8,
+    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
+  eventName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 10,
+    color: "#fff",
+    minWidth: 80,
+  },
+  inputContainer: {},
   input: {
     flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
+    height: 35,
+    borderWidth: 0,
+    borderRadius: 20,
     paddingHorizontal: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#333",
     marginRight: 10,
-    // Removed placeholderTextColor from here as it's a direct prop of TextInput
+    color: "#fff",
   },
   points: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2196F3",
+    color: "#fff",
     minWidth: 80,
     textAlign: "right",
   },
-  dayTotal: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginTop: 10,
-    marginBottom: 20,
-    textAlign: "right",
-  },
   totalContainer: {
-    marginTop: 20,
-    marginBottom: 40,
-    padding: 20,
-    backgroundColor: "#2196F3",
+    marginTop: 8,
+    marginBottom: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "#282828",
     borderRadius: 10,
   },
-  totalScore: {
-    fontSize: 24,
+  totalScoreText: {
+    fontSize: 22,
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-  },
-  helperText: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 5,
-    fontStyle: "italic",
   },
 });

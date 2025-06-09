@@ -28,7 +28,7 @@ export default function WomenScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     alignItems: "center",
     padding: 20,
   },
@@ -37,11 +37,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 40,
     marginBottom: 10,
-    color: "#2196F3",
+    color: "#fff",
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
+    color: "#ccc",
     marginBottom: 40,
     textAlign: "center",
   },
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   button: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#333",
     padding: 15,
     borderRadius: 10,
     width: "100%",

@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Combined Events Calculator</Text>
+      <Text style={styles.title}>Combined Events Calculator</Text>
       <Text style={styles.subtitle}>
         Calculate your points for combined events
       </Text>
@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     alignItems: "center",
     padding: 20,
   },
@@ -39,11 +39,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 40,
     marginBottom: 10,
-    color: "#2196F3",
+    color: "#fff",
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
+    color: "#ccc",
     marginBottom: 40,
     textAlign: "center",
   },
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   button: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#333",
     padding: 15,
     borderRadius: 10,
     width: "100%",

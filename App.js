@@ -22,7 +22,7 @@ export default function App() {
           options={{
             title: "Combined Events Calculator",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
@@ -33,7 +33,7 @@ export default function App() {
           options={{
             title: "Men's Events",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
@@ -44,7 +44,7 @@ export default function App() {
           options={{
             title: "Women's Events",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
@@ -55,7 +55,7 @@ export default function App() {
           options={{
             title: "Decathlon Calculator",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
@@ -66,7 +66,7 @@ export default function App() {
           options={{
             title: "Men's Heptathlon Calculator",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
@@ -77,7 +77,7 @@ export default function App() {
           options={{
             title: "Women's Heptathlon Calculator",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
@@ -88,7 +88,7 @@ export default function App() {
           options={{
             title: "Women's Pentathlon Calculator",
             headerStyle: {
-              backgroundColor: "#2196F3",
+              backgroundColor: "#1a1a1a",
             },
             headerTintColor: "#fff",
           }}
