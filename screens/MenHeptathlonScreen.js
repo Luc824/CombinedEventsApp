@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
 // Men's Heptathlon events with their formulas
 const HEPTATHLON_EVENTS = [
@@ -92,12 +93,34 @@ export default function MenHeptathlonScreen() {
   };
 
   const handleInputChange = (text, index) => {
-    // Convert comma to decimal point
     let formattedText = text.replace(",", ".");
+    const eventName = HEPTATHLON_EVENTS[index].name;
 
-    // For 1000m, restrict input to numbers, ":", and "."
-    if (index === 6) {
-      formattedText = formattedText.replace(/[^0-9.:]/g, "");
+    // Handle 1000m special case
+    if (eventName === "1000m") {
+      // Remove any non-numeric characters
+      formattedText = formattedText.replace(/[^0-9]/g, "");
+
+      // If we have input, format it as mm:ss.ms
+      if (formattedText.length > 0) {
+        // Format as mm:ss.ms
+        const minutes = formattedText.slice(0, -4);
+        const seconds = formattedText.slice(-4, -2);
+        const milliseconds = formattedText.slice(-2);
+        formattedText = `${minutes}:${seconds}.${milliseconds}`;
+      }
+    } else {
+      // For all other events, handle decimal point formatting
+      // Remove any non-numeric characters
+      formattedText = formattedText.replace(/[^0-9]/g, "");
+
+      // If we have input, format it with decimal point
+      if (formattedText.length > 0) {
+        // Insert decimal point 2 places from the right
+        const beforeDecimal = formattedText.slice(0, -2);
+        const afterDecimal = formattedText.slice(-2);
+        formattedText = beforeDecimal + "." + afterDecimal;
+      }
     }
 
     const newResults = [...results];
@@ -121,8 +144,21 @@ export default function MenHeptathlonScreen() {
     return points.reduce((sum, point) => sum + point, 0);
   };
 
+  const getResultScore = () => {
+    const totalPoints = getTotalPoints();
+    const scores = Object.keys(worldAthleticsScores.menHeptathlon).map(Number);
+    const closestLowerScore = scores
+      .filter((score) => score <= totalPoints)
+      .sort((a, b) => b - a)[0];
+    return closestLowerScore
+      ? worldAthleticsScores.menHeptathlon[closestLowerScore]
+      : "0";
+  };
+
   const renderEventInput = (event, index) => {
-    const is1000m = index === 6;
+    // Determine placeholder text
+    let placeholderText = HEPTATHLON_PLACEHOLDERS[index];
+
     return (
       <View key={index} style={styles.eventContainer}>
         <Text style={styles.eventName}>{event.name}</Text>
@@ -130,8 +166,8 @@ export default function MenHeptathlonScreen() {
           style={styles.input}
           value={results[index]}
           onChangeText={(text) => handleInputChange(text, index)}
-          keyboardType={is1000m ? "numbers-and-punctuation" : "decimal-pad"}
-          placeholder={HEPTATHLON_PLACEHOLDERS[index]}
+          keyboardType="decimal-pad"
+          placeholder={placeholderText}
           placeholderTextColor="#888"
         />
         <Text style={styles.points}>{points[index]} Points</Text>
@@ -171,8 +207,9 @@ export default function MenHeptathlonScreen() {
 
         {/* Total Score */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalScoreText}>
-            Total: {getTotalPoints()} Points
+          <Text style={styles.totalText}>Total Points: {getTotalPoints()}</Text>
+          <Text style={styles.resultScoreText}>
+            Result Score: {getResultScore()}
           </Text>
         </View>
       </ScrollView>
@@ -254,18 +291,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   totalContainer: {
-    marginTop: 8,
-    marginBottom: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    backgroundColor: "#282828",
+    padding: 20,
+    backgroundColor: "#333",
+    marginTop: 20,
+    marginBottom: 20,
     borderRadius: 10,
   },
-  totalScoreText: {
-    fontSize: 22,
-    fontWeight: "bold",
+  totalText: {
     color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
     textAlign: "center",
+  },
+  resultScoreText: {
+    color: "#fff",
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: 10,
   },
   helperText: {},
 });
