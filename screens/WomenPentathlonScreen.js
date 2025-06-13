@@ -175,7 +175,9 @@ export default function WomenPentathlonScreen() {
 
         {/* Total Score */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total Points: {getTotalPoints()}</Text>
+          <Text style={styles.totalText}>
+            Total Score: {getTotalPoints()} Points
+          </Text>
           <Text style={styles.resultScoreText}>
             Result Score: {getResultScore()}
           </Text>
@@ -204,9 +206,9 @@ const styles = StyleSheet.create({
   },
   dayTitle: {},
   eventContainer: {
-    marginBottom: 5,
-    backgroundColor: "#282828",
-    padding: 8,
+    marginBottom: 2, // Reduced margin
+    backgroundColor: "transparent",
+    padding: 4, // Reduced padding
     borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
@@ -217,11 +219,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginRight: 10,
     color: "#fff",
-    minWidth: 80,
+    width: 110, // Fixed width for alignment
+    textAlign: "right",
   },
   inputContainer: {},
   input: {
-    flex: 1,
+    width: 90, // Fixed width for uniformity
     height: 35,
     borderWidth: 0,
     borderRadius: 20,
@@ -238,10 +241,10 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   totalContainer: {
-    padding: 20,
-    backgroundColor: "#333",
-    marginTop: 20,
-    marginBottom: 20,
+    padding: 10, // Reduced padding
+    backgroundColor: "transparent",
+    marginTop: 10, // Reduced margin
+    marginBottom: 10, // Reduced margin
     borderRadius: 10,
   },
   totalText: {

@@ -221,7 +221,9 @@ export default function DecathlonScreen() {
 
         {/* Total Score */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total Points: {getTotalPoints()}</Text>
+          <Text style={styles.totalText}>
+            Total Score: {getTotalPoints()} Points
+          </Text>
           <Text style={styles.resultScoreText}>
             Result Score: {getResultScore()}
           </Text>
@@ -256,9 +258,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   eventContainer: {
-    marginBottom: 5,
+    marginBottom: 2,
     backgroundColor: "transparent",
-    padding: 8,
+    padding: 4,
     borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
@@ -291,12 +293,12 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   dayTotalContainer: {
-    backgroundColor: "#282828",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    backgroundColor: "transparent",
+    paddingVertical: 4,
+    paddingHorizontal: 5,
     borderRadius: 10,
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 4,
     alignItems: "center",
   },
   dayTotalText: {
@@ -306,10 +308,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   totalContainer: {
-    padding: 20,
-    backgroundColor: "#333",
-    marginTop: 20,
-    marginBottom: 20,
+    padding: 10,
+    backgroundColor: "transparent",
+    marginTop: 10,
+    marginBottom: 10,
     borderRadius: 10,
   },
   totalText: {

@@ -1,5 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
+
+const TRACK_COLOR = "#D35400";
 
 export default function RankingsScreen({ navigation }) {
   const events = [
@@ -10,29 +19,34 @@ export default function RankingsScreen({ navigation }) {
   ];
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>World Rankings Calculator</Text>
-      <Text style={styles.subtitle}>
-        Select an event to calculate your result score:
-      </Text>
-      {events.map((event, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.button}
-          onPress={() => navigation.navigate(event.screen)}
-        >
-          <Text style={styles.buttonText}>{event.name}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <View style={styles.container}>
+        <Text style={styles.title}>World Rankings{"\n"}Calculator</Text>
+        {events.map((event, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.button}
+            onPress={() => navigation.navigate(event.screen)}
+          >
+            <Text style={styles.buttonText}>{event.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#000",
     padding: 20,
+    alignItems: "center",
   },
   title: {
     fontSize: 28,
@@ -40,23 +54,24 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     marginTop: 20,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#fff",
-    textAlign: "center",
     marginBottom: 30,
+    lineHeight: 34,
   },
   button: {
-    backgroundColor: "#333",
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 30,
+    width: "100%",
+    alignSelf: "center",
+    marginBottom: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
+    fontWeight: "bold",
     textAlign: "center",
   },
 });
