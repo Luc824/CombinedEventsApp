@@ -1,6 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
+
+const TRACK_COLOR = "#D35400";
 
 export default function DecathlonRankingScreen() {
   const [totalPoints, setTotalPoints] = useState("");
@@ -20,68 +29,73 @@ export default function DecathlonRankingScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Men's Decathlon</Text>
-      <Text style={styles.subtitle}>Enter your total points:</Text>
-
-      <TextInput
-        style={styles.input}
-        value={totalPoints}
-        onChangeText={setTotalPoints}
-        keyboardType="numeric"
-        placeholder="Enter total points"
-        placeholderTextColor="#666"
-      />
-
-      <View style={styles.resultContainer}>
-        <Text style={styles.resultLabel}>Result Score:</Text>
-        <Text style={styles.resultScore}>{getResultScore()}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <View style={styles.container}>
+        <Text style={styles.title}>Men's Decathlon</Text>
+        <TextInput
+          style={styles.input}
+          value={totalPoints}
+          onChangeText={setTotalPoints}
+          keyboardType="numeric"
+          placeholder="Enter total points"
+          placeholderTextColor="#aaa"
+        />
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultLabel}>Result Score</Text>
+          <Text style={styles.resultScore}>{getResultScore()}</Text>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#000",
     padding: 20,
+    alignItems: "center",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#fff",
-    textAlign: "center",
+    marginTop: 30,
     marginBottom: 30,
   },
   input: {
     backgroundColor: "#333",
     color: "#fff",
-    padding: 15,
-    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 30,
     fontSize: 18,
     marginBottom: 30,
+    width: "100%",
+    textAlign: "center",
   },
   resultContainer: {
-    backgroundColor: "#333",
-    padding: 20,
-    borderRadius: 10,
     alignItems: "center",
+    marginTop: 10,
+    backgroundColor: "transparent",
+    padding: 20,
+    borderRadius: 20,
+    width: "100%",
   },
   resultLabel: {
     color: "#fff",
     fontSize: 18,
     marginBottom: 10,
+    fontWeight: "bold",
   },
   resultScore: {
-    color: "#fff",
+    color: TRACK_COLOR,
     fontSize: 36,
     fontWeight: "bold",
   },
