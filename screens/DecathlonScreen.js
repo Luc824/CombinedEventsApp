@@ -108,21 +108,28 @@ export default function DecathlonScreen() {
     let formattedText = text.replace(",", ".");
     const eventName = DECATHLON_EVENTS[index].name;
 
-    // Handle 1500m special case
-    if (eventName === "1500m") {
+    // Handle time-based events (100m, 400m, 110m Hurdles, 1500m)
+    if (["100m", "400m", "110m Hurdles", "1500m"].includes(eventName)) {
       // Remove any non-numeric characters
       formattedText = formattedText.replace(/[^0-9]/g, "");
 
-      // If we have input, format it as mm:ss.ms
+      // If we have input, format it as mm:ss.ms or ss.ms
       if (formattedText.length > 0) {
-        // Format as mm:ss.ms
-        const minutes = formattedText.slice(0, -4);
-        const seconds = formattedText.slice(-4, -2);
-        const milliseconds = formattedText.slice(-2);
-        formattedText = `${minutes}:${seconds}.${milliseconds}`;
+        if (eventName === "1500m") {
+          // Format as mm:ss.ms
+          const minutes = formattedText.slice(0, -4);
+          const seconds = formattedText.slice(-4, -2);
+          const milliseconds = formattedText.slice(-2);
+          formattedText = `${minutes}:${seconds}.${milliseconds}`;
+        } else {
+          // Format as ss.ms
+          const seconds = formattedText.slice(0, -2);
+          const milliseconds = formattedText.slice(-2);
+          formattedText = `${seconds}.${milliseconds}`;
+        }
       }
     } else {
-      // For all other events, handle decimal point formatting
+      // For all other events (jumping and throwing), handle decimal point formatting
       // Remove any non-numeric characters
       formattedText = formattedText.replace(/[^0-9]/g, "");
 
@@ -168,10 +175,12 @@ export default function DecathlonScreen() {
   };
 
   const renderEventInput = (event, index) => {
-    const isTimeEvent = event.name === "1500m";
-
     // Determine placeholder text
     let placeholderText = PLACEHOLDERS[index];
+
+    // Determine maxLength based on event type
+    // Add 2 for decimal point and 1 for colon in time events
+    const maxLength = event.name === "1500m" ? 7 : 5;
 
     return (
       <View key={index} style={styles.eventContainer}>
@@ -183,6 +192,7 @@ export default function DecathlonScreen() {
           keyboardType="decimal-pad"
           placeholder={placeholderText}
           placeholderTextColor="#888"
+          maxLength={maxLength}
         />
         <Text style={styles.points}>{points[index]} Points</Text>
       </View>
@@ -284,12 +294,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
     marginRight: 10,
     color: "#fff",
+    fontSize: 16,
+    textAlign: "right",
   },
   points: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#fff",
-    minWidth: 80,
+    width: 110, // Changed from minWidth to fixed width to prevent shifting
     textAlign: "right",
   },
   dayTotalContainer: {

@@ -144,6 +144,10 @@ export default function WomenPentathlonScreen() {
     // Determine placeholder text
     let placeholderText = PENTATHLON_PLACEHOLDERS[index];
 
+    // Determine maxLength based on event type
+    // Add 2 for decimal point and 1 for colon in time events
+    const maxLength = event.name === "800m" ? 7 : 5;
+
     return (
       <View key={index} style={styles.eventContainer}>
         <Text style={styles.eventName}>{event.name}</Text>
@@ -154,6 +158,7 @@ export default function WomenPentathlonScreen() {
           keyboardType="decimal-pad"
           placeholder={placeholderText}
           placeholderTextColor="#888"
+          maxLength={maxLength}
         />
         <Text style={styles.points}>{points[index]} Points</Text>
       </View>
@@ -232,12 +237,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
     marginRight: 10,
     color: "#fff",
+    fontSize: 16,
+    textAlign: "right",
   },
   points: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#fff",
-    minWidth: 80,
+    width: 110,
     textAlign: "right",
   },
   totalContainer: {
