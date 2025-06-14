@@ -249,11 +249,11 @@ const styles = StyleSheet.create({
     // textAlign: "center",
   },
   dayTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
-    marginTop: 10,
-    marginBottom: 5,
+    textAlign: "center",
+    marginVertical: 10,
   },
   eventContainer: {
     marginBottom: 2, // Reduced margin

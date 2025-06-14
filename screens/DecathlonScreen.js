@@ -205,7 +205,7 @@ export default function DecathlonScreen() {
       style={styles.container}
     >
       <ScrollView style={styles.scrollView}>
-        {/* <Text style={styles.title}>Decathlon Calculator</Text> */}
+        {/* <Text style={styles.title}>Men's Decathlon Calculator</Text> */}
 
         {/* Day 1 Events */}
         <Text style={styles.dayTitle}>Day 1</Text>
@@ -261,11 +261,11 @@ const styles = StyleSheet.create({
     // textAlign: "center",
   },
   dayTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
-    marginTop: 10,
-    marginBottom: 5,
+    textAlign: "center",
+    marginVertical: 10,
   },
   eventContainer: {
     marginBottom: 2,
