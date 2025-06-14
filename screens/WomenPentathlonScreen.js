@@ -7,8 +7,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
+
+const TRACK_COLOR = "#D35400";
 
 // Women's Pentathlon events with their formulas
 const WOMEN_PENTATHLON_EVENTS = [
@@ -170,24 +174,26 @@ export default function WomenPentathlonScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView style={styles.scrollView}>
-        {/* <Text style={styles.title}>Women's Pentathlon Calculator</Text> */}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
+        <View style={styles.contentContainer}>
+          {/* <Text style={styles.title}>Women's Pentathlon Calculator</Text> */}
 
-        {/* Events */}
-        {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
-          renderEventInput(event, index)
-        )}
+          {/* Events */}
+          {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
+            renderEventInput(event, index)
+          )}
 
-        {/* Total Score */}
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>
-            Total Score: {getTotalPoints()} Points
-          </Text>
-          <Text style={styles.resultScoreText}>
-            Result Score: {getResultScore()}
-          </Text>
+          {/* Total Score */}
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>
+              Total Score: {getTotalPoints()} Points
+            </Text>
+            <Text style={styles.resultScoreText}>
+              Result Score: {getResultScore()}
+            </Text>
+          </View>
         </View>
-      </ScrollView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
@@ -196,74 +202,81 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+    paddingHorizontal: 10,
+    paddingTop: 50,
+    justifyContent: "flex-start",
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: "flex-start",
+    paddingTop: 0,
+    marginTop: 0,
   },
   scrollView: {
     flex: 1,
-    padding: 10, // Reduced padding
+    padding: 10,
   },
   title: {
     // Removed as the title is now handled by navigation
-    // fontSize: 24,
-    // fontWeight: "bold",
-    // color: "#fff",
-    // marginBottom: 10,
-    // textAlign: "center",
   },
-  dayTitle: {},
+  dayTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginVertical: 10,
+  },
   eventContainer: {
-    marginBottom: 2, // Reduced margin
-    backgroundColor: "transparent",
-    padding: 4, // Reduced padding
-    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 5,
+    backgroundColor: "#222",
+    borderRadius: 8,
+    padding: 6,
   },
   eventName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginRight: 10,
     color: "#fff",
-    width: 110, // Fixed width for alignment
-    textAlign: "right",
+    fontSize: 14,
+    flex: 1,
+    marginRight: 5,
   },
-  inputContainer: {},
   input: {
-    width: 90, // Fixed width for uniformity
-    height: 35,
+    width: 80,
+    height: 30,
     borderWidth: 0,
     borderRadius: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     backgroundColor: "#333",
-    marginRight: 10,
+    marginRight: 5,
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
     textAlign: "right",
   },
   points: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#fff",
-    width: 110,
+    width: 90,
     textAlign: "right",
   },
   totalContainer: {
-    padding: 10, // Reduced padding
-    backgroundColor: "transparent",
-    marginTop: 10, // Reduced margin
-    marginBottom: 10, // Reduced margin
+    marginTop: 10,
+    alignItems: "center",
+    paddingVertical: 10,
+    backgroundColor: "#1a1a1a",
     borderRadius: 10,
+    marginBottom: 20,
   },
   totalText: {
     color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
+    marginBottom: 5,
   },
   resultScoreText: {
-    color: "#fff",
-    fontSize: 20,
-    textAlign: "center",
-    marginTop: 10,
+    color: TRACK_COLOR,
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

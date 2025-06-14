@@ -200,12 +200,22 @@ const styles = StyleSheet.create({
     width: "100%",
     textAlign: "center",
   },
+  inputText: {
+    fontSize: 18,
+    color: "#fff",
+    textAlign: "center",
+  },
+  placeholderText: {
+    fontSize: 18,
+    color: "#aaa",
+    textAlign: "center",
+  },
   resultContainer: {
+    backgroundColor: "transparent",
+    borderRadius: 20,
     alignItems: "center",
     marginTop: 10,
-    backgroundColor: "transparent",
     padding: 20,
-    borderRadius: 20,
     width: "100%",
   },
   resultLabel: {
@@ -218,14 +228,6 @@ const styles = StyleSheet.create({
     color: TRACK_COLOR,
     fontSize: 36,
     fontWeight: "bold",
-  },
-  inputText: {
-    color: "#fff",
-    fontSize: 18,
-  },
-  placeholderText: {
-    color: "#aaa",
-    fontSize: 18,
   },
   centeredView: {
     flex: 1,
