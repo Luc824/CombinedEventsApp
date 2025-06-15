@@ -30,6 +30,7 @@ export default function App() {
             fontWeight: "bold",
           },
           headerTitle: "",
+          headerShadowVisible: false,
         }}
       >
         <Stack.Screen

@@ -6,10 +6,10 @@ import {
   TextInput,
   SafeAreaView,
   StatusBar,
-  ScrollView,
   Modal,
   Pressable,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
@@ -72,10 +72,7 @@ export default function WomenPentathlonRankingScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <ScrollView
-        contentContainerStyle={styles.scrollContentContainer}
-        keyboardShouldPersistTaps="handled"
-      >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <Text style={styles.title}>Women's Pentathlon</Text>
           <TextInput
@@ -119,7 +116,7 @@ export default function WomenPentathlonRankingScreen() {
             <Text style={styles.resultScore}>{performanceScore}</Text>
           </View>
         </View>
-      </ScrollView>
+      </TouchableWithoutFeedback>
 
       <Modal
         animationType="slide"
@@ -175,14 +172,6 @@ const styles = StyleSheet.create({
     padding: 0,
     alignItems: "center",
   },
-  scrollContentContainer: {
-    flexGrow: 1,
-    backgroundColor: "#000",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-    alignItems: "center",
-  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
@@ -199,7 +188,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     fontSize: 18,
     marginBottom: 30,
-    width: "100%",
+    width: 300,
     textAlign: "center",
   },
   inputText: {

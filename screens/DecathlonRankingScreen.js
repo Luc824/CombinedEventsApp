@@ -6,7 +6,6 @@ import {
   TextInput,
   SafeAreaView,
   StatusBar,
-  ScrollView,
   Modal,
   Pressable,
   TouchableOpacity,
@@ -80,10 +79,7 @@ export default function DecathlonRankingScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <ScrollView
-        contentContainerStyle={styles.scrollContentContainer}
-        keyboardShouldPersistTaps="handled"
-      >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <Text style={styles.title}>Men's Decathlon</Text>
           <TextInput
@@ -127,7 +123,7 @@ export default function DecathlonRankingScreen() {
             <Text style={styles.resultScore}>{performanceScore}</Text>
           </View>
         </View>
-      </ScrollView>
+      </TouchableWithoutFeedback>
 
       <Modal
         animationType="slide"
@@ -183,14 +179,6 @@ const styles = StyleSheet.create({
     padding: 0,
     alignItems: "center",
   },
-  scrollContentContainer: {
-    flexGrow: 1,
-    backgroundColor: "#000",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-    alignItems: "center",
-  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
@@ -207,7 +195,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     fontSize: 18,
     marginBottom: 30,
-    width: "100%",
+    width: 300,
     textAlign: "center",
   },
   inputText: {
@@ -287,5 +275,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
+  },
+  pickerDisplay: {
+    backgroundColor: "#333",
+    borderRadius: 30,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    marginBottom: 30,
+    width: 300,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pickerDisplayText: {
+    fontSize: 18,
+    color: "#fff",
   },
 });

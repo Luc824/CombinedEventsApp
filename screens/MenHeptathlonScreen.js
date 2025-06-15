@@ -9,6 +9,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -192,61 +194,68 @@ export default function MenHeptathlonScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-        <View style={styles.contentContainer}>
-          {/* <Text style={styles.title}>Men's Heptathlon Calculator</Text> */}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>Men's Heptathlon</Text>
 
-          {/* Day 1 Events */}
-          <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
-          {HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
-            renderEventInput(event, index)
-          )}
+            {/* Day 1 Events */}
+            <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
+            {HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
+              renderEventInput(event, index)
+            )}
 
-          {/* Day 2 Events */}
-          <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
-          {HEPTATHLON_EVENTS.slice(4, 7).map((event, index) =>
-            renderEventInput(event, index + 4)
-          )}
+            {/* Day 2 Events */}
+            <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
+            {HEPTATHLON_EVENTS.slice(4, 7).map((event, index) =>
+              renderEventInput(event, index + 4)
+            )}
 
-          {/* Total Score */}
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>
-              Total Score: {getTotalPoints()} Points
-            </Text>
-            <Text style={styles.resultScoreText}>
-              Result Score: {getResultScore()}
-            </Text>
+            {/* Total Score */}
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalText}>
+                Total Score: {getTotalPoints()} Points
+              </Text>
+              <Text style={styles.resultScoreText}>
+                Result Score: {getResultScore()}
+              </Text>
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 10,
-    paddingTop: 50, // Adjusted top padding for safe area
-    justifyContent: "flex-start",
   },
   contentContainer: {
-    flexGrow: 1,
-    justifyContent: "flex-start",
-    paddingTop: 0,
-    marginTop: 0,
-  },
-  scrollView: {
     flex: 1,
-    padding: 10,
+    paddingTop: 10,
   },
   title: {
-    // Removed as the title is now handled by navigation
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 20,
   },
   dayTitle: {
     fontSize: 22, // Adjusted font size

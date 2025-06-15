@@ -4,11 +4,12 @@ import {
   View,
   Text,
   TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -47,7 +48,7 @@ const PENTATHLON_PLACEHOLDERS = [
 // Convert time string (mm:ss.ms) to seconds
 const convertTimeToSeconds = (timeStr) => {
   if (!timeStr) return 0;
-  timeStr = timeStr.replace(",", "."); // Ensure any commas are converted to decimal points
+  timeStr = timeStr.replace(",", ".");
 
   const parts = timeStr.split(":");
 
@@ -72,14 +73,11 @@ export default function WomenPentathlonScreen() {
     let inputValue = parseFloat(value);
 
     try {
-      // Handle specific input types for formulas
       if (event.name === "800m") {
         inputValue = convertTimeToSeconds(value);
       } else if (event.name === "High Jump" || event.name === "Long Jump") {
-        // Convert meters to centimeters for jumping event formulas
         inputValue = parseFloat(value) * 100;
       }
-      // For Shot Put, value is already in meters, which is correct for formula
 
       return Math.floor(event.formula(inputValue));
     } catch (error) {
@@ -91,27 +89,19 @@ export default function WomenPentathlonScreen() {
     let formattedText = text.replace(",", ".");
     const eventName = WOMEN_PENTATHLON_EVENTS[index].name;
 
-    // Handle 800m special case
     if (eventName === "800m") {
-      // Remove any non-numeric characters
       formattedText = formattedText.replace(/[^0-9]/g, "");
 
-      // If we have input, format it as mm:ss.ms
       if (formattedText.length > 0) {
-        // Format as mm:ss.ms
         const minutes = formattedText.slice(0, -4);
         const seconds = formattedText.slice(-4, -2);
         const milliseconds = formattedText.slice(-2);
         formattedText = `${minutes}:${seconds}.${milliseconds}`;
       }
     } else {
-      // For all other events, handle decimal point formatting
-      // Remove any non-numeric characters
       formattedText = formattedText.replace(/[^0-9]/g, "");
 
-      // If we have input, format it with decimal point
       if (formattedText.length > 0) {
-        // Insert decimal point 2 places from the right
         const beforeDecimal = formattedText.slice(0, -2);
         const afterDecimal = formattedText.slice(-2);
         formattedText = beforeDecimal + "." + afterDecimal;
@@ -145,11 +135,8 @@ export default function WomenPentathlonScreen() {
   };
 
   const renderEventInput = (event, index) => {
-    // Determine placeholder text
     let placeholderText = PENTATHLON_PLACEHOLDERS[index];
 
-    // Determine maxLength based on event type
-    // Add 2 for decimal point and 1 for colon in time events
     const maxLength = event.name === "800m" ? 7 : 5;
 
     return (
@@ -170,54 +157,61 @@ export default function WomenPentathlonScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-        <View style={styles.contentContainer}>
-          {/* <Text style={styles.title}>Women's Pentathlon Calculator</Text> */}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>Women's Pentathlon</Text>
 
-          {/* Events */}
-          {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
-            renderEventInput(event, index)
-          )}
+            {/* Events */}
+            {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
+              renderEventInput(event, index)
+            )}
 
-          {/* Total Score */}
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>
-              Total Score: {getTotalPoints()} Points
-            </Text>
-            <Text style={styles.resultScoreText}>
-              Result Score: {getResultScore()}
-            </Text>
+            {/* Total Score */}
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalText}>
+                Total Score: {getTotalPoints()} Points
+              </Text>
+              <Text style={styles.resultScoreText}>
+                Result Score: {getResultScore()}
+              </Text>
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 10,
-    paddingTop: 50,
-    justifyContent: "flex-start",
   },
   contentContainer: {
-    flexGrow: 1,
-    justifyContent: "flex-start",
-    paddingTop: 0,
-    marginTop: 0,
-  },
-  scrollView: {
     flex: 1,
-    padding: 10,
+    paddingTop: 10,
   },
   title: {
-    // Removed as the title is now handled by navigation
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 20,
   },
   dayTitle: {
     fontSize: 22,

@@ -8,6 +8,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -65,29 +67,17 @@ const PLACEHOLDERS = [
 // Convert time string (mm:ss.ms) to seconds
 const convertTimeToSeconds = (timeStr) => {
   if (!timeStr) return 0;
-
-  // Ensure any commas are converted to decimal points
   timeStr = timeStr.replace(",", ".");
-
   const parts = timeStr.split(":");
-
   if (parts.length === 2) {
-    // This handles "mm:ss.ms" or "mm:ss" formats
     const minutes = parseFloat(parts[0]);
     const secondsAndMs = parseFloat(parts[1]);
-
-    // Basic validation: ensure minutes and seconds are valid numbers
-    if (isNaN(minutes) || isNaN(secondsAndMs)) {
-      return 0;
-    }
-
+    if (isNaN(minutes) || isNaN(secondsAndMs)) return 0;
     return minutes * 60 + secondsAndMs;
   } else if (parts.length === 1 && !isNaN(parseFloat(parts[0]))) {
-    // This handles cases where only seconds (with or without milliseconds) are entered, like "32.11"
     return parseFloat(parts[0]);
   }
-
-  return 0; // Return 0 for any other invalid format
+  return 0;
 };
 
 export default function DecathlonScreen() {
@@ -98,7 +88,6 @@ export default function DecathlonScreen() {
     if (!value) return 0;
     const event = DECATHLON_EVENTS[index];
     try {
-      // Convert time to seconds for 1500m
       const inputValue =
         index === 9 ? convertTimeToSeconds(value) : parseFloat(value);
       return Math.floor(event.formula(inputValue));
@@ -111,34 +100,23 @@ export default function DecathlonScreen() {
     let formattedText = text.replace(",", ".");
     const eventName = DECATHLON_EVENTS[index].name;
 
-    // Handle time-based events (100m, 400m, 110m Hurdles, 1500m)
     if (["100m", "400m", "110m Hurdles", "1500m"].includes(eventName)) {
-      // Remove any non-numeric characters
       formattedText = formattedText.replace(/[^0-9]/g, "");
-
-      // If we have input, format it as mm:ss.ms or ss.ms
       if (formattedText.length > 0) {
         if (eventName === "1500m") {
-          // Format as mm:ss.ms
           const minutes = formattedText.slice(0, -4);
           const seconds = formattedText.slice(-4, -2);
           const milliseconds = formattedText.slice(-2);
           formattedText = `${minutes}:${seconds}.${milliseconds}`;
         } else {
-          // Format as ss.ms
           const seconds = formattedText.slice(0, -2);
           const milliseconds = formattedText.slice(-2);
           formattedText = `${seconds}.${milliseconds}`;
         }
       }
     } else {
-      // For all other events (jumping and throwing), handle decimal point formatting
-      // Remove any non-numeric characters
       formattedText = formattedText.replace(/[^0-9]/g, "");
-
-      // If we have input, format it with decimal point
       if (formattedText.length > 0) {
-        // Insert decimal point 2 places from the right
         const beforeDecimal = formattedText.slice(0, -2);
         const afterDecimal = formattedText.slice(-2);
         formattedText = beforeDecimal + "." + afterDecimal;
@@ -178,11 +156,7 @@ export default function DecathlonScreen() {
   };
 
   const renderEventInput = (event, index) => {
-    // Determine placeholder text
     let placeholderText = PLACEHOLDERS[index];
-
-    // Determine maxLength based on event type
-    // Add 2 for decimal point and 1 for colon in time events
     const maxLength = event.name === "1500m" ? 7 : 5;
 
     return (
@@ -203,57 +177,68 @@ export default function DecathlonScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-        <View style={styles.contentContainer}>
-          {/* <Text style={styles.title}>Men's Decathlon Calculator</Text> */}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>Men's Decathlon</Text>
 
-          {/* Day 1 Events */}
-          <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
-          {DECATHLON_EVENTS.slice(0, 5).map((event, index) =>
-            renderEventInput(event, index)
-          )}
+            {/* Day 1 Events */}
+            <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
+            {DECATHLON_EVENTS.slice(0, 5).map((event, index) =>
+              renderEventInput(event, index)
+            )}
 
-          {/* Day 2 Events */}
-          <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
-          {DECATHLON_EVENTS.slice(5).map((event, index) =>
-            renderEventInput(event, index + 5)
-          )}
+            {/* Day 2 Events */}
+            <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
+            {DECATHLON_EVENTS.slice(5).map((event, index) =>
+              renderEventInput(event, index + 5)
+            )}
 
-          {/* Total Score */}
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>
-              Total Score: {getTotalPoints()} Points
-            </Text>
-            <Text style={styles.resultScoreText}>
-              Result Score: {getResultScore()}
-            </Text>
+            {/* Total Score */}
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalText}>
+                Total Score: {getTotalPoints()} Points
+              </Text>
+              <Text style={styles.resultScoreText}>
+                Result Score: {getResultScore()}
+              </Text>
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 10,
-    paddingTop: 50,
-    justifyContent: "flex-start",
   },
   contentContainer: {
-    flexGrow: 1,
-    justifyContent: "flex-start",
-    paddingTop: 0,
-    marginTop: 0,
+    flex: 1,
+    paddingTop: 10,
   },
   title: {
-    // Removed as the title is now handled by navigation
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 20,
   },
   dayTitle: {
     fontSize: 22,
