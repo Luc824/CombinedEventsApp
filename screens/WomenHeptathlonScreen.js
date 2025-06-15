@@ -201,26 +201,16 @@ export default function WomenHeptathlonScreen() {
           {/* <Text style={styles.title}>Women's Heptathlon Calculator</Text> */}
 
           {/* Day 1 Events */}
-          <Text style={styles.dayTitle}>Day 1</Text>
+          <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
           {WOMEN_HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
             renderEventInput(event, index)
           )}
-          <View style={styles.dayTotalContainer}>
-            <Text style={styles.dayTotalText}>
-              Day 1: {getDay1Total()} Points
-            </Text>
-          </View>
 
           {/* Day 2 Events */}
-          <Text style={styles.dayTitle}>Day 2</Text>
-          {WOMEN_HEPTATHLON_EVENTS.slice(4, 7).map((event, index) =>
+          <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
+          {WOMEN_HEPTATHLON_EVENTS.slice(4).map((event, index) =>
             renderEventInput(event, index + 4)
           )}
-          <View style={styles.dayTotalContainer}>
-            <Text style={styles.dayTotalText}>
-              Day 2: {getDay2Total()} Points
-            </Text>
-          </View>
 
           {/* Total Score */}
           <View style={styles.totalContainer}>

@@ -23,38 +23,49 @@ export default function App() {
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#1a1a1a",
+            backgroundColor: "#000",
           },
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
           },
+          headerTitle: "",
         }}
       >
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ headerShown: false }}
+          options={{
+            title: "Combined Events Calculator",
+          }}
         />
         <Stack.Screen
           name="Decathlon"
           component={DecathlonScreen}
-          options={{ title: "Men's Decathlon" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="MenHeptathlon"
           component={MenHeptathlonScreen}
-          options={{ title: "Men's Heptathlon" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="WomenHeptathlon"
           component={WomenHeptathlonScreen}
-          options={{ title: "Women's Heptathlon" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="WomenPentathlon"
           component={WomenPentathlonScreen}
-          options={{ title: "Women's Pentathlon" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="Rankings"
@@ -64,22 +75,30 @@ export default function App() {
         <Stack.Screen
           name="DecathlonRanking"
           component={DecathlonRankingScreen}
-          options={{ title: "Men's Decathlon Ranking" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="MenHeptathlonRanking"
           component={MenHeptathlonRankingScreen}
-          options={{ title: "Men's Heptathlon Ranking" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="WomenHeptathlonRanking"
           component={WomenHeptathlonRankingScreen}
-          options={{ title: "Women's Heptathlon Ranking" }}
+          options={{
+            title: "",
+          }}
         />
         <Stack.Screen
           name="WomenPentathlonRanking"
           component={WomenPentathlonRankingScreen}
-          options={{ title: "Women's Pentathlon Ranking" }}
+          options={{
+            title: "",
+          }}
         />
       </Stack.Navigator>
       <StatusBar style="auto" />

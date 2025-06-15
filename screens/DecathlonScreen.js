@@ -212,13 +212,13 @@ export default function DecathlonScreen() {
           {/* <Text style={styles.title}>Men's Decathlon Calculator</Text> */}
 
           {/* Day 1 Events */}
-          <Text style={styles.dayTitle}>Day 1</Text>
+          <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
           {DECATHLON_EVENTS.slice(0, 5).map((event, index) =>
             renderEventInput(event, index)
           )}
 
           {/* Day 2 Events */}
-          <Text style={styles.dayTitle}>Day 2</Text>
+          <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
           {DECATHLON_EVENTS.slice(5).map((event, index) =>
             renderEventInput(event, index + 5)
           )}
