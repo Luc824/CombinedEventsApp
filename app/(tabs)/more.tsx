@@ -65,6 +65,10 @@ export default function MoreScreen() {
             <Text style={styles.donateAmount}>9.99€</Text>
           </TouchableOpacity>
         </View>
+        <Text style={styles.donateMessage}>
+          Give whatever feels right to support this app (no pole vault
+          required!)
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -136,5 +140,13 @@ const styles = StyleSheet.create({
   donateAmount: {
     color: "#fff",
     fontSize: 15,
+  },
+  donateMessage: {
+    color: "#fff",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 12,
+    marginBottom: 0,
+    opacity: 0.85,
   },
 });
