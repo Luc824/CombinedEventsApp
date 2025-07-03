@@ -47,7 +47,9 @@ export default function WomenPentathlonRankingScreen() {
       .filter((score) => score <= points)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.womenPentathlon[String(closestLowerScore)]
+      ? worldAthleticsScores.womenPentathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.womenPentathlon
+        ]
       : "0";
   };
 

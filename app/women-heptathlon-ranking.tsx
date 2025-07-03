@@ -47,7 +47,9 @@ export default function WomenHeptathlonRankingScreen() {
       .filter((score) => score <= points)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.womenHeptathlon[String(closestLowerScore)]
+      ? worldAthleticsScores.womenHeptathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.womenHeptathlon
+        ]
       : "0";
   };
 

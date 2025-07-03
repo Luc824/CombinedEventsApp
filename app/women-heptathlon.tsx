@@ -138,7 +138,9 @@ export default function WomenHeptathlonScreen() {
       .filter((score) => score <= totalPoints)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.womenHeptathlon[closestLowerScore]
+      ? worldAthleticsScores.womenHeptathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.womenHeptathlon
+        ]
       : "0";
   };
 

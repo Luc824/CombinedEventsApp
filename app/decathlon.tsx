@@ -158,7 +158,9 @@ export default function DecathlonScreen() {
       .filter((score) => score <= totalPoints)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.decathlon[closestLowerScore]
+      ? worldAthleticsScores.decathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.decathlon
+        ]
       : "0";
   };
 

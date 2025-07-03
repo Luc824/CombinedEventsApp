@@ -45,7 +45,9 @@ export default function MenHeptathlonRankingScreen() {
       .filter((score) => score <= points)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.menHeptathlon[String(closestLowerScore)]
+      ? worldAthleticsScores.menHeptathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.menHeptathlon
+        ]
       : "0";
   };
 

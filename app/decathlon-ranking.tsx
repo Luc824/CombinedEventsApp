@@ -45,7 +45,9 @@ export default function DecathlonRankingScreen() {
       .filter((score) => score <= points)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.decathlon[String(closestLowerScore)]
+      ? worldAthleticsScores.decathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.decathlon
+        ]
       : "0";
   };
 
