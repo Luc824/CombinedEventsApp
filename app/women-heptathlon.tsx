@@ -10,6 +10,7 @@ import {
   Keyboard,
   SafeAreaView,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -144,6 +145,11 @@ export default function WomenHeptathlonScreen() {
       : "0";
   };
 
+  const clearAll = () => {
+    setResults(Array(7).fill(""));
+    setPoints(Array(7).fill(0));
+  };
+
   const renderEventInput = (
     event: (typeof WOMEN_HEPTATHLON_EVENTS)[0],
     index: number
@@ -180,14 +186,29 @@ export default function WomenHeptathlonScreen() {
         >
           <View style={styles.contentContainer}>
             <Text style={styles.title}>Women's Heptathlon</Text>
-            <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
-            {WOMEN_HEPTATHLON_EVENTS.slice(0, 4).map((event, index) =>
-              renderEventInput(event, index)
-            )}
-            <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
-            {WOMEN_HEPTATHLON_EVENTS.slice(4).map((event, index) =>
-              renderEventInput(event, index + 4)
-            )}
+            {WOMEN_HEPTATHLON_EVENTS.map((event, index) => (
+              <React.Fragment key={index}>
+                {renderEventInput(event, index)}
+                {index === 3 && (
+                  <>
+                    <View style={{ height: 6 }} />
+                    <Text style={styles.inlineDayTotalText}>
+                      Day 1: {getDay1Total()} Points
+                    </Text>
+                    <View style={{ height: 10 }} />
+                  </>
+                )}
+                {index === 6 && (
+                  <>
+                    <View style={{ height: 6 }} />
+                    <Text style={styles.inlineDayTotalText}>
+                      Day 2: {getDay2Total()} Points
+                    </Text>
+                    <View style={{ height: 10 }} />
+                  </>
+                )}
+              </React.Fragment>
+            ))}
             <View style={styles.totalContainer}>
               <Text style={styles.totalText}>
                 Total Score: {getTotalPoints()} Points
@@ -196,6 +217,12 @@ export default function WomenHeptathlonScreen() {
                 Result Score: {getResultScore()}
               </Text>
             </View>
+            <TouchableOpacity
+              style={styles.clearButtonSubtle}
+              onPress={clearAll}
+            >
+              <Text style={styles.clearButtonTextSubtle}>Clear</Text>
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -284,5 +311,30 @@ const styles = StyleSheet.create({
     color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  inlineDayTotalText: {
+    color: "#bbb",
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  clearButtonSubtle: {
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#444",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 16,
+    alignSelf: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+  },
+  clearButtonTextSubtle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+    letterSpacing: 0.5,
   },
 });

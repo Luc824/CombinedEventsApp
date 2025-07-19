@@ -10,6 +10,7 @@ import {
   Keyboard,
   SafeAreaView,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -124,6 +125,11 @@ export default function WomenPentathlonScreen() {
       : "0";
   };
 
+  const clearAll = () => {
+    setResults(Array(5).fill(""));
+    setPoints(Array(5).fill(0));
+  };
+
   const renderEventInput = (
     event: (typeof WOMEN_PENTATHLON_EVENTS)[0],
     index: number
@@ -160,9 +166,11 @@ export default function WomenPentathlonScreen() {
         >
           <View style={styles.contentContainer}>
             <Text style={styles.title}>Women's Pentathlon</Text>
-            {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
-              renderEventInput(event, index)
-            )}
+            {WOMEN_PENTATHLON_EVENTS.map((event, index) => (
+              <React.Fragment key={index}>
+                {renderEventInput(event, index)}
+              </React.Fragment>
+            ))}
             <View style={styles.totalContainer}>
               <Text style={styles.totalText}>
                 Total Score: {getTotalPoints()} Points
@@ -171,6 +179,12 @@ export default function WomenPentathlonScreen() {
                 Result Score: {getResultScore()}
               </Text>
             </View>
+            <TouchableOpacity
+              style={styles.clearButtonSubtle}
+              onPress={clearAll}
+            >
+              <Text style={styles.clearButtonTextSubtle}>Clear</Text>
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -252,5 +266,30 @@ const styles = StyleSheet.create({
     color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  inlineDayTotalText: {
+    color: "#bbb",
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  clearButtonSubtle: {
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#444",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 16,
+    alignSelf: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+  },
+  clearButtonTextSubtle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+    letterSpacing: 0.5,
   },
 });

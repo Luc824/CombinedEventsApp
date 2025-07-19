@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -10,6 +10,8 @@ import {
   Keyboard,
   SafeAreaView,
   StatusBar,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -90,6 +92,7 @@ const convertTimeToSeconds = (timeStr: string) => {
 export default function DecathlonScreen() {
   const [results, setResults] = useState<string[]>(Array(10).fill(""));
   const [points, setPoints] = useState<number[]>(Array(10).fill(0));
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
@@ -164,6 +167,11 @@ export default function DecathlonScreen() {
       : "0";
   };
 
+  const clearAll = () => {
+    setResults(Array(10).fill(""));
+    setPoints(Array(10).fill(0));
+  };
+
   const renderEventInput = (
     event: (typeof DECATHLON_EVENTS)[0],
     index: number
@@ -199,19 +207,38 @@ export default function DecathlonScreen() {
           onPress={Keyboard.dismiss}
           style={{ flex: 1 }}
         >
-          <View style={styles.contentContainer}>
+          <ScrollView
+            ref={scrollViewRef}
+            scrollEnabled={false}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled"
+          >
             <Text style={styles.title}>Men's Decathlon</Text>
-            {/* Day 1 Events */}
-            <Text style={styles.dayTitle}>Day 1: {getDay1Total()} Points</Text>
-            {DECATHLON_EVENTS.slice(0, 5).map((event, index) =>
-              renderEventInput(event, index)
-            )}
-            {/* Day 2 Events */}
-            <Text style={styles.dayTitle}>Day 2: {getDay2Total()} Points</Text>
-            {DECATHLON_EVENTS.slice(5).map((event, index) =>
-              renderEventInput(event, index + 5)
-            )}
-            {/* Total Score */}
+            {/* All Events */}
+            {DECATHLON_EVENTS.map((event, index) => (
+              <React.Fragment key={index}>
+                {renderEventInput(event, index)}
+                {index === 4 && (
+                  <>
+                    <View style={{ height: 6 }} />
+                    <Text style={styles.inlineDayTotalText}>
+                      Day 1: {getDay1Total()} Points
+                    </Text>
+                    <View style={{ height: 10 }} />
+                  </>
+                )}
+                {index === 9 && (
+                  <>
+                    <View style={{ height: 6 }} />
+                    <Text style={styles.inlineDayTotalText}>
+                      Day 2: {getDay2Total()} Points
+                    </Text>
+                    <View style={{ height: 10 }} />
+                  </>
+                )}
+              </React.Fragment>
+            ))}
+            {/* Day Totals and Total Score */}
             <View style={styles.totalContainer}>
               <Text style={styles.totalText}>
                 Total Score: {getTotalPoints()} Points
@@ -220,7 +247,14 @@ export default function DecathlonScreen() {
                 Result Score: {getResultScore()}
               </Text>
             </View>
-          </View>
+            <TouchableOpacity
+              style={styles.clearButtonSubtle}
+              onPress={clearAll}
+            >
+              <Text style={styles.clearButtonTextSubtle}>Clear</Text>
+            </TouchableOpacity>
+            <View style={{ height: 60 }} />
+          </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -298,6 +332,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
   },
+  inlineDayTotalText: {
+    color: "#bbb",
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 2,
+  },
   totalText: {
     color: "#fff",
     fontSize: 24,
@@ -308,5 +349,29 @@ const styles = StyleSheet.create({
     color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  dayTotalText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  clearButtonSubtle: {
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#444",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 16,
+    alignSelf: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+  },
+  clearButtonTextSubtle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+    letterSpacing: 0.5,
   },
 });

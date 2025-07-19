@@ -18,7 +18,7 @@ import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 const TRACK_COLOR = "#D35400";
 
 const EVENTS = [
-  { label: "Decathlon", value: "decathlon", gender: "men" },
+  { label: "Men's Decathlon", value: "decathlon", gender: "men" },
   { label: "Men's Heptathlon", value: "menHeptathlon", gender: "men" },
   { label: "Women's Heptathlon", value: "womenHeptathlon", gender: "women" },
   { label: "Women's Pentathlon", value: "womenPentathlon", gender: "women" },
@@ -105,22 +105,22 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
       >
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <FlatList
-                data={options}
-                keyExtractor={(item) => item.value}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.modalOption}
-                    onPress={() => {
-                      onSelect(item.value);
-                      setModalVisible(false);
-                    }}
-                  >
-                    <Text style={styles.modalOptionText}>{item.label}</Text>
-                  </TouchableOpacity>
-                )}
-              />
+            <View style={styles.modalContentRefined}>
+              <Text style={styles.modalPromptRefined}>
+                Tap to select an event
+              </Text>
+              {options.map((item) => (
+                <TouchableOpacity
+                  key={item.value}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    onSelect(item.value);
+                    setModalVisible(false);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -255,12 +255,23 @@ export default function RankingsScreen() {
       ? Math.floor((performanceScore1 + performanceScore2) / 2).toString()
       : "-";
 
+  const clearAll = () => {
+    setEvent1("");
+    setRank1("");
+    setPlace1("");
+    setPoints1("");
+    setEvent2("");
+    setRank2("");
+    setPlace2("");
+    setPoints2("");
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
-          <Text style={styles.title}>Rankings</Text>
+          <Text style={styles.title}>Rankings Calculator</Text>
           <PerformanceEntry
             index={0}
             event={event1}
@@ -295,6 +306,9 @@ export default function RankingsScreen() {
             <Text style={styles.averageLabel}>Ranking Score:</Text>
             <Text style={styles.averageValue}>{average}</Text>
           </View>
+          <TouchableOpacity style={styles.clearButtonSubtle} onPress={clearAll}>
+            <Text style={styles.clearButtonTextSubtle}>Clear</Text>
+          </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -357,13 +371,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  modalContent: {
+  modalContentRefined: {
     backgroundColor: "#222",
     borderRadius: 12,
-    padding: 12,
-    minWidth: 220,
-    maxWidth: 300,
-    maxHeight: 350,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: "stretch",
+    minWidth: 200,
+    maxWidth: 260,
+  },
+  modalPromptRefined: {
+    color: "#bbb",
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 4,
   },
   modalOption: {
     paddingVertical: 10,
@@ -413,5 +434,40 @@ const styles = StyleSheet.create({
     color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  clearButton: {
+    backgroundColor: "#222",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    marginVertical: 10,
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: "#D35400",
+  },
+  clearButtonText: {
+    color: "#D35400",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  clearButtonSubtle: {
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#444",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 16,
+    alignSelf: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+  },
+  clearButtonTextSubtle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+    letterSpacing: 0.5,
   },
 });
