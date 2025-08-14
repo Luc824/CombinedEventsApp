@@ -12,21 +12,25 @@ import {
 
 const TRACK_COLOR = "#D35400";
 
+const DONATION_TIERS = [
+  { name: "Amateur", displayAmount: "0.99€" },
+  { name: "Pro", displayAmount: "2.99€" },
+  { name: "GOAT", displayAmount: "9.99€" },
+];
+
 export default function MoreScreen() {
-  // Dummy handlers for now
   const handleFeedback = () => {
-    // Replace with your feedback link or email
     Linking.openURL("mailto:yourfeedback@email.com?subject=App Feedback");
   };
+
   const handleReview = () => {
-    // Replace with your app store review link
     Linking.openURL("https://yourappstorelink.com");
   };
-  const handleDonate = (tier: string, amount: string) => {
-    // Replace with your payment/donation link
+
+  const handleDonate = (tier: (typeof DONATION_TIERS)[0]) => {
     Alert.alert(
-      `Thank you for choosing the ${tier} tier!`,
-      `You selected to donate ${amount}€.`
+      "Coming Soon!",
+      `Donation feature will be available soon. Thank you for your interest in supporting the app!`
     );
   };
 
@@ -43,27 +47,16 @@ export default function MoreScreen() {
         </TouchableOpacity>
         <Text style={styles.sectionTitle}>Donate</Text>
         <View style={styles.donateRow}>
-          <TouchableOpacity
-            style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-            onPress={() => handleDonate("Amateur", "0.99")}
-          >
-            <Text style={styles.donateTier}>Amateur</Text>
-            <Text style={styles.donateAmount}>0.99€</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-            onPress={() => handleDonate("Pro", "2.99")}
-          >
-            <Text style={styles.donateTier}>Pro</Text>
-            <Text style={styles.donateAmount}>2.99€</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-            onPress={() => handleDonate("GOAT", "9.99")}
-          >
-            <Text style={styles.donateTier}>GOAT</Text>
-            <Text style={styles.donateAmount}>9.99€</Text>
-          </TouchableOpacity>
+          {DONATION_TIERS.map((tier) => (
+            <TouchableOpacity
+              key={tier.name}
+              style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
+              onPress={() => handleDonate(tier)}
+            >
+              <Text style={styles.donateTier}>{tier.name}</Text>
+              <Text style={styles.donateAmount}>{tier.displayAmount}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
         <Text style={styles.donateMessage}>
           Give whatever feels right to support this app (no pole vault

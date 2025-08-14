@@ -306,8 +306,8 @@ export default function RankingsScreen() {
             <Text style={styles.averageLabel}>Ranking Score:</Text>
             <Text style={styles.averageValue}>{average}</Text>
           </View>
-          <TouchableOpacity style={styles.clearButtonSubtle} onPress={clearAll}>
-            <Text style={styles.clearButtonTextSubtle}>Clear</Text>
+          <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
+            <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
@@ -436,38 +436,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   clearButton: {
-    backgroundColor: "#222",
-    borderRadius: 8,
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 24,
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 16,
     alignSelf: "center",
-    borderWidth: 1,
-    borderColor: "#D35400",
   },
   clearButtonText: {
-    color: "#D35400",
+    color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
     letterSpacing: 1,
-  },
-  clearButtonSubtle: {
-    backgroundColor: TRACK_COLOR,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#444",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 16,
-    alignSelf: "center",
-    paddingVertical: 4,
-    paddingHorizontal: 14,
-  },
-  clearButtonTextSubtle: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "500",
-    letterSpacing: 0.5,
   },
 });

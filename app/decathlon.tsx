@@ -247,11 +247,8 @@ export default function DecathlonScreen() {
                 Result Score: {getResultScore()}
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.clearButtonSubtle}
-              onPress={clearAll}
-            >
-              <Text style={styles.clearButtonTextSubtle}>Clear</Text>
+            <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
+              <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
             <View style={{ height: 60 }} />
           </ScrollView>
@@ -356,22 +353,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 2,
   },
-  clearButtonSubtle: {
+  clearButton: {
     backgroundColor: TRACK_COLOR,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#444",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 16,
+    marginVertical: 16,
     alignSelf: "center",
-    paddingVertical: 4,
-    paddingHorizontal: 14,
   },
-  clearButtonTextSubtle: {
+  clearButtonText: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "500",
-    letterSpacing: 0.5,
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
   },
 });
