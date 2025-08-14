@@ -81,10 +81,11 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 30,
     textAlign: "center",
+    lineHeight: 34,
   },
   button: {
     backgroundColor: "#222",
