@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   return (
@@ -14,15 +15,33 @@ export default function TabLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: "Events", headerShown: false }}
+        options={{
+          title: "Events",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="trophy-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Tabs.Screen
-        name="explore"
-        options={{ title: "Rankings", headerShown: false }}
+        name="ranking"
+        options={{
+          title: "Rankings",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="podium-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Tabs.Screen
         name="more"
-        options={{ title: "More", headerShown: false }}
+        options={{
+          title: "More",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="ellipsis-horizontal" size={size} color={color} />
+          ),
+        }}
       />
     </Tabs>
   );

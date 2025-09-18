@@ -64,6 +64,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
     padding: 20,
+    justifyContent: "flex-start",
+    paddingTop: 160,
   },
   title: {
     fontSize: 28,
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
   },
   pillButton: {
     borderRadius: 30,
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 30,
     flex: 1,
   },

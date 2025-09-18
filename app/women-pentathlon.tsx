@@ -10,6 +10,7 @@ import {
   Keyboard,
   SafeAreaView,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
@@ -118,8 +119,15 @@ export default function WomenPentathlonScreen() {
       .filter((score) => score <= totalPoints)
       .sort((a, b) => b - a)[0];
     return closestLowerScore
-      ? worldAthleticsScores.womenPentathlon[closestLowerScore]
+      ? worldAthleticsScores.womenPentathlon[
+          closestLowerScore as keyof typeof worldAthleticsScores.womenPentathlon
+        ]
       : "0";
+  };
+
+  const clearAll = () => {
+    setResults(Array(5).fill(""));
+    setPoints(Array(5).fill(0));
   };
 
   const renderEventInput = (
@@ -158,9 +166,11 @@ export default function WomenPentathlonScreen() {
         >
           <View style={styles.contentContainer}>
             <Text style={styles.title}>Women's Pentathlon</Text>
-            {WOMEN_PENTATHLON_EVENTS.map((event, index) =>
-              renderEventInput(event, index)
-            )}
+            {WOMEN_PENTATHLON_EVENTS.map((event, index) => (
+              <React.Fragment key={index}>
+                {renderEventInput(event, index)}
+              </React.Fragment>
+            ))}
             <View style={styles.totalContainer}>
               <Text style={styles.totalText}>
                 Total Score: {getTotalPoints()} Points
@@ -169,6 +179,9 @@ export default function WomenPentathlonScreen() {
                 Result Score: {getResultScore()}
               </Text>
             </View>
+            <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
+              <Text style={styles.clearButtonText}>Clear</Text>
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -250,5 +263,27 @@ const styles = StyleSheet.create({
     color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
+  },
+  inlineDayTotalText: {
+    color: "#bbb",
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  clearButton: {
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    marginVertical: 16,
+    alignSelf: "center",
+  },
+  clearButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
   },
 });

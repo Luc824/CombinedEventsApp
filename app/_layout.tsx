@@ -9,19 +9,6 @@ export default function RootLayout() {
       <Stack.Screen name="men-heptathlon" options={{ headerShown: false }} />
       <Stack.Screen name="women-heptathlon" options={{ headerShown: false }} />
       <Stack.Screen name="women-pentathlon" options={{ headerShown: false }} />
-      <Stack.Screen name="decathlon-ranking" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="men-heptathlon-ranking"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="women-heptathlon-ranking"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="women-pentathlon-ranking"
-        options={{ headerShown: false }}
-      />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
