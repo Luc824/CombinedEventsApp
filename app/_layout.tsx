@@ -1,7 +1,21 @@
+import Constants from "expo-constants";
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
+import { Platform } from "react-native";
+import Purchases from "react-native-purchases";
 
 export default function RootLayout() {
+  useEffect(() => {
+    const apiKey =
+      Platform.select({
+        ios: Constants.expoConfig?.extra?.revenueCatApiKeyIos,
+        android: Constants.expoConfig?.extra?.revenueCatApiKeyAndroid,
+        default: undefined,
+      }) || undefined;
+    if (apiKey) {
+      Purchases.configure({ apiKey });
+    }
+  }, []);
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

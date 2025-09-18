@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.luc.decathloncalculator"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,6 +40,10 @@
     "experiments": {
       "typedRoutes": true
     },
-    "entryPoint": "./node_modules/expo-router/entry"
+    "entryPoint": "./node_modules/expo-router/entry",
+    "extra": {
+      "revenueCatApiKeyAndroid": "YOUR_REVENUECAT_PUBLIC_SDK_KEY_ANDROID",
+      "revenueCatApiKeyIos": "appl_vuoLPyHotauGndHTXTgdhAPoGkJ"
+    }
   }
 }
