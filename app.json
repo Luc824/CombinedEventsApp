@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.luc.decathloncalculator",
       "icon": "./assets/images/icon.png",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "This app does not use the camera. This permission is required by third-party libraries."
       }
     },
     "android": {
