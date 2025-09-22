@@ -4,13 +4,17 @@
     "slug": "decathlon-calculator",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    
     "scheme": "decathloncalculator",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.luc.decathloncalculator"
+      "bundleIdentifier": "com.luc.decathloncalculator",
+      "icon": "./assets/images/icon.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,31 +23,21 @@
       },
       "edgeToEdgeEnabled": true
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
+    
     "plugins": [
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ],
       "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
     },
-    "entryPoint": "./node_modules/expo-router/entry",
     "extra": {
       "revenueCatApiKeyAndroid": "YOUR_REVENUECAT_PUBLIC_SDK_KEY_ANDROID",
-      "revenueCatApiKeyIos": "appl_vuoLPyHotauGndHTXTgdhAPoGkJ"
+      "revenueCatApiKeyIos": "appl_vuoLPyHotauGndHTXTgdhAPoGkJ",
+      "router": {},
+      "eas": {
+        "projectId": "7fe2922b-6541-4524-a99c-c18f9e547e70"
+      }
     }
   }
 }
