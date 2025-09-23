@@ -14,7 +14,9 @@
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "This app does not use the camera. This permission is required by third-party libraries."
+        "NSCameraUsageDescription": "This app does not use the camera. This permission is required by third-party libraries.",
+        "NSPhotoLibraryUsageDescription": "This app does not access your photos. This permission is required by third-party libraries.",
+        "NSMicrophoneUsageDescription": "This app does not use the microphone. This permission is required by third-party libraries."
       }
     },
     "android": {
