@@ -80,7 +80,7 @@ export default function MoreScreen() {
         <TouchableOpacity style={styles.button} onPress={handleReview}>
           <Text style={styles.buttonText}>Leave a Review</Text>
         </TouchableOpacity>
-        <Text style={styles.sectionTitle}>Donate</Text>
+        <Text style={styles.sectionTitle}>Tip</Text>
         {donationPackages.length > 0 ? (
           <View style={styles.donateRow}>
             {donationPackages.slice(0, 3).map((pkg) => (
@@ -110,8 +110,7 @@ export default function MoreScreen() {
           </View>
         )}
         <Text style={styles.donateMessage}>
-          Give whatever feels right to support this app (no pole vault
-          required!)
+          Support this app (no pole vault required!)
         </Text>
       </View>
     </SafeAreaView>
