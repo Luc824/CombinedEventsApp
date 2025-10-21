@@ -29,7 +29,14 @@ export default function MoreScreen() {
       try {
         setLoading(true);
         const data = await Purchases.getOfferings();
-        setOfferings(data.current ?? null);
+        // Prefer your explicit offering key; fall back to current if needed
+        const o = (data as any).all?.donations || (data as any).current || null;
+
+        // Debugging
+        console.log('RC using offering:', o?.identifier, 'pkgs:', o?.availablePackages?.length);
+        console.log('RC package ids:', (o?.availablePackages || []).map((p:any)=>p.identifier));
+
+        setOfferings(o);
       } catch (e) {
         // silently use fallback UI
       } finally {
@@ -37,12 +44,17 @@ export default function MoreScreen() {
       }
     };
     loadOfferings();
-  }, []);
+  }, []);  
 
   const donationPackages = useMemo(() => {
     if (!offerings) return [] as PurchasesPackage[];
-    return offerings.availablePackages;
+    const pkgs = offerings.availablePackages ?? [];
+    const byId = Object.fromEntries(pkgs.map((p: any) => [p.identifier, p]));
+    return ['donation_tier1', 'donation_tier2', 'donation_tier3']
+      .map((id) => byId[id])
+      .filter(Boolean) as PurchasesPackage[];
   }, [offerings]);
+  
   const handleFeedback = () => {
     Linking.openURL("mailto:yourfeedback@email.com?subject=App Feedback");
   };
@@ -80,35 +92,40 @@ export default function MoreScreen() {
         <TouchableOpacity style={styles.button} onPress={handleReview}>
           <Text style={styles.buttonText}>Leave a Review</Text>
         </TouchableOpacity>
-        <Text style={styles.sectionTitle}>Tip</Text>
-        {donationPackages.length > 0 ? (
-          <View style={styles.donateRow}>
-            {donationPackages.slice(0, 3).map((pkg) => (
-              <TouchableOpacity
-                key={pkg.identifier}
-                style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: loading ? 0.7 : 1 }]}
-                onPress={() => handleDonate(pkg)}
-                disabled={loading}
-              >
-                <Text style={styles.donateTier}>{pkg.product.title}</Text>
-                <Text style={styles.donateAmount}>{pkg.product.priceString}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        ) : (
-          <View style={styles.donateRow}>
-            {FALLBACK_TIERS.map((tier) => (
-              <TouchableOpacity
-                key={tier.name}
-                style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
-                onPress={() => Alert.alert("Coming soon", "Donation products loading. Try again later.")}
-              >
-                <Text style={styles.donateTier}>{tier.name}</Text>
-                <Text style={styles.donateAmount}>{tier.displayAmount}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+
+        <Text style={styles.sectionTitle}>Tips</Text>
+{donationPackages.length > 0 ? (
+  <View style={styles.donateRow}>
+    {donationPackages.slice(0, 3).map((pkg: any) => {
+      const sp = pkg.storeProduct ?? pkg.product; // works across SDK versions
+      return (
+        <TouchableOpacity
+          key={pkg.identifier}
+          style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: loading ? 0.7 : 1 }]}
+          onPress={() => handleDonate(pkg)}
+          disabled={loading}
+        >
+          <Text style={styles.donateTier}>{sp.title}</Text>
+          <Text style={styles.donateAmount}>{sp.priceString}</Text>
+        </TouchableOpacity>
+      );
+    })}
+  </View>
+) : (
+  <View style={styles.donateRow}>
+    {FALLBACK_TIERS.map((tier) => (
+      <TouchableOpacity
+        key={tier.name}
+        style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
+        onPress={() => Alert.alert("Coming soon", "Donation products loading. Try again later.")}
+      >
+        <Text style={styles.donateTier}>{tier.name}</Text>
+        <Text style={styles.donateAmount}>{tier.displayAmount}</Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+)}
+
         <Text style={styles.donateMessage}>
           Support this app (no pole vault required!)
         </Text>

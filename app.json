@@ -4,7 +4,6 @@
     "slug": "decathlon-calculator",
     "version": "1.0.0",
     "orientation": "portrait",
-    
     "scheme": "decathloncalculator",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,6 +11,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.luc.decathloncalculator",
       "icon": "./assets/images/icon.png",
+      "buildNumber": "2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app does not use the camera. This permission is required by third-party libraries.",
@@ -26,14 +26,13 @@
       },
       "edgeToEdgeEnabled": true
     },
-    
     "plugins": [
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-font"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactNativeNewArchitecture": true
+      "typedRoutes": true
     },
     "extra": {
       "revenueCatApiKeyAndroid": "YOUR_REVENUECAT_PUBLIC_SDK_KEY_ANDROID",

@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
   SafeAreaView,
   StatusBar,
-  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 
