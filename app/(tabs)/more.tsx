@@ -29,6 +29,9 @@ export default function MoreScreen() {
       try {
         setLoading(true);
         const data = await Purchases.getOfferings();
+        console.log('RC all offerings:', Object.keys(data.all || {}));
+        console.log('RC current offering:', data.current?.identifier);
+        
         // Prefer your explicit offering key; fall back to current if needed
         const o = (data as any).all?.donations || (data as any).current || null;
 
@@ -37,8 +40,9 @@ export default function MoreScreen() {
         console.log('RC package ids:', (o?.availablePackages || []).map((p:any)=>p.identifier));
 
         setOfferings(o);
-      } catch (e) {
-        // silently use fallback UI
+      } catch (e: any) {
+        console.error('RC error loading offerings:', e?.message);
+        Alert.alert('Debug', `RevenueCat error: ${e?.message}`);
       } finally {
         setLoading(false);
       }
