@@ -32,7 +32,8 @@
       "expo-font"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "reactNativeNewArchitecture": true
     },
     "extra": {
       "revenueCatApiKeyAndroid": "YOUR_REVENUECAT_PUBLIC_SDK_KEY_ANDROID",
