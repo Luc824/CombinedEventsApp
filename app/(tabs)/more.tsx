@@ -29,20 +29,20 @@ export default function MoreScreen() {
       try {
         setLoading(true);
         const data = await Purchases.getOfferings();
-        console.log('RC all offerings:', Object.keys(data.all || {}));
-        console.log('RC current offering:', data.current?.identifier);
-        
-        // Prefer your explicit offering key; fall back to current if needed
-        const o = (data as any).all?.donations || (data as any).current || null;
-
-        // Debugging
-        console.log('RC using offering:', o?.identifier, 'pkgs:', o?.availablePackages?.length);
-        console.log('RC package ids:', (o?.availablePackages || []).map((p:any)=>p.identifier));
-
-        setOfferings(o);
-      } catch (e: any) {
-        console.error('RC error loading offerings:', e?.message);
-        Alert.alert('Debug', `RevenueCat error: ${e?.message}`);
+        const offering = (data as any).all?.donations || (data as any).current || null;
+        if (__DEV__) {
+          console.log("RC offering identifiers:", Object.keys(data.all || {}));
+          console.log("RC using offering:", offering?.identifier);
+          console.log(
+            "RC available packages:",
+            (offering?.availablePackages || []).map((p: any) => p.identifier)
+          );
+        }
+        setOfferings(offering);
+      } catch (e) {
+        if (__DEV__) {
+          console.warn("Failed to load RevenueCat offerings", e);
+        }
       } finally {
         setLoading(false);
       }
