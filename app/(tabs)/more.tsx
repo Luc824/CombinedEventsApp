@@ -53,11 +53,25 @@ export default function MoreScreen() {
   const donationPackages = useMemo(() => {
     if (!offerings) return [] as PurchasesPackage[];
     const pkgs = offerings.availablePackages ?? [];
-    const byId = Object.fromEntries(
-      pkgs.map((p: any) => [p.storeProduct?.identifier ?? p.storeProduct?.productIdentifier, p])
-    );
-    return ['donation_tier1', 'donation_tier2', 'donation_tier3']
-      .map((id) => byId[id])
+    const map = new Map<string, PurchasesPackage>();
+
+    pkgs.forEach((pkg: any) => {
+      const candidates = [
+        pkg.storeProduct?.identifier,
+        pkg.storeProduct?.productIdentifier,
+        pkg.product?.identifier,
+        pkg.identifier,
+      ].filter(Boolean);
+
+      candidates.forEach((id: string) => {
+        if (!map.has(id)) {
+          map.set(id, pkg);
+        }
+      });
+    });
+
+    return ["donation_tier1", "donation_tier2", "donation_tier3"]
+      .map((id) => map.get(id))
       .filter(Boolean) as PurchasesPackage[];
   }, [offerings]);
   
