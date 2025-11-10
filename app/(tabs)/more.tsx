@@ -29,7 +29,7 @@ export default function MoreScreen() {
       try {
         setLoading(true);
         const data = await Purchases.getOfferings();
-        const offering = (data as any).all?.donations || (data as any).current || null;
+        const offering = (data as any).all?.tips || (data as any).current || null;
         if (__DEV__) {
           console.log("RC offering identifiers:", Object.keys(data.all || {}));
           console.log("RC using offering:", offering?.identifier);
@@ -53,7 +53,9 @@ export default function MoreScreen() {
   const donationPackages = useMemo(() => {
     if (!offerings) return [] as PurchasesPackage[];
     const pkgs = offerings.availablePackages ?? [];
-    const byId = Object.fromEntries(pkgs.map((p: any) => [p.identifier, p]));
+    const byId = Object.fromEntries(
+      pkgs.map((p: any) => [p.storeProduct?.identifier ?? p.storeProduct?.productIdentifier, p])
+    );
     return ['donation_tier1', 'donation_tier2', 'donation_tier3']
       .map((id) => byId[id])
       .filter(Boolean) as PurchasesPackage[];
