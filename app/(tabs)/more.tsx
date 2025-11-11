@@ -134,9 +134,6 @@ export default function MoreScreen() {
           disabled={loading}
         >
                   <Text style={styles.donateTier}>{label}</Text>
-                  {!!sp?.priceString && (
-                    <Text style={styles.donateAmount}>{sp.priceString}</Text>
-                  )}
         </TouchableOpacity>
       );
     })}
