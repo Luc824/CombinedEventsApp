@@ -14,11 +14,13 @@ import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-pur
 const TRACK_COLOR = "#D35400";
 
 // UI falls back to static tiers if offerings are not available
-const FALLBACK_TIERS = [
-  { name: "Amateur", displayAmount: "$0.99" },
-  { name: "Pro", displayAmount: "$2.99" },
-  { name: "GOAT", displayAmount: "$9.99" },
-];
+const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"];
+
+const PACKAGE_LABELS: Record<string, string> = {
+  donation_tier1: "Amateur",
+  donation_tier2: "Pro",
+  donation_tier3: "GOAT",
+};
 
 export default function MoreScreen() {
   const [loading, setLoading] = useState(false);
@@ -114,10 +116,16 @@ export default function MoreScreen() {
         </TouchableOpacity>
 
         <Text style={styles.sectionTitle}>Tips</Text>
-{donationPackages.length > 0 ? (
-  <View style={styles.donateRow}>
-    {donationPackages.slice(0, 3).map((pkg: any) => {
-      const sp = pkg.storeProduct ?? pkg.product; // works across SDK versions
+        {donationPackages.length > 0 ? (
+          <View style={styles.donateRow}>
+            {donationPackages.slice(0, 3).map((pkg: any) => {
+              const sp = pkg.storeProduct ?? pkg.product;
+              const pkgId =
+                pkg.storeProduct?.identifier ??
+                pkg.storeProduct?.productIdentifier ??
+                pkg.product?.identifier ??
+                pkg.identifier;
+              const label = PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
       return (
         <TouchableOpacity
           key={pkg.identifier}
@@ -125,22 +133,23 @@ export default function MoreScreen() {
           onPress={() => handleDonate(pkg)}
           disabled={loading}
         >
-          <Text style={styles.donateTier}>{sp.title}</Text>
-          <Text style={styles.donateAmount}>{sp.priceString}</Text>
+                  <Text style={styles.donateTier}>{label}</Text>
+                  {!!sp?.priceString && (
+                    <Text style={styles.donateAmount}>{sp.priceString}</Text>
+                  )}
         </TouchableOpacity>
       );
     })}
   </View>
 ) : (
   <View style={styles.donateRow}>
-    {FALLBACK_TIERS.map((tier) => (
+            {FALLBACK_TIERS.map((tier) => (
       <TouchableOpacity
-        key={tier.name}
+                key={tier}
         style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
         onPress={() => Alert.alert("Coming soon", "Donation products loading. Try again later.")}
       >
-        <Text style={styles.donateTier}>{tier.name}</Text>
-        <Text style={styles.donateAmount}>{tier.displayAmount}</Text>
+                <Text style={styles.donateTier}>{tier}</Text>
       </TouchableOpacity>
     ))}
   </View>
