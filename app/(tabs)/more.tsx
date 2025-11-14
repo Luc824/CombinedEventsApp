@@ -78,11 +78,11 @@ export default function MoreScreen() {
   }, [offerings]);
   
   const handleFeedback = () => {
-    Linking.openURL("mailto:yourfeedback@email.com?subject=App Feedback");
+    Linking.openURL("mailto:luc.coolbrew@gmail.com?subject=App Feedback");
   };
 
   const handleReview = () => {
-    Linking.openURL("https://yourappstorelink.com");
+    Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review");
   };
 
   const handleDonate = async (pkg?: PurchasesPackage) => {
