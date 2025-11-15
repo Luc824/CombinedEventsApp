@@ -194,6 +194,7 @@ export default function MenHeptathlonScreen() {
         <View style={styles.chartContent}>
           {points.map((pointValue, index) => {
             const barHeight = maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
+            const isLongLabel = EVENT_LABELS[index].length > 4; // "1000m" is 5 chars
             return (
               <View
                 key={index}
@@ -216,7 +217,15 @@ export default function MenHeptathlonScreen() {
                   />
                 </View>
                 <View style={styles.barLabelContainer}>
-                  <Text style={styles.barLabel} numberOfLines={1}>
+                  <Text 
+                    style={[
+                      styles.barLabel,
+                      isLongLabel && styles.barLabelSmall
+                    ]} 
+                    numberOfLines={1}
+                    adjustsFontSizeToFit={true}
+                    minimumFontScale={0.8}
+                  >
                     {EVENT_LABELS[index]}
                   </Text>
                 </View>
@@ -571,7 +580,7 @@ const styles = StyleSheet.create({
     minHeight: 2,
   },
   barLabelContainer: {
-    height: 20,
+    height: 22,
     width: "100%",
     justifyContent: "flex-start",
     alignItems: "center",
@@ -579,8 +588,11 @@ const styles = StyleSheet.create({
   },
   barLabel: {
     color: "#fff",
-    fontSize: 10,
+    fontSize: 9,
     textAlign: "center",
     width: "100%",
+  },
+  barLabelSmall: {
+    fontSize: 8,
   },
 });
