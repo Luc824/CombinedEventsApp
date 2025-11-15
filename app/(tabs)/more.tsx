@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Linking,
+  Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -27,6 +28,11 @@ export default function MoreScreen() {
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 
   useEffect(() => {
+    // Only load RevenueCat offerings on iOS/Android, not web
+    if (Platform.OS === 'web') {
+      return;
+    }
+    
     const loadOfferings = async () => {
       try {
         setLoading(true);
@@ -78,11 +84,31 @@ export default function MoreScreen() {
   }, [offerings]);
   
   const handleFeedback = () => {
-    Linking.openURL("mailto:luc.coolbrew@gmail.com?subject=App Feedback");
+    // Update this email address to your preferred contact email
+    // You can use a Gmail alias like: yourname+app@gmail.com
+    Linking.openURL("mailto:luc.coolbrew+app@gmail.com?subject=App Feedback");
   };
 
   const handleReview = () => {
     Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review");
+  };
+
+  const handleGetApp = () => {
+    // Replace YOUR_APP_ID with your actual App Store ID
+    Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID");
+  };
+
+  const handleWebDonate = (amount: string) => {
+    // Replace with your PayPal donation links
+    // You can create these at: https://www.paypal.com/donate/buttons
+    const paypalLinks: Record<string, string> = {
+      "Amateur": "https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID_1",
+      "Pro": "https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID_2",
+      "GOAT": "https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID_3",
+    };
+    
+    const link = paypalLinks[amount] || paypalLinks["Amateur"];
+    Linking.openURL(link);
   };
 
   const handleDonate = async (pkg?: PurchasesPackage) => {
@@ -115,42 +141,64 @@ export default function MoreScreen() {
           <Text style={styles.buttonText}>Leave a Review</Text>
         </TouchableOpacity>
 
+        {Platform.OS === 'web' && (
+          <TouchableOpacity style={[styles.button, styles.getAppButton]} onPress={handleGetApp}>
+            <Text style={styles.buttonText}>📱 Get the App</Text>
+          </TouchableOpacity>
+        )}
+
         <Text style={styles.sectionTitle}>Tips</Text>
-        {donationPackages.length > 0 ? (
+        {Platform.OS === 'web' ? (
+          // Web donations using PayPal links
           <View style={styles.donateRow}>
-            {donationPackages.slice(0, 3).map((pkg: any) => {
-              const sp = pkg.storeProduct ?? pkg.product;
-              const pkgId =
-                pkg.storeProduct?.identifier ??
-                pkg.storeProduct?.productIdentifier ??
-                pkg.product?.identifier ??
-                pkg.identifier;
-              const label = PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
-      return (
-        <TouchableOpacity
-          key={pkg.identifier}
-          style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: loading ? 0.7 : 1 }]}
-          onPress={() => handleDonate(pkg)}
-          disabled={loading}
-        >
-                  <Text style={styles.donateTier}>{label}</Text>
-        </TouchableOpacity>
-      );
-    })}
-  </View>
-) : (
-  <View style={styles.donateRow}>
             {FALLBACK_TIERS.map((tier) => (
-      <TouchableOpacity
+              <TouchableOpacity
                 key={tier}
-        style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
-        onPress={() => Alert.alert("Coming soon", "Donation products loading. Try again later.")}
-      >
+                style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
+                onPress={() => handleWebDonate(tier)}
+              >
                 <Text style={styles.donateTier}>{tier}</Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-)}
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          // iOS/Android donations using RevenueCat
+          donationPackages.length > 0 ? (
+            <View style={styles.donateRow}>
+              {donationPackages.slice(0, 3).map((pkg: any) => {
+                const sp = pkg.storeProduct ?? pkg.product;
+                const pkgId =
+                  pkg.storeProduct?.identifier ??
+                  pkg.storeProduct?.productIdentifier ??
+                  pkg.product?.identifier ??
+                  pkg.identifier;
+                const label = PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
+                return (
+                  <TouchableOpacity
+                    key={pkg.identifier}
+                    style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: loading ? 0.7 : 1 }]}
+                    onPress={() => handleDonate(pkg)}
+                    disabled={loading}
+                  >
+                    <Text style={styles.donateTier}>{label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : (
+            <View style={styles.donateRow}>
+              {FALLBACK_TIERS.map((tier) => (
+                <TouchableOpacity
+                  key={tier}
+                  style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
+                  onPress={() => Alert.alert("Coming soon", "Donation products loading. Try again later.")}
+                >
+                  <Text style={styles.donateTier}>{tier}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )
+        )}
 
         <Text style={styles.donateMessage}>
           Support this app (no pole vault required!)
@@ -194,6 +242,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  getAppButton: {
+    backgroundColor: TRACK_COLOR,
   },
   sectionTitle: {
     color: "#fff",
