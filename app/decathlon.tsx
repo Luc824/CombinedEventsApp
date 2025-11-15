@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -74,6 +75,20 @@ const PLACEHOLDERS = [
   "4:36.11", // 1500m
 ];
 
+// Event labels for chart display (abbreviated)
+const EVENT_LABELS = [
+  "100m",
+  "LJ",
+  "SP",
+  "HJ",
+  "400m",
+  "110H",
+  "DT",
+  "PV",
+  "JT",
+  "1500m",
+];
+
 const convertTimeToSeconds = (timeStr: string) => {
   if (!timeStr) return 0;
   timeStr = timeStr.replace(",", ".");
@@ -92,6 +107,7 @@ const convertTimeToSeconds = (timeStr: string) => {
 export default function DecathlonScreen() {
   const [results, setResults] = useState<string[]>(Array(10).fill(""));
   const [points, setPoints] = useState<number[]>(Array(10).fill(0));
+  const [showChart, setShowChart] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const calculatePoints = (value: string, index: number) => {
@@ -196,6 +212,47 @@ export default function DecathlonScreen() {
     );
   };
 
+  const renderBarChart = () => {
+    const maxPoints = Math.max(...points, 1000); // Minimum scale of 1000
+    const chartHeight = 200;
+    const barWidth = 25;
+    const barSpacing = 8;
+
+    return (
+      <View style={styles.chartContainer}>
+        <Text style={styles.chartTitle}>Performance Overview</Text>
+        <View style={styles.chartContent}>
+          {points.map((pointValue, index) => {
+            const barHeight = maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.barWrapper,
+                  { width: barWidth + barSpacing },
+                ]}
+              >
+                <Text style={styles.barValue}>{pointValue}</Text>
+                <View style={styles.barContainer}>
+                  <View
+                    style={[
+                      styles.bar,
+                      {
+                        height: Math.max(barHeight, 2), // Minimum height for visibility
+                        backgroundColor: TRACK_COLOR,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.barLabel}>{EVENT_LABELS[index]}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
@@ -247,6 +304,12 @@ export default function DecathlonScreen() {
                 Result Score: {getResultScore()}
               </Text>
             </View>
+            <TouchableOpacity
+              style={styles.chartButton}
+              onPress={() => setShowChart(true)}
+            >
+              <Text style={styles.chartButtonText}>View Chart</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
@@ -254,6 +317,44 @@ export default function DecathlonScreen() {
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+      <Modal
+        visible={showChart}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowChart(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback onPress={() => setShowChart(false)}>
+            <View style={StyleSheet.absoluteFill} />
+          </TouchableWithoutFeedback>
+          <View style={styles.modalContentWrapper}>
+            <ScrollView
+              contentContainerStyle={styles.modalScrollContent}
+              style={styles.modalScrollView}
+            >
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Men's Decathlon</Text>
+                  <TouchableOpacity
+                    onPress={() => setShowChart(false)}
+                    style={styles.closeButton}
+                  >
+                    <Text style={styles.closeButtonText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.totalScoreCard}>
+                  <Text style={styles.totalScoreLabel}>Total Score</Text>
+                  <Text style={styles.totalScoreValue}>
+                    {getTotalPoints()}
+                  </Text>
+                  <Text style={styles.totalScoreUnit}>Points</Text>
+                </View>
+                {renderBarChart()}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -367,5 +468,143 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     letterSpacing: 1,
+  },
+  chartButton: {
+    backgroundColor: "#222",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    marginVertical: 8,
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: TRACK_COLOR,
+  },
+  chartButtonText: {
+    color: TRACK_COLOR,
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContentWrapper: {
+    position: "absolute",
+    width: "90%",
+    maxWidth: 400,
+    maxHeight: "90%",
+  },
+  modalScrollView: {
+    width: "100%",
+  },
+  modalScrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  modalContent: {
+    backgroundColor: "#111",
+    borderRadius: 16,
+    padding: 20,
+    width: "100%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  closeButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#222",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  totalScoreCard: {
+    backgroundColor: "#222",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  totalScoreLabel: {
+    color: "#bbb",
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  totalScoreValue: {
+    color: "#fff",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  totalScoreUnit: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  chartContainer: {
+    backgroundColor: "#222",
+    borderRadius: 12,
+    padding: 16,
+  },
+  chartTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  chartContent: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-around",
+    height: 240,
+    paddingHorizontal: 8,
+  },
+  barWrapper: {
+    alignItems: "center",
+    justifyContent: "flex-end",
+    height: "100%",
+  },
+  barValue: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  barContainer: {
+    width: "100%",
+    height: 200,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  bar: {
+    width: "100%",
+    borderRadius: 4,
+    minHeight: 2,
+  },
+  barLabel: {
+    color: "#fff",
+    fontSize: 11,
+    marginTop: 6,
+    textAlign: "center",
   },
 });
