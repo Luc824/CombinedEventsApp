@@ -239,7 +239,12 @@ export default function MenHeptathlonScreen() {
           onPress={Keyboard.dismiss}
           style={{ flex: 1 }}
         >
-          <View style={styles.contentContainer}>
+          <ScrollView
+            style={styles.contentContainer}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={styles.title}>Men's Heptathlon</Text>
             {HEPTATHLON_EVENTS.map((event, index) => (
               <React.Fragment key={index}>
@@ -281,7 +286,8 @@ export default function MenHeptathlonScreen() {
             <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
-          </View>
+            <View style={{ height: 60 }} />
+          </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
       <Modal
@@ -337,6 +343,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   contentContainer: {
+    flex: 1,
+  },
+  scrollContent: {
     paddingTop: 10,
     paddingBottom: 30,
   },
