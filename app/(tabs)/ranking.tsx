@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Keyboard,
   Modal,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -10,7 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
 } from "react-native";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 
@@ -277,56 +278,64 @@ export default function RankingsScreen() {
     setPoints2("");
   };
 
+  const scrollContent = (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={styles.title}>Rankings Calculator</Text>
+      <PerformanceEntry
+        index={0}
+        event={event1}
+        setEvent={setEvent1}
+        rank={rank1}
+        setRank={setRank1}
+        place={place1}
+        setPlace={setPlace1}
+        points={points1}
+        setPoints={setPoints1}
+        eventOptions={event1Options}
+        resultScore={resultScore1}
+        placingScore={placingScore1}
+        performanceScore={performanceScore1}
+      />
+      <PerformanceEntry
+        index={1}
+        event={event2}
+        setEvent={setEvent2}
+        rank={rank2}
+        setRank={setRank2}
+        place={place2}
+        setPlace={setPlace2}
+        points={points2}
+        setPoints={setPoints2}
+        eventOptions={event2Options}
+        resultScore={resultScore2}
+        placingScore={placingScore2}
+        performanceScore={performanceScore2}
+      />
+      <View style={styles.averageBox}>
+        <Text style={styles.averageLabel}>Ranking Score:</Text>
+        <Text style={styles.averageValue}>{average}</Text>
+      </View>
+      <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
+        <Text style={styles.clearButtonText}>Clear</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <Text style={styles.title}>Rankings Calculator</Text>
-          <PerformanceEntry
-            index={0}
-            event={event1}
-            setEvent={setEvent1}
-            rank={rank1}
-            setRank={setRank1}
-            place={place1}
-            setPlace={setPlace1}
-            points={points1}
-            setPoints={setPoints1}
-            eventOptions={event1Options}
-            resultScore={resultScore1}
-            placingScore={placingScore1}
-            performanceScore={performanceScore1}
-          />
-          <PerformanceEntry
-            index={1}
-            event={event2}
-            setEvent={setEvent2}
-            rank={rank2}
-            setRank={setRank2}
-            place={place2}
-            setPlace={setPlace2}
-            points={points2}
-            setPoints={setPoints2}
-            eventOptions={event2Options}
-            resultScore={resultScore2}
-            placingScore={placingScore2}
-            performanceScore={performanceScore2}
-          />
-          <View style={styles.averageBox}>
-            <Text style={styles.averageLabel}>Ranking Score:</Text>
-            <Text style={styles.averageValue}>{average}</Text>
-          </View>
-          <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
-            <Text style={styles.clearButtonText}>Clear</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </TouchableWithoutFeedback>
+      {Platform.OS === 'web' ? (
+        scrollContent
+      ) : (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          {scrollContent}
+        </TouchableWithoutFeedback>
+      )}
     </SafeAreaView>
   );
 }
@@ -335,10 +344,22 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
+    ...Platform.select({
+      web: {
+        alignItems: "center",
+      },
+    }),
   },
   container: {
     flex: 1,
     backgroundColor: "#000",
+    ...Platform.select({
+      web: {
+        maxWidth: 700,
+        alignSelf: "center",
+        width: "100%",
+      },
+    }),
   },
   scrollContent: {
     padding: 12,

@@ -7,6 +7,7 @@ import {
   StatusBar,
   SafeAreaView,
   Alert,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -59,6 +60,11 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
+    ...Platform.select({
+      web: {
+        alignItems: "center",
+      },
+    }),
   },
   container: {
     flex: 1,
@@ -66,6 +72,13 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "flex-start",
     paddingTop: 160,
+    ...Platform.select({
+      web: {
+        maxWidth: 700,
+        alignSelf: "center",
+        width: "100%",
+      },
+    }),
   },
   title: {
     fontSize: 28,

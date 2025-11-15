@@ -237,6 +237,58 @@ export default function MenHeptathlonScreen() {
     );
   };
 
+  const scrollContent = (
+    <ScrollView
+      style={styles.contentContainer}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={styles.title}>Men's Heptathlon</Text>
+      {HEPTATHLON_EVENTS.map((event, index) => (
+        <React.Fragment key={index}>
+          {renderEventInput(event, index)}
+          {index === 3 && (
+            <>
+              <View style={{ height: 6 }} />
+              <Text style={styles.inlineDayTotalText}>
+                Day 1: {getDay1Total()} Points
+              </Text>
+              <View style={{ height: 10 }} />
+            </>
+          )}
+          {index === 6 && (
+            <>
+              <View style={{ height: 6 }} />
+              <Text style={styles.inlineDayTotalText}>
+                Day 2: {getDay2Total()} Points
+              </Text>
+              <View style={{ height: 10 }} />
+            </>
+          )}
+        </React.Fragment>
+      ))}
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalText}>
+          Total Score: {getTotalPoints()} Points
+        </Text>
+        <Text style={styles.resultScoreText}>
+          Result Score: {getResultScore()}
+        </Text>
+      </View>
+      <TouchableOpacity
+        style={styles.chartButton}
+        onPress={() => setShowChart(true)}
+      >
+        <Text style={styles.chartButtonText}>View Chart</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
+        <Text style={styles.clearButtonText}>Clear</Text>
+      </TouchableOpacity>
+      <View style={{ height: 60 }} />
+    </ScrollView>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
@@ -244,60 +296,16 @@ export default function MenHeptathlonScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <TouchableWithoutFeedback
-          onPress={Keyboard.dismiss}
-          style={{ flex: 1 }}
-        >
-          <ScrollView
-            style={styles.contentContainer}
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+        {Platform.OS === 'web' ? (
+          scrollContent
+        ) : (
+          <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            style={{ flex: 1 }}
           >
-            <Text style={styles.title}>Men's Heptathlon</Text>
-            {HEPTATHLON_EVENTS.map((event, index) => (
-              <React.Fragment key={index}>
-                {renderEventInput(event, index)}
-                {index === 3 && (
-                  <>
-                    <View style={{ height: 6 }} />
-                    <Text style={styles.inlineDayTotalText}>
-                      Day 1: {getDay1Total()} Points
-                    </Text>
-                    <View style={{ height: 10 }} />
-                  </>
-                )}
-                {index === 6 && (
-                  <>
-                    <View style={{ height: 6 }} />
-                    <Text style={styles.inlineDayTotalText}>
-                      Day 2: {getDay2Total()} Points
-                    </Text>
-                    <View style={{ height: 10 }} />
-                  </>
-                )}
-              </React.Fragment>
-            ))}
-            <View style={styles.totalContainer}>
-              <Text style={styles.totalText}>
-                Total Score: {getTotalPoints()} Points
-              </Text>
-              <Text style={styles.resultScoreText}>
-                Result Score: {getResultScore()}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.chartButton}
-              onPress={() => setShowChart(true)}
-            >
-              <Text style={styles.chartButtonText}>View Chart</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
-              <Text style={styles.clearButtonText}>Clear</Text>
-            </TouchableOpacity>
-            <View style={{ height: 60 }} />
-          </ScrollView>
-        </TouchableWithoutFeedback>
+            {scrollContent}
+          </TouchableWithoutFeedback>
+        )}
       </KeyboardAvoidingView>
       <Modal
         visible={showChart}
@@ -345,11 +353,23 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
+    ...Platform.select({
+      web: {
+        alignItems: "center",
+      },
+    }),
   },
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 10,
+    ...Platform.select({
+      web: {
+        maxWidth: 700,
+        alignSelf: "center",
+        width: "100%",
+      },
+    }),
   },
   contentContainer: {
     flex: 1,
