@@ -215,8 +215,8 @@ export default function DecathlonScreen() {
   const renderBarChart = () => {
     const maxPoints = Math.max(...points, 1000); // Minimum scale of 1000
     const chartHeight = 200;
-    const barWidth = 25;
-    const barSpacing = 8;
+    const barWidth = 22;
+    const barSpacing = 4;
 
     return (
       <View style={styles.chartContainer}>
@@ -229,7 +229,7 @@ export default function DecathlonScreen() {
                 key={index}
                 style={[
                   styles.barWrapper,
-                  { width: barWidth + barSpacing },
+                  { width: barWidth + barSpacing * 2 },
                 ]}
               >
                 <Text style={styles.barValue}>{pointValue}</Text>
@@ -238,13 +238,18 @@ export default function DecathlonScreen() {
                     style={[
                       styles.bar,
                       {
+                        width: barWidth,
                         height: Math.max(barHeight, 2), // Minimum height for visibility
                         backgroundColor: TRACK_COLOR,
                       },
                     ]}
                   />
                 </View>
-                <Text style={styles.barLabel}>{EVENT_LABELS[index]}</Text>
+                <View style={styles.barLabelContainer}>
+                  <Text style={styles.barLabel} numberOfLines={1}>
+                    {EVENT_LABELS[index]}
+                  </Text>
+                </View>
               </View>
             );
           })}
@@ -266,9 +271,10 @@ export default function DecathlonScreen() {
         >
           <ScrollView
             ref={scrollViewRef}
-            scrollEnabled={false}
+            scrollEnabled={true}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
             <Text style={styles.title}>Men's Decathlon</Text>
             {/* All Events */}
@@ -597,14 +603,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bar: {
-    width: "100%",
     borderRadius: 4,
     minHeight: 2,
   },
+  barLabelContainer: {
+    height: 20,
+    width: "100%",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginTop: 6,
+  },
   barLabel: {
     color: "#fff",
-    fontSize: 11,
-    marginTop: 6,
+    fontSize: 10,
     textAlign: "center",
+    width: "100%",
   },
 });

@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  SafeAreaView,
-  StatusBar,
+  Keyboard,
   Modal,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
-  Platform,
-  FlatList,
+  View
 } from "react-native";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 
@@ -39,6 +38,18 @@ const PLACING_SCORES: Record<string, number[]> = {
   D: [30, 22, 18, 16, 14, 12, 11, 10, 0, 0, 0, 0, 0, 0, 0, 0],
   E: [20, 14, 10, 8, 7, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   F: [10, 6, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+};
+
+const RANK_DESCRIPTIONS: Record<string, string> = {
+  OW: "Olympics/World Championships",
+  GW: "World Indoor Championships",
+  GL: "Area Championships/Gold Meetings",
+  A: "Area Indoor Championships /Gold Meetings",
+  B: "National Championships/Silver Meetings",
+  C: "Bronze Meetings",
+  D: "National Indoor Championships",
+  E: "Euh...",
+  F: "Other",
 };
 
 const getResultScore = (event: string, points: string): number => {
@@ -107,7 +118,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContentRefined}>
               <Text style={styles.modalPromptRefined}>
-                Tap to select an event
+                {label === "Rank" ? "Tap to select a rank" : "Tap to select an event"}
               </Text>
               {options.map((item) => (
                 <TouchableOpacity
@@ -173,7 +184,7 @@ function PerformanceEntry({
         label="Rank"
         value={rank}
         options={Object.keys(PLACING_SCORES).map((r) => ({
-          label: r,
+          label: `${r} - ${RANK_DESCRIPTIONS[r]}`,
           value: r,
         }))}
         onSelect={setRank}
@@ -270,7 +281,12 @@ export default function RankingsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.container}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.title}>Rankings Calculator</Text>
           <PerformanceEntry
             index={0}
@@ -309,7 +325,7 @@ export default function RankingsScreen() {
           <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
             <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );
@@ -323,8 +339,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+  },
+  scrollContent: {
     padding: 12,
-    justifyContent: "flex-start",
+    paddingBottom: 20,
   },
   title: {
     fontSize: 22,
@@ -378,7 +396,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: "stretch",
     minWidth: 200,
-    maxWidth: 260,
+    maxWidth: 320,
   },
   modalPromptRefined: {
     color: "#bbb",
@@ -392,8 +410,9 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 14,
     textAlign: "center",
+    flexWrap: "wrap",
   },
   input: {
     backgroundColor: "#222",

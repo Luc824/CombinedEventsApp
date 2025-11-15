@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -9,7 +10,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
+
+// Check if we're in Expo Go (RevenueCat won't work here)
+const isExpoGo = Constants.executionEnvironment === "storeClient";
+
+// Safely import RevenueCat - will be null in Expo Go
+let Purchases: any = null;
+let PurchasesOffering: any = null;
+let PurchasesPackage: any = null;
+if (!isExpoGo) {
+  try {
+    const RC = require("react-native-purchases");
+    Purchases = RC.default;
+    PurchasesOffering = RC.PurchasesOffering;
+    PurchasesPackage = RC.PurchasesPackage;
+  } catch (e) {
+    // RevenueCat not available
+    console.log("RevenueCat not available");
+  }
+}
 
 const TRACK_COLOR = "#D35400";
 
@@ -24,9 +43,13 @@ const PACKAGE_LABELS: Record<string, string> = {
 
 export default function MoreScreen() {
   const [loading, setLoading] = useState(false);
-  const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
+  const [offerings, setOfferings] = useState<any>(null);
 
   useEffect(() => {
+    if (!Purchases) {
+      // Skip RevenueCat in Expo Go mode
+      return;
+    }
     const loadOfferings = async () => {
       try {
         setLoading(true);
@@ -53,9 +76,9 @@ export default function MoreScreen() {
   }, []);  
 
   const donationPackages = useMemo(() => {
-    if (!offerings) return [] as PurchasesPackage[];
+    if (!Purchases || !offerings) return [];
     const pkgs = offerings.availablePackages ?? [];
-    const map = new Map<string, PurchasesPackage>();
+    const map = new Map<string, any>();
 
     pkgs.forEach((pkg: any) => {
       const candidates = [
@@ -74,7 +97,7 @@ export default function MoreScreen() {
 
     return ["donation_tier1", "donation_tier2", "donation_tier3"]
       .map((id) => map.get(id))
-      .filter(Boolean) as PurchasesPackage[];
+      .filter(Boolean);
   }, [offerings]);
   
   const handleFeedback = () => {
@@ -85,7 +108,11 @@ export default function MoreScreen() {
     Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review");
   };
 
-  const handleDonate = async (pkg?: PurchasesPackage) => {
+  const handleDonate = async (pkg?: any) => {
+    if (!Purchases) {
+      Alert.alert("Unavailable", "Donations are not available in Expo Go. Use a development build for full functionality.");
+      return;
+    }
     try {
       if (!pkg) {
         Alert.alert("Unavailable", "No donation package is available right now.");
