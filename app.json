@@ -26,6 +26,15 @@
       },
       "edgeToEdgeEnabled": true
     },
+    "web": {
+      "favicon": "./assets/images/favicon.png",
+      "name": "Combined Events Points Calculator",
+      "shortName": "Decathlon Calculator",
+      "description": "Calculate points for Decathlon, Heptathlon, and Pentathlon events. Track your performance and compare with World Athletics standards.",
+      "themeColor": "#D35400",
+      "backgroundColor": "#000000",
+      "bundler": "metro"
+    },
     "plugins": [
       "expo-router",
       "expo-web-browser",
