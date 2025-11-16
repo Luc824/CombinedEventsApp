@@ -102,9 +102,9 @@ export default function MoreScreen() {
     // Replace with your PayPal donation links
     // You can create these at: https://www.paypal.com/donate/buttons
     const paypalLinks: Record<string, string> = {
-      "Amateur": "https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID_1",
-      "Pro": "https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID_2",
-      "GOAT": "https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID_3",
+      "Amateur": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+      "Pro": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+      "GOAT": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
     };
     
     const link = paypalLinks[amount] || paypalLinks["Amateur"];
