@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   View,
   Text,
@@ -15,6 +16,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
+import { saveScore } from "../utils/scoreStorage";
 
 const TRACK_COLOR = "#D35400";
 
@@ -89,6 +91,8 @@ export default function WomenHeptathlonScreen() {
   const [results, setResults] = useState<string[]>(Array(7).fill(""));
   const [points, setPoints] = useState<number[]>(Array(7).fill(0));
   const [showChart, setShowChart] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveTitle, setSaveTitle] = useState("");
 
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
@@ -162,6 +166,35 @@ export default function WomenHeptathlonScreen() {
   const clearAll = () => {
     setResults(Array(7).fill(""));
     setPoints(Array(7).fill(0));
+  };
+
+  const handleSaveScore = async () => {
+    if (!saveTitle.trim()) {
+      Alert.alert("Error", "Please enter a title for this score.");
+      return;
+    }
+
+    const totalPoints = getTotalPoints();
+    if (totalPoints === 0) {
+      Alert.alert("Error", "Cannot save a score with 0 points.");
+      return;
+    }
+
+    try {
+      await saveScore({
+        title: saveTitle.trim(),
+        eventType: 'womenHeptathlon',
+        results: [...results],
+        points: [...points],
+        totalScore: totalPoints,
+        resultScore: getResultScore(),
+      });
+      Alert.alert("Success", "Score saved successfully!");
+      setShowSaveModal(false);
+      setSaveTitle("");
+    } catch (error) {
+      Alert.alert("Error", "Failed to save score. Please try again.");
+    }
   };
 
   const renderEventInput = (
@@ -272,12 +305,22 @@ export default function WomenHeptathlonScreen() {
           Result Score: {getResultScore()}
         </Text>
       </View>
-      <TouchableOpacity
-        style={styles.chartButton}
-        onPress={() => setShowChart(true)}
-      >
-        <Text style={styles.chartButtonText}>View Chart</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.chartButton}
+          onPress={() => setShowChart(true)}
+        >
+          <Text style={styles.chartButtonText}>View Chart</Text>
+        </TouchableOpacity>
+        {Platform.OS !== 'web' && (
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={() => setShowSaveModal(true)}
+          >
+            <Text style={styles.saveButtonText}>Save Score</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
         <Text style={styles.clearButtonText}>Clear</Text>
       </TouchableOpacity>
@@ -338,6 +381,59 @@ export default function WomenHeptathlonScreen() {
                 {renderBarChart()}
               </View>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+      {/* Save Score Modal */}
+      <Modal
+        visible={showSaveModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setShowSaveModal(false);
+          setSaveTitle("");
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              setShowSaveModal(false);
+              setSaveTitle("");
+            }}
+          >
+            <View style={StyleSheet.absoluteFill} />
+          </TouchableWithoutFeedback>
+          <View style={styles.saveModalContent}>
+            <Text style={styles.saveModalTitle}>Save Score</Text>
+            <Text style={styles.saveModalSubtitle}>
+              Enter a title for this score
+            </Text>
+            <TextInput
+              style={styles.saveModalInput}
+              value={saveTitle}
+              onChangeText={setSaveTitle}
+              placeholder="e.g., My Personal Best"
+              placeholderTextColor="#888"
+              autoFocus={true}
+              maxLength={50}
+            />
+            <View style={styles.saveModalButtons}>
+              <TouchableOpacity
+                style={[styles.saveModalButton, styles.saveModalButtonCancel]}
+                onPress={() => {
+                  setShowSaveModal(false);
+                  setSaveTitle("");
+                }}
+              >
+                <Text style={styles.saveModalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.saveModalButton, styles.saveModalButtonSave]}
+                onPress={handleSaveScore}
+              >
+                <Text style={styles.saveModalButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -464,16 +560,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 1,
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+    marginVertical: 8,
+  },
   chartButton: {
     backgroundColor: "#222",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 24,
     alignItems: "center",
-    marginVertical: 8,
-    alignSelf: "center",
     borderWidth: 1,
     borderColor: TRACK_COLOR,
+    flex: 1,
+    minWidth: 140,
   },
   chartButtonText: {
     color: TRACK_COLOR,
@@ -607,5 +709,75 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: "center",
     width: "100%",
+  },
+  saveButton: {
+    backgroundColor: "#222",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: TRACK_COLOR,
+    flex: 1,
+    minWidth: 140,
+  },
+  saveButtonText: {
+    color: TRACK_COLOR,
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  saveModalContent: {
+    backgroundColor: "#111",
+    borderRadius: 16,
+    padding: 20,
+    width: "85%",
+    maxWidth: 400,
+    alignSelf: "center",
+  },
+  saveModalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  saveModalSubtitle: {
+    fontSize: 14,
+    color: "#bbb",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  saveModalInput: {
+    backgroundColor: "#222",
+    borderRadius: 8,
+    padding: 12,
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  saveModalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  saveModalButton: {
+    flex: 1,
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  saveModalButtonCancel: {
+    backgroundColor: "#333",
+  },
+  saveModalButtonSave: {
+    backgroundColor: TRACK_COLOR,
+  },
+  saveModalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

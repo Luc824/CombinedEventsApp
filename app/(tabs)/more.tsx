@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -30,6 +31,7 @@ const PACKAGE_PRICES: Record<string, string> = {
 };
 
 export default function MoreScreen() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 
@@ -104,6 +106,14 @@ export default function MoreScreen() {
     Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID");
   };
 
+  const handleSavedScores = () => {
+    if (Platform.OS === 'web') {
+      Alert.alert("Not Available", "This feature is only available on iOS and Android.");
+      return;
+    }
+    router.push("/saved-scores" as any);
+  };
+
   const handleWebDonate = (amount: string) => {
     // Replace with your PayPal donation links
     // You can create these at: https://www.paypal.com/donate/buttons
@@ -140,6 +150,11 @@ export default function MoreScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       <View style={styles.container}>
         <Text style={styles.title}>Support & More</Text>
+        {Platform.OS !== 'web' && (
+          <TouchableOpacity style={styles.button} onPress={handleSavedScores}>
+            <Text style={styles.buttonText}>Saved Scores</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.button} onPress={handleFeedback}>
           <Text style={styles.buttonText}>Send Feedback</Text>
         </TouchableOpacity>
