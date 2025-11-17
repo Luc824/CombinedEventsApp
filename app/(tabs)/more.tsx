@@ -157,15 +157,19 @@ export default function MoreScreen() {
         {Platform.OS === 'web' ? (
           // Web donations using PayPal links
           <View style={styles.donateRow}>
-            {FALLBACK_TIERS.map((tier) => (
-              <TouchableOpacity
-                key={tier}
-                style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-                onPress={() => handleWebDonate(tier)}
-              >
-                <Text style={styles.donateTier}>{tier}</Text>
-              </TouchableOpacity>
-            ))}
+            {FALLBACK_TIERS.map((tier) => {
+              const price = PACKAGE_PRICES[`donation_tier${FALLBACK_TIERS.indexOf(tier) + 1}`] ?? "";
+              return (
+                <TouchableOpacity
+                  key={tier}
+                  style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
+                  onPress={() => handleWebDonate(tier)}
+                >
+                  <Text style={styles.donateTier}>{tier}</Text>
+                  {price && <Text style={styles.donateAmount}>{price}</Text>}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         ) : (
           // iOS/Android donations using RevenueCat
