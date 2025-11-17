@@ -23,6 +23,12 @@ const PACKAGE_LABELS: Record<string, string> = {
   donation_tier3: "GOAT",
 };
 
+const PACKAGE_PRICES: Record<string, string> = {
+  donation_tier1: "0.99",
+  donation_tier2: "1.99",
+  donation_tier3: "9.99",
+};
+
 export default function MoreScreen() {
   const [loading, setLoading] = useState(false);
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
@@ -173,6 +179,7 @@ export default function MoreScreen() {
                   pkg.product?.identifier ??
                   pkg.identifier;
                 const label = PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
+                const price = PACKAGE_PRICES[pkgId] ?? "";
                 return (
                   <TouchableOpacity
                     key={pkg.identifier}
@@ -181,6 +188,7 @@ export default function MoreScreen() {
                     disabled={loading}
                   >
                     <Text style={styles.donateTier}>{label}</Text>
+                    {price && <Text style={styles.donateAmount}>{price}</Text>}
                   </TouchableOpacity>
                 );
               })}
