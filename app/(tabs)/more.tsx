@@ -86,7 +86,7 @@ export default function MoreScreen() {
   const handleFeedback = () => {
     // Update this email address to your preferred contact email
     // You can use a Gmail alias like: yourname+app@gmail.com
-    Linking.openURL("mailto:luc.coolbrew+app@gmail.com?subject=App Feedback");
+    Linking.openURL("mailto:luc.coolbrew@gmail.com?subject=App Feedback");
   };
 
   const handleReview = () => {
