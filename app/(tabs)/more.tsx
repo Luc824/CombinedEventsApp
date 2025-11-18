@@ -98,12 +98,12 @@ export default function MoreScreen() {
   };
 
   const handleReview = () => {
-    Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID?action=write-review");
+    Linking.openURL("https://apps.apple.com/app/6752707829?action=write-review");
   };
 
   const handleGetApp = () => {
     // Replace YOUR_APP_ID with your actual App Store ID
-    Linking.openURL("https://apps.apple.com/app/idYOUR_APP_ID");
+    Linking.openURL("https://apps.apple.com/app/6752707829");
   };
 
   const handleSavedScores = () => {
