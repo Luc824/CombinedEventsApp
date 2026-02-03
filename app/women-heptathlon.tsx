@@ -210,7 +210,7 @@ export default function WomenHeptathlonScreen() {
           style={styles.input}
           value={results[index]}
           onChangeText={(text) => handleInputChange(text, index)}
-          keyboardType="decimal-pad"
+          keyboardType="number-pad"
           placeholder={placeholderText}
           placeholderTextColor="#888"
           maxLength={maxLength}

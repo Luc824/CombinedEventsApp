@@ -30,6 +30,7 @@ const PACKAGE_PRICES: Record<string, string> = {
   donation_tier3: "9.99",
 };
 
+
 export default function MoreScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

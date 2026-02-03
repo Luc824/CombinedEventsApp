@@ -42,11 +42,11 @@ const PLACING_SCORES: Record<string, number[]> = {
 };
 
 const RANK_DESCRIPTIONS: Record<string, string> = {
-  OW: "Olympics/World Championships",
+  OW: "Olympics / World Championships",
   GW: "World Indoor Championships",
-  GL: "Area Championships/Gold Meetings",
-  A: "Area Indoor Championships /Gold Meetings",
-  B: "National Championships/Silver Meetings",
+  GL: "Area Championships / Gold Meetings",
+  A: "Area Indoor Championships / Gold Meetings",
+  B: "National Championships / Silver Meetings",
   C: "Bronze Meetings",
   D: "National Indoor Championships",
   E: "Euh...",
@@ -117,23 +117,49 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
       >
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContentRefined}>
-              <Text style={styles.modalPromptRefined}>
-                {label === "Rank" ? "Tap to select a rank" : "Tap to select an event"}
-              </Text>
-              {options.map((item) => (
-                <TouchableOpacity
-                  key={item.value}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    onSelect(item.value);
-                    setModalVisible(false);
-                  }}
-                >
-                  <Text style={styles.modalOptionText}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View style={label === "Rank" ? styles.modalContentRefined : styles.modalContentEvent}>
+                <Text style={styles.modalPromptRefined}>
+                  {label === "Rank" ? "Tap to select a rank" : "Tap to select an event"}
+                </Text>
+                {options.map((item) => {
+                // For rank options, split the letter from the description for alignment
+                const isRankOption = label === "Rank";
+                if (isRankOption && item.label.includes(" - ")) {
+                  const [rankLetter, description] = item.label.split(" - ");
+                  return (
+                    <TouchableOpacity
+                      key={item.value}
+                      style={styles.modalOptionRank}
+                      onPress={() => {
+                        onSelect(item.value);
+                        setModalVisible(false);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.rankOptionRow}>
+                        <Text style={styles.rankLetter}>{rankLetter}</Text>
+                        <Text style={styles.rankDescription} numberOfLines={undefined}>{description}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }
+                return (
+                  <TouchableOpacity
+                    key={item.value}
+                    style={label === "Rank" ? styles.modalOption : styles.modalOptionEvent}
+                    onPress={() => {
+                      onSelect(item.value);
+                      setModalVisible(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={label === "Rank" ? styles.modalOptionText : styles.modalOptionTextEvent}>{item.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              </View>
+            </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
@@ -194,7 +220,7 @@ function PerformanceEntry({
         style={styles.input}
         value={place}
         onChangeText={setPlace}
-        keyboardType="numeric"
+        keyboardType="number-pad"
         placeholder="Place"
         placeholderTextColor="#aaa"
         maxLength={2}
@@ -204,7 +230,7 @@ function PerformanceEntry({
         style={styles.input}
         value={points}
         onChangeText={setPoints}
-        keyboardType="numeric"
+        keyboardType="number-pad"
         placeholder="Points"
         placeholderTextColor="#aaa"
         maxLength={5}
@@ -262,8 +288,13 @@ export default function RankingsScreen() {
   const placingScore2 = getPlacingScore(rank2, place2);
   const performanceScore2 = Number(resultScore2) + Number(placingScore2);
 
+  // Check if all inputs for both performances are filled
+  const allInputsFilled = 
+    event1 && rank1 && place1 && points1 &&
+    event2 && rank2 && place2 && points2;
+
   const average =
-    event1 && event2
+    allInputsFilled
       ? Math.floor((performanceScore1 + performanceScore2) / 2).toString()
       : "-";
 
@@ -414,8 +445,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#222",
     borderRadius: 12,
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     alignItems: "stretch",
+    minWidth: 340,
+    maxWidth: "90%",
+  },
+  modalContentEvent: {
+    backgroundColor: "#222",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: "center",
     minWidth: 200,
     maxWidth: 320,
   },
@@ -427,13 +467,69 @@ const styles = StyleSheet.create({
   },
   modalOption: {
     paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    minHeight: 40,
+    width: "100%",
+    alignItems: "center",
+  },
+  modalOptionRank: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minHeight: 40,
+    width: "100%",
+    backgroundColor: "#333",
+    borderRadius: 8,
+    marginVertical: 2,
+    justifyContent: "center",
+  },
+  modalOptionEvent: {
+    paddingVertical: 4,
+    paddingHorizontal: 0,
+    minHeight: 40,
+    alignItems: "stretch",
+    alignSelf: "center",
+    width: 240,
+    justifyContent: "center",
   },
   modalOptionText: {
     color: "#fff",
     fontSize: 14,
     textAlign: "center",
     flexWrap: "wrap",
+  },
+  modalOptionTextEvent: {
+    color: "#fff",
+    fontSize: 14,
+    textAlign: "center",
+    flexWrap: "wrap",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#333",
+    borderRadius: 8,
+    width: "100%",
+  },
+  rankOptionRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    width: "100%",
+    flexWrap: "wrap",
+  },
+  rankLetter: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+    width: 40,
+    textAlign: "left",
+    marginRight: 8,
+    flexShrink: 0,
+  },
+  rankDescription: {
+    color: "#fff",
+    fontSize: 14,
+    flex: 1,
+    textAlign: "left",
+    flexShrink: 1,
+    minWidth: 0,
   },
   input: {
     backgroundColor: "#222",
