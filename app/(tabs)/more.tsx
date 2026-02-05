@@ -11,7 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
+// Temporarily disabled for Expo Go testing
+// import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
+
+// Temporarily disabled types for Expo Go testing
+type PurchasesOffering = any;
+type PurchasesPackage = any;
 
 const TRACK_COLOR = "#D35400";
 
@@ -37,6 +42,9 @@ export default function MoreScreen() {
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 
   useEffect(() => {
+    // Temporarily disabled for Expo Go testing
+    // RevenueCat requires native modules and doesn't work in Expo Go
+    /*
     // Only load RevenueCat offerings on iOS/Android, not web
     if (Platform.OS === 'web') {
       return;
@@ -65,6 +73,7 @@ export default function MoreScreen() {
       }
     };
     loadOfferings();
+    */
   }, []);  
 
   const donationPackages = useMemo(() => {
@@ -129,6 +138,9 @@ export default function MoreScreen() {
   };
 
   const handleDonate = async (pkg?: PurchasesPackage) => {
+    // Temporarily disabled for Expo Go testing
+    Alert.alert("Unavailable", "Donations are temporarily disabled for testing.");
+    /*
     try {
       if (!pkg) {
         Alert.alert("Unavailable", "No donation package is available right now.");
@@ -143,6 +155,7 @@ export default function MoreScreen() {
     } finally {
       setLoading(false);
     }
+    */
   };
 
 
@@ -170,6 +183,23 @@ export default function MoreScreen() {
         )}
 
         <Text style={styles.sectionTitle}>Tips</Text>
+        {/* Temporarily showing PayPal fallback for all platforms during Expo Go testing */}
+        <View style={styles.donateRow}>
+          {FALLBACK_TIERS.map((tier) => {
+            const price = PACKAGE_PRICES[`donation_tier${FALLBACK_TIERS.indexOf(tier) + 1}`] ?? "";
+            return (
+              <TouchableOpacity
+                key={tier}
+                style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
+                onPress={() => handleWebDonate(tier)}
+              >
+                <Text style={styles.donateTier}>{tier}</Text>
+                {price && <Text style={styles.donateAmount}>{price}</Text>}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {/* Temporarily disabled RevenueCat code for Expo Go testing
         {Platform.OS === 'web' ? (
           // Web donations using PayPal links
           <View style={styles.donateRow}>
@@ -227,6 +257,7 @@ export default function MoreScreen() {
             </View>
           )
         )}
+        */}
 
         <Text style={styles.donateMessage}>
           Support this app (no pole vault required!)

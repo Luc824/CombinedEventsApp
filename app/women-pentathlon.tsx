@@ -1,19 +1,21 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
   SafeAreaView,
+  ScrollView,
   StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
@@ -76,6 +78,7 @@ const convertTimeToSeconds = (timeStr: string) => {
 };
 
 export default function WomenPentathlonScreen() {
+  const router = useRouter();
   const [results, setResults] = useState<string[]>(Array(5).fill(""));
   const [points, setPoints] = useState<number[]>(Array(5).fill(0));
   const [showChart, setShowChart] = useState(false);
@@ -251,7 +254,18 @@ export default function WomenPentathlonScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Women's Pentathlon</Text>
+      <View style={styles.titleRow}>
+        {Platform.OS !== 'web' && (
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => router.back()}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="chevron-back" size={22} color="#fff" />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.title}>Women's Pentathlon</Text>
+      </View>
       {WOMEN_PENTATHLON_EVENTS.map((event, index) => (
         <React.Fragment key={index}>
           {renderEventInput(event, index)}
@@ -284,7 +298,7 @@ export default function WomenPentathlonScreen() {
       <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
         <Text style={styles.clearButtonText}>Clear</Text>
       </TouchableOpacity>
-      <View style={{ height: 60 }} />
+      <View style={{ height: 20 }} />
     </ScrollView>
   );
 
@@ -430,22 +444,44 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 30,
   },
+  titleRow: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    marginBottom: 12,
+    position: "relative",
+    paddingLeft: 50,
+    paddingRight: 50,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    position: "absolute",
+    left: 0,
+    zIndex: 1,
+    backgroundColor: "#222",
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginTop: 10,
-    marginBottom: 20,
+    width: "100%",
   },
   eventContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 5,
-    backgroundColor: "#222",
+    marginBottom: 4,
+    marginHorizontal: 16,
+    backgroundColor: "rgba(34, 34, 34, 0.6)",
+    borderWidth: 1,
+    borderColor: "#333",
     borderRadius: 8,
-    padding: 6,
+    padding: 5,
   },
   eventName: {
     color: "#fff",
@@ -473,12 +509,15 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   totalContainer: {
-    marginTop: 10,
+    marginTop: 8,
     alignItems: "center",
-    paddingVertical: 10,
-    backgroundColor: "#1a1a1a",
+    paddingVertical: 8,
+    marginHorizontal: 16,
+    backgroundColor: "rgba(34, 34, 34, 0.6)",
+    borderWidth: 1,
+    borderColor: "#333",
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   totalText: {
     color: "#fff",
@@ -499,42 +538,50 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   clearButton: {
-    backgroundColor: TRACK_COLOR,
-    borderRadius: 20,
-    paddingVertical: 10,
+    backgroundColor: "#444",
+    borderRadius: 12,
+    paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: "center",
-    marginVertical: 16,
-    alignSelf: "center",
+    marginVertical: 8,
+    marginHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   clearButtonText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-    letterSpacing: 1,
+    fontWeight: "600",
+    fontSize: 15,
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 12,
-    marginVertical: 8,
+    gap: 10,
+    marginVertical: 6,
+    marginHorizontal: 16,
   },
   chartButton: {
-    backgroundColor: "#222",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: TRACK_COLOR,
+    justifyContent: "center",
     flex: 1,
     minWidth: 140,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   chartButtonText: {
-    color: TRACK_COLOR,
-    fontWeight: "bold",
-    fontSize: 16,
-    letterSpacing: 1,
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 15,
   },
   modalOverlay: {
     flex: 1,
@@ -664,21 +711,24 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   saveButton: {
-    backgroundColor: "#222",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    backgroundColor: TRACK_COLOR,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: TRACK_COLOR,
+    justifyContent: "center",
     flex: 1,
     minWidth: 140,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   saveButtonText: {
-    color: TRACK_COLOR,
-    fontWeight: "bold",
-    fontSize: 16,
-    letterSpacing: 1,
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 15,
   },
   saveModalContent: {
     backgroundColor: "#111",

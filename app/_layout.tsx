@@ -2,10 +2,14 @@ import Constants from "expo-constants";
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
-import Purchases from "react-native-purchases";
+// Temporarily disabled for Expo Go testing
+// import Purchases from "react-native-purchases";
 
 export default function RootLayout() {
   useEffect(() => {
+    // Temporarily disabled for Expo Go testing
+    // RevenueCat requires native modules and doesn't work in Expo Go
+    /*
     const apiKey =
       Platform.select({
         ios: Constants.expoConfig?.extra?.revenueCatApiKeyIos,
@@ -15,6 +19,7 @@ export default function RootLayout() {
     if (apiKey) {
       Purchases.configure({ apiKey });
     }
+    */
   }, []);
   return (
     <Stack>
