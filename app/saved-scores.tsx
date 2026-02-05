@@ -10,13 +10,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useTheme } from "../contexts/ThemeContext";
+import { ThemeColors } from "../constants/ThemeColors";
 import { getSavedScores, deleteScore, SavedScore, getEventTypeDisplayName } from "../utils/scoreStorage";
 
 const TRACK_COLOR = "#D35400";
 
 export default function SavedScoresScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   const [scores, setScores] = useState<SavedScore[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,11 +73,13 @@ export default function SavedScoresScreen() {
 
   if (Platform.OS === 'web') {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="light-content" backgroundColor="#000" />
-        <View style={styles.container}>
-          <Text style={styles.title}>Saved Scores</Text>
-          <Text style={styles.webMessage}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: colors.text }]}>Saved Scores</Text>
+          </View>
+          <Text style={[styles.webMessage, { color: colors.textMuted }]}>
             This feature is only available on iOS and Android.
           </Text>
         </View>
@@ -81,21 +88,30 @@ export default function SavedScoresScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Saved Scores</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.titleRow}>
+          {Platform.OS !== 'web' && (
+            <TouchableOpacity 
+              style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
+              onPress={() => router.back()}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="chevron-back" size={22} color={colors.text} />
+            </TouchableOpacity>
+          )}
+          <Text style={[styles.title, { color: colors.text }]}>Saved Scores</Text>
         </View>
 
         {loading ? (
           <View style={styles.centerContainer}>
-            <Text style={styles.emptyText}>Loading...</Text>
+            <Text style={[styles.emptyText, { color: colors.text }]}>Loading...</Text>
           </View>
         ) : scores.length === 0 ? (
           <View style={styles.centerContainer}>
-            <Text style={styles.emptyText}>No saved scores yet</Text>
-            <Text style={styles.emptySubtext}>
+            <Text style={[styles.emptyText, { color: colors.text }]}>No saved scores yet</Text>
+            <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
               Save scores from any calculator screen to see them here
             </Text>
           </View>
@@ -108,7 +124,7 @@ export default function SavedScoresScreen() {
             {scores.map((score) => (
               <View key={score.id} style={styles.scoreCardWrapper}>
                 <TouchableOpacity
-                  style={styles.scoreCard}
+                  style={[styles.scoreCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}
                   onPress={() => router.push({
                     pathname: "/saved-score-detail",
                     params: { score: JSON.stringify(score) },
@@ -117,35 +133,35 @@ export default function SavedScoresScreen() {
                 >
                   <View style={styles.scoreHeader}>
                     <View style={styles.scoreTitleContainer}>
-                      <Text style={styles.scoreTitle}>{score.title}</Text>
-                      <Text style={styles.eventType}>
+                      <Text style={[styles.scoreTitle, { color: colors.text }]}>{score.title}</Text>
+                      <Text style={[styles.eventType, { color: TRACK_COLOR }]}>
                         {getEventTypeDisplayName(score.eventType)}
                       </Text>
                     </View>
                   </View>
-                  <View style={styles.scoreDetails}>
+                  <View style={[styles.scoreDetails, { borderTopColor: colors.border }]}>
                     <View style={styles.scoreRow}>
-                      <Text style={styles.scoreLabel}>Total Score:</Text>
-                      <Text style={styles.scoreValue}>
+                      <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>Total Score:</Text>
+                      <Text style={[styles.scoreValue, { color: colors.text }]}>
                         {score.totalScore} Points
                       </Text>
                     </View>
                     <View style={styles.scoreRow}>
-                      <Text style={styles.scoreLabel}>Result Score:</Text>
-                      <Text style={styles.resultScoreValue}>
+                      <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>Result Score:</Text>
+                      <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>
                         {score.resultScore}
                       </Text>
                     </View>
-                    <Text style={styles.dateText}>
+                    <Text style={[styles.dateText, { color: colors.textMuted }]}>
                       Saved on {formatDate(score.dateSaved)}
                     </Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.deleteButton}
+                  style={[styles.deleteButton, { backgroundColor: colors.buttonSecondary }]}
                   onPress={() => handleDelete(score.id, score.title)}
                 >
-                  <Text style={styles.deleteButtonText}>✕</Text>
+                  <Text style={[styles.deleteButtonText, { color: colors.buttonText }]}>✕</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -159,24 +175,38 @@ export default function SavedScoresScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000",
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
     padding: 20,
   },
-  header: {
+  titleRow: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
     marginBottom: 20,
+    position: "relative",
+    paddingLeft: 50,
+    paddingRight: 50,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    position: "absolute",
+    left: 0,
+    zIndex: 1,
+    borderWidth: 1,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
     textAlign: "center",
+    width: "100%",
   },
   webMessage: {
-    color: "#888",
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
@@ -187,13 +217,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    color: "#fff",
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
   },
   emptySubtext: {
-    color: "#888",
     fontSize: 14,
     textAlign: "center",
     paddingHorizontal: 40,
@@ -209,7 +237,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   scoreCard: {
-    backgroundColor: "#222",
     borderRadius: 12,
     padding: 16,
     paddingRight: 50,
@@ -221,13 +248,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scoreTitle: {
-    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 4,
   },
   eventType: {
-    color: TRACK_COLOR,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -238,19 +263,16 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#333",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
   },
   deleteButtonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
   scoreDetails: {
     borderTopWidth: 1,
-    borderTopColor: "#333",
     paddingTop: 12,
   },
   scoreRow: {
@@ -260,21 +282,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   scoreLabel: {
-    color: "#bbb",
     fontSize: 14,
   },
   scoreValue: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
   resultScoreValue: {
-    color: TRACK_COLOR,
     fontSize: 16,
     fontWeight: "bold",
   },
   dateText: {
-    color: "#888",
     fontSize: 12,
     marginTop: 4,
   },

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -11,6 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "../../contexts/ThemeContext";
+import { ThemeColors } from "../../constants/ThemeColors";
 // Temporarily disabled for Expo Go testing
 // import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 
@@ -38,6 +41,8 @@ const PACKAGE_PRICES: Record<string, string> = {
 
 export default function MoreScreen() {
   const router = useRouter();
+  const { theme, toggleTheme, isDark } = useTheme();
+  const colors = ThemeColors[theme];
   const [loading, setLoading] = useState(false);
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 
@@ -160,29 +165,47 @@ export default function MoreScreen() {
 
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <View style={styles.container}>
-        <Text style={styles.title}>Support & More</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
+        
+        <TouchableOpacity 
+          style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} 
+          onPress={toggleTheme}
+        >
+          <View style={styles.themeToggleRow}>
+            <Ionicons 
+              name={isDark ? "sunny" : "moon"} 
+              size={20} 
+              color={colors.text} 
+              style={styles.themeIcon}
+            />
+            <Text style={[styles.buttonText, { color: colors.text }]}>
+              {isDark ? "Light Mode" : "Dark Mode"}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
         {Platform.OS !== 'web' && (
-          <TouchableOpacity style={styles.button} onPress={handleSavedScores}>
-            <Text style={styles.buttonText}>Saved Scores</Text>
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} onPress={handleSavedScores}>
+            <Text style={[styles.buttonText, { color: colors.text }]}>Saved Scores</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.button} onPress={handleFeedback}>
-          <Text style={styles.buttonText}>Send Feedback</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} onPress={handleFeedback}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleReview}>
-          <Text style={styles.buttonText}>Leave a Review</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} onPress={handleReview}>
+          <Text style={[styles.buttonText, { color: colors.text }]}>Leave a Review</Text>
         </TouchableOpacity>
 
         {Platform.OS === 'web' && (
-          <TouchableOpacity style={[styles.button, styles.getAppButton]} onPress={handleGetApp}>
-            <Text style={styles.buttonText}>📱 Get the App</Text>
+          <TouchableOpacity style={[styles.button, styles.getAppButton, { backgroundColor: TRACK_COLOR }]} onPress={handleGetApp}>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>📱 Get the App</Text>
           </TouchableOpacity>
         )}
 
-        <Text style={styles.sectionTitle}>Tips</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Tips</Text>
         {/* Temporarily showing PayPal fallback for all platforms during Expo Go testing */}
         <View style={styles.donateRow}>
           {FALLBACK_TIERS.map((tier) => {
@@ -259,7 +282,7 @@ export default function MoreScreen() {
         )}
         */}
 
-        <Text style={styles.donateMessage}>
+        <Text style={[styles.donateMessage, { color: colors.textSecondary }]}>
           Support this app (no pole vault required!)
         </Text>
       </View>
@@ -270,17 +293,14 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000",
   },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000",
     padding: 20,
   },
   title: {
-    color: "#fff",
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 30,
@@ -288,7 +308,6 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   button: {
-    backgroundColor: "#222",
     borderRadius: 30,
     paddingVertical: 14,
     paddingHorizontal: 30,
@@ -298,15 +317,21 @@ const styles = StyleSheet.create({
     maxWidth: 350,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
+  themeToggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  themeIcon: {
+    marginRight: 8,
+  },
   getAppButton: {
-    backgroundColor: TRACK_COLOR,
+    // backgroundColor set dynamically
   },
   sectionTitle: {
-    color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     marginTop: 30,
@@ -339,11 +364,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   donateMessage: {
-    color: "#fff",
     fontSize: 14,
     textAlign: "center",
     marginTop: 12,
     marginBottom: 0,
-    opacity: 0.85,
   },
 });

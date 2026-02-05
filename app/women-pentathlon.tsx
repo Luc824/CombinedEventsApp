@@ -17,6 +17,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useTheme } from "../contexts/ThemeContext";
+import { ThemeColors } from "../constants/ThemeColors";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
 
@@ -79,6 +81,8 @@ const convertTimeToSeconds = (timeStr: string) => {
 
 export default function WomenPentathlonScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   const [results, setResults] = useState<string[]>(Array(5).fill(""));
   const [points, setPoints] = useState<number[]>(Array(5).fill(0));
   const [showChart, setShowChart] = useState(false);
@@ -185,18 +189,18 @@ export default function WomenPentathlonScreen() {
     let placeholderText = PENTATHLON_PLACEHOLDERS[index];
     const maxLength = event.name === "800m" ? 7 : 5;
     return (
-      <View key={index} style={styles.eventContainer}>
-        <Text style={styles.eventName}>{event.name}</Text>
+      <View key={index} style={[styles.eventContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[styles.eventName, { color: colors.text }]}>{event.name}</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
           value={results[index]}
           onChangeText={(text) => handleInputChange(text, index)}
           keyboardType="number-pad"
           placeholder={placeholderText}
-          placeholderTextColor="#888"
+          placeholderTextColor={colors.textMuted}
           maxLength={maxLength}
         />
-        <Text style={styles.points}>{points[index]} Points</Text>
+        <Text style={[styles.points, { color: colors.text }]}>{points[index]} Points</Text>
       </View>
     );
   };
@@ -208,8 +212,8 @@ export default function WomenPentathlonScreen() {
     const barSpacing = 4;
 
     return (
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Performance Overview</Text>
+      <View style={[styles.chartContainer, { backgroundColor: colors.surfaceSolid }]}>
+        <Text style={[styles.chartTitle, { color: colors.text }]}>Performance Overview</Text>
         <View style={styles.chartContent}>
           {points.map((pointValue, index) => {
             const barHeight = maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
@@ -221,7 +225,7 @@ export default function WomenPentathlonScreen() {
                   { width: barWidth + barSpacing * 2 },
                 ]}
               >
-                <Text style={styles.barValue}>{pointValue}</Text>
+                <Text style={[styles.barValue, { color: colors.text }]}>{pointValue}</Text>
                 <View style={styles.barContainer}>
                   <View
                     style={[
@@ -235,7 +239,7 @@ export default function WomenPentathlonScreen() {
                   />
                 </View>
                 <View style={styles.barLabelContainer}>
-                  <Text style={styles.barLabel} numberOfLines={1}>
+                  <Text style={[styles.barLabel, { color: colors.text }]} numberOfLines={1}>
                     {EVENT_LABELS[index]}
                   </Text>
                 </View>
@@ -257,46 +261,46 @@ export default function WomenPentathlonScreen() {
       <View style={styles.titleRow}>
         {Platform.OS !== 'web' && (
           <TouchableOpacity 
-            style={styles.backButton} 
+            style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
             onPress={() => router.back()}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="chevron-back" size={22} color="#fff" />
+            <Ionicons name="chevron-back" size={22} color={colors.text} />
           </TouchableOpacity>
         )}
-        <Text style={styles.title}>Women's Pentathlon</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Women's Pentathlon</Text>
       </View>
       {WOMEN_PENTATHLON_EVENTS.map((event, index) => (
         <React.Fragment key={index}>
           {renderEventInput(event, index)}
         </React.Fragment>
       ))}
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>
+      <View style={[styles.totalContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[styles.totalText, { color: colors.text }]}>
           Total Score: {getTotalPoints()} Points
         </Text>
-        <Text style={styles.resultScoreText}>
+        <Text style={[styles.resultScoreText, { color: TRACK_COLOR }]}>
           Result Score: {getResultScore()}
         </Text>
       </View>
       <View style={styles.buttonRow}>
         <TouchableOpacity
-          style={styles.chartButton}
+          style={[styles.chartButton, { backgroundColor: colors.buttonPrimary }]}
           onPress={() => setShowChart(true)}
         >
-          <Text style={styles.chartButtonText}>View Chart</Text>
+          <Text style={[styles.chartButtonText, { color: colors.buttonText }]}>View Chart</Text>
         </TouchableOpacity>
         {Platform.OS !== 'web' && (
           <TouchableOpacity
-            style={styles.saveButton}
+            style={[styles.saveButton, { backgroundColor: colors.buttonPrimary }]}
             onPress={() => setShowSaveModal(true)}
           >
-            <Text style={styles.saveButtonText}>Save Score</Text>
+            <Text style={[styles.saveButtonText, { color: colors.buttonText }]}>Save Score</Text>
           </TouchableOpacity>
         )}
       </View>
-      <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
-        <Text style={styles.clearButtonText}>Clear</Text>
+      <TouchableOpacity style={[styles.clearButton, { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
+        <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
       </TouchableOpacity>
       <View style={{ height: 20 }} />
     </ScrollView>
@@ -307,7 +311,7 @@ export default function WomenPentathlonScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#000" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
       >
         {Platform.OS === 'web' ? (
           scrollContent
@@ -326,7 +330,7 @@ export default function WomenPentathlonScreen() {
         animationType="fade"
         onRequestClose={() => setShowChart(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
           <TouchableWithoutFeedback onPress={() => setShowChart(false)}>
             <View style={StyleSheet.absoluteFill} />
           </TouchableWithoutFeedback>
@@ -335,22 +339,22 @@ export default function WomenPentathlonScreen() {
               contentContainerStyle={styles.modalScrollContent}
               style={styles.modalScrollView}
             >
-              <View style={styles.modalContent}>
+              <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Women's Pentathlon</Text>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Women's Pentathlon</Text>
                   <TouchableOpacity
                     onPress={() => setShowChart(false)}
-                    style={styles.closeButton}
+                    style={[styles.closeButton, { backgroundColor: colors.surfaceSolid }]}
                   >
-                    <Text style={styles.closeButtonText}>✕</Text>
+                    <Text style={[styles.closeButtonText, { color: colors.text }]}>✕</Text>
                   </TouchableOpacity>
                 </View>
-                <View style={styles.totalScoreCard}>
-                  <Text style={styles.totalScoreLabel}>Total Score</Text>
-                  <Text style={styles.totalScoreValue}>
+                <View style={[styles.totalScoreCard, { backgroundColor: colors.surfaceSolid }]}>
+                  <Text style={[styles.totalScoreLabel, { color: colors.textSecondary }]}>Total Score</Text>
+                  <Text style={[styles.totalScoreValue, { color: colors.text }]}>
                     {getTotalPoints()}
                   </Text>
-                  <Text style={styles.totalScoreUnit}>Points</Text>
+                  <Text style={[styles.totalScoreUnit, { color: colors.text }]}>Points</Text>
                 </View>
                 {renderBarChart()}
               </View>
@@ -368,7 +372,7 @@ export default function WomenPentathlonScreen() {
           setSaveTitle("");
         }}
       >
-        <View style={styles.modalOverlay}>
+        <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
           <TouchableWithoutFeedback
             onPress={() => {
               setShowSaveModal(false);
@@ -377,35 +381,35 @@ export default function WomenPentathlonScreen() {
           >
             <View style={StyleSheet.absoluteFill} />
           </TouchableWithoutFeedback>
-          <View style={styles.saveModalContent}>
-            <Text style={styles.saveModalTitle}>Save Score</Text>
-            <Text style={styles.saveModalSubtitle}>
+          <View style={[styles.saveModalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.saveModalTitle, { color: colors.text }]}>Save Score</Text>
+            <Text style={[styles.saveModalSubtitle, { color: colors.textSecondary }]}>
               Enter a title for this score
             </Text>
             <TextInput
-              style={styles.saveModalInput}
+              style={[styles.saveModalInput, { backgroundColor: colors.inputBackground, color: colors.inputText, borderColor: colors.border }]}
               value={saveTitle}
               onChangeText={setSaveTitle}
               placeholder="e.g., My Personal Best"
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.textMuted}
               autoFocus={true}
               maxLength={50}
             />
             <View style={styles.saveModalButtons}>
               <TouchableOpacity
-                style={[styles.saveModalButton, styles.saveModalButtonCancel]}
+                style={[styles.saveModalButton, styles.saveModalButtonCancel, { backgroundColor: colors.buttonSecondary }]}
                 onPress={() => {
                   setShowSaveModal(false);
                   setSaveTitle("");
                 }}
               >
-                <Text style={styles.saveModalButtonText}>Cancel</Text>
+                <Text style={[styles.saveModalButtonText, { color: colors.buttonText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.saveModalButton, styles.saveModalButtonSave]}
+                style={[styles.saveModalButton, styles.saveModalButtonSave, { backgroundColor: colors.buttonPrimary }]}
                 onPress={handleSaveScore}
               >
-                <Text style={styles.saveModalButtonText}>Save</Text>
+                <Text style={[styles.saveModalButtonText, { color: colors.buttonText }]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -460,6 +464,8 @@ const styles = StyleSheet.create({
     left: 0,
     zIndex: 1,
     backgroundColor: "#222",
+    borderWidth: 1,
+    borderColor: "#333",
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",

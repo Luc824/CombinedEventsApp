@@ -10,45 +10,49 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTheme } from "../../contexts/ThemeContext";
+import { ThemeColors } from "../../constants/ThemeColors";
 
 const TRACK_COLOR = "#D35400";
 
 export default function EventsScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <View style={styles.container}>
-        <Text style={styles.title}>Combined Events{"\n"}Calculator</Text>
-        <Text style={styles.sectionTitle}>Men</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Combined Events{"\n"}Calculator</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Men</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={[styles.button, styles.pillButton]}
+            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
             onPress={() => router.push("/decathlon")}
           >
-            <Text style={styles.buttonText}>Decathlon</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Decathlon</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, styles.pillButton]}
+            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
             onPress={() => router.push("/men-heptathlon")}
           >
-            <Text style={styles.buttonText}>Heptathlon</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Heptathlon</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.sectionTitle}>Women</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Women</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={[styles.button, styles.pillButton]}
+            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
             onPress={() => router.push("/women-heptathlon")}
           >
-            <Text style={styles.buttonText}>Heptathlon</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Heptathlon</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, styles.pillButton]}
+            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
             onPress={() => router.push("/women-pentathlon")}
           >
-            <Text style={styles.buttonText}>Pentathlon</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Pentathlon</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -59,7 +63,6 @@ export default function EventsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000",
     ...Platform.select({
       web: {
         alignItems: "center",
@@ -68,7 +71,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
     padding: 20,
     justifyContent: "flex-start",
     paddingTop: 160,
@@ -83,7 +85,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
     textAlign: "center",
     marginTop: 20,
     marginBottom: 30,
@@ -91,7 +92,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    color: "#fff",
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
@@ -104,7 +104,6 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   button: {
-    backgroundColor: TRACK_COLOR,
     borderColor: "#fff",
     borderWidth: 0,
     alignItems: "center",
@@ -118,7 +117,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",

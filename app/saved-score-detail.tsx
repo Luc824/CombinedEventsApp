@@ -9,13 +9,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTheme } from "../contexts/ThemeContext";
+import { ThemeColors } from "../constants/ThemeColors";
 import { SavedScore, getEventTypeDisplayName, getEventNames } from "../utils/scoreStorage";
 
 const TRACK_COLOR = "#D35400";
 
 export default function SavedScoreDetailScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   const params = useLocalSearchParams<{ score: string }>();
   
   let score: SavedScore | null = null;
@@ -27,13 +32,22 @@ export default function SavedScoreDetailScreen() {
 
   if (!score) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="light-content" backgroundColor="#000" />
-        <View style={styles.container}>
-          <Text style={styles.errorText}>Score not found</Text>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <View style={styles.titleRow}>
+            {Platform.OS !== 'web' && (
+              <TouchableOpacity 
+                style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
+                onPress={() => router.back()}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="chevron-back" size={22} color={colors.text} />
+              </TouchableOpacity>
+            )}
+            <Text style={[styles.title, { color: colors.text }]}>Saved Score</Text>
+          </View>
+          <Text style={[styles.errorText, { color: colors.text }]}>Score not found</Text>
         </View>
       </SafeAreaView>
     );
@@ -42,14 +56,20 @@ export default function SavedScoreDetailScreen() {
   const eventNames = getEventNames(score.eventType);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButtonTouchable} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>{score.title}</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.titleRow}>
+          {Platform.OS !== 'web' && (
+            <TouchableOpacity 
+              style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
+              onPress={() => router.back()}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="chevron-back" size={22} color={colors.text} />
+            </TouchableOpacity>
+          )}
+          <Text style={[styles.title, { color: colors.text }]}>{score.title}</Text>
         </View>
 
         <ScrollView
@@ -57,26 +77,26 @@ export default function SavedScoreDetailScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.summaryCard}>
-            <Text style={styles.eventType}>{getEventTypeDisplayName(score.eventType)}</Text>
+          <View style={[styles.summaryCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
+            <Text style={[styles.eventType, { color: TRACK_COLOR }]}>{getEventTypeDisplayName(score.eventType)}</Text>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Total Score:</Text>
-              <Text style={styles.summaryValue}>{score.totalScore} Points</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Score:</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{score.totalScore} Points</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Result Score:</Text>
-              <Text style={styles.resultScoreValue}>{score.resultScore}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Result Score:</Text>
+              <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>{score.resultScore}</Text>
             </View>
           </View>
 
-          <Text style={styles.sectionTitle}>Event Performances</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>
           {eventNames.map((eventName, index) => (
-            <View key={index} style={styles.eventCard}>
+            <View key={index} style={[styles.eventCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
               <View style={styles.eventHeader}>
-                <Text style={styles.eventName}>{eventName}</Text>
-                <Text style={styles.eventPoints}>{score.points[index]} Points</Text>
+                <Text style={[styles.eventName, { color: colors.text }]}>{eventName}</Text>
+                <Text style={[styles.eventPoints, { color: TRACK_COLOR }]}>{score.points[index]} Points</Text>
               </View>
-              <Text style={styles.eventResult}>
+              <Text style={[styles.eventResult, { color: colors.textSecondary }]}>
                 {score.results[index] || "No result"}
               </Text>
             </View>
@@ -90,36 +110,38 @@ export default function SavedScoreDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000",
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
     padding: 20,
   },
-  header: {
-    flexDirection: "row",
+  titleRow: {
     alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
     marginBottom: 20,
+    position: "relative",
+    paddingLeft: 50,
+    paddingRight: 50,
   },
-  backButtonTouchable: {
-    marginRight: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  backButtonText: {
-    color: TRACK_COLOR,
-    fontSize: 16,
-    fontWeight: "600",
+  backButton: {
+    width: 40,
+    height: 40,
+    position: "absolute",
+    left: 0,
+    zIndex: 1,
+    borderWidth: 1,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
-    flex: 1,
+    textAlign: "center",
+    width: "100%",
   },
   errorText: {
-    color: "#fff",
     fontSize: 18,
     textAlign: "center",
     marginTop: 50,
@@ -131,13 +153,11 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   summaryCard: {
-    backgroundColor: "#222",
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
   },
   eventType: {
-    color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 12,
@@ -149,27 +169,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryLabel: {
-    color: "#bbb",
     fontSize: 16,
   },
   summaryValue: {
-    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },
   resultScoreValue: {
-    color: TRACK_COLOR,
     fontSize: 18,
     fontWeight: "bold",
   },
   sectionTitle: {
-    color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 12,
   },
   eventCard: {
-    backgroundColor: "#222",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -181,19 +196,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   eventName: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
     flex: 1,
   },
   eventPoints: {
-    color: TRACK_COLOR,
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 12,
   },
   eventResult: {
-    color: "#bbb",
     fontSize: 14,
   },
 });

@@ -13,6 +13,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { ThemeColors } from "../../constants/ThemeColors";
+import { useTheme } from "../../contexts/ThemeContext";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 
 const TRACK_COLOR = "#D35400";
@@ -97,15 +99,17 @@ interface DropdownProps {
 }
 
 function Dropdown({ label, value, options, onSelect }: DropdownProps) {
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   const [modalVisible, setModalVisible] = useState(false);
   const selectedLabel = options.find((o) => o.value === value)?.label || label;
   return (
     <>
       <TouchableOpacity
-        style={styles.dropdown}
+        style={[styles.dropdown, { backgroundColor: colors.inputBackground, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={value ? styles.dropdownText : styles.dropdownPlaceholder}>
+        <Text style={[value ? styles.dropdownText : styles.dropdownPlaceholder, { color: value ? colors.text : colors.textMuted }]}>
           {selectedLabel}
         </Text>
       </TouchableOpacity>
@@ -116,10 +120,10 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
         onRequestClose={() => setModalVisible(false)}
       >
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
+          <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <View style={label === "Rank" ? styles.modalContentRefined : styles.modalContentEvent}>
-                <Text style={styles.modalPromptRefined}>
+              <View style={[label === "Rank" ? styles.modalContentRefined : styles.modalContentEvent, { backgroundColor: colors.cardBackground }]}>
+                <Text style={[styles.modalPromptRefined, { color: colors.textSecondary }]}>
                   {label === "Rank" ? "Tap to select a rank" : "Tap to select an event"}
                 </Text>
                 {options.map((item) => {
@@ -130,7 +134,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                   return (
                     <TouchableOpacity
                       key={item.value}
-                      style={styles.modalOptionRank}
+                      style={[styles.modalOptionRank, { backgroundColor: colors.surfaceSolid, borderColor: colors.border, borderWidth: 1 }]}
                       onPress={() => {
                         onSelect(item.value);
                         setModalVisible(false);
@@ -138,8 +142,8 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                       activeOpacity={0.7}
                     >
                       <View style={styles.rankOptionRow}>
-                        <Text style={styles.rankLetter}>{rankLetter}</Text>
-                        <Text style={styles.rankDescription} numberOfLines={undefined}>{description}</Text>
+                        <Text style={[styles.rankLetter, { color: colors.text }]}>{rankLetter}</Text>
+                        <Text style={[styles.rankDescription, { color: colors.text }]} numberOfLines={undefined}>{description}</Text>
                       </View>
                     </TouchableOpacity>
                   );
@@ -147,14 +151,14 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                 return (
                   <TouchableOpacity
                     key={item.value}
-                    style={label === "Rank" ? styles.modalOption : styles.modalOptionEvent}
+                    style={[styles.modalOptionRank, styles.modalOptionEventButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border, borderWidth: 1 }]}
                     onPress={() => {
                       onSelect(item.value);
                       setModalVisible(false);
                     }}
                     activeOpacity={0.7}
                   >
-                    <Text style={label === "Rank" ? styles.modalOptionText : styles.modalOptionTextEvent}>{item.label}</Text>
+                    <Text style={[styles.modalOptionText, { color: colors.text }]}>{item.label}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -198,9 +202,11 @@ function PerformanceEntry({
   placingScore,
   performanceScore,
 }: PerformanceEntryProps) {
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   return (
-    <View style={styles.performanceSection}>
-      <Text style={styles.performanceTitle}>Performance {index + 1}</Text>
+    <View style={[styles.performanceSection, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text style={[styles.performanceTitle, { color: colors.text }]}>Performance {index + 1}</Text>
       <Dropdown
         label="Event"
         value={event}
@@ -217,40 +223,40 @@ function PerformanceEntry({
         onSelect={setRank}
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
         value={place}
         onChangeText={setPlace}
         keyboardType="number-pad"
         placeholder="Place"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={colors.textMuted}
         maxLength={2}
-        returnKeyType="done"
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
         value={points}
         onChangeText={setPoints}
         keyboardType="number-pad"
         placeholder="Points"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={colors.textMuted}
         maxLength={5}
-        returnKeyType="done"
       />
-      <Text style={styles.resultLabel}>
-        Result Score: <Text style={styles.resultValue}>{resultScore}</Text>
+      <Text style={[styles.resultLabel, { color: colors.text }]}>
+        Result Score: <Text style={[styles.resultValue, { color: TRACK_COLOR }]}>{resultScore}</Text>
       </Text>
-      <Text style={styles.resultLabel}>
-        Placing Score: <Text style={styles.resultValue}>{placingScore}</Text>
+      <Text style={[styles.resultLabel, { color: colors.text }]}>
+        Placing Score: <Text style={[styles.resultValue, { color: TRACK_COLOR }]}>{placingScore}</Text>
       </Text>
-      <Text style={styles.resultLabel}>
+      <Text style={[styles.resultLabel, { color: colors.text }]}>
         Performance Score:{" "}
-        <Text style={styles.resultValue}>{performanceScore}</Text>
+        <Text style={[styles.resultValue, { color: TRACK_COLOR }]}>{performanceScore}</Text>
       </Text>
     </View>
   );
 }
 
 export default function RankingsScreen() {
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   // State for both performances
   const [event1, setEvent1] = useState("");
   const [rank1, setRank1] = useState("");
@@ -311,12 +317,12 @@ export default function RankingsScreen() {
 
   const scrollContent = (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Rankings Calculator</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Rankings Calculator</Text>
       <PerformanceEntry
         index={0}
         event={event1}
@@ -347,19 +353,19 @@ export default function RankingsScreen() {
         placingScore={placingScore2}
         performanceScore={performanceScore2}
       />
-      <View style={styles.averageBox}>
-        <Text style={styles.averageLabel}>Ranking Score:</Text>
-        <Text style={styles.averageValue}>{average}</Text>
+      <View style={[styles.averageBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[styles.averageLabel, { color: colors.text }]}>Ranking Score:</Text>
+        <Text style={[styles.averageValue, { color: TRACK_COLOR }]}>{average}</Text>
       </View>
-      <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
-        <Text style={styles.clearButtonText}>Clear</Text>
+      <TouchableOpacity style={[styles.clearButton, { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
+        <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
       {Platform.OS === 'web' ? (
         scrollContent
       ) : (
@@ -485,6 +491,10 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     justifyContent: "center",
   },
+  modalOptionEventButton: {
+    width: 200,
+    alignSelf: "center",
+  },
   modalOptionEvent: {
     paddingVertical: 4,
     paddingHorizontal: 0,
@@ -501,13 +511,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   modalOptionTextEvent: {
-    color: "#fff",
     fontSize: 14,
     textAlign: "center",
     flexWrap: "wrap",
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#333",
     borderRadius: 8,
     width: "100%",
   },

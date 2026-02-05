@@ -2,6 +2,7 @@ import Constants from "expo-constants";
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
+import { ThemeProvider } from "../contexts/ThemeContext";
 // Temporarily disabled for Expo Go testing
 // import Purchases from "react-native-purchases";
 
@@ -22,15 +23,17 @@ export default function RootLayout() {
     */
   }, []);
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="decathlon" options={{ headerShown: false }} />
-      <Stack.Screen name="men-heptathlon" options={{ headerShown: false }} />
-      <Stack.Screen name="women-heptathlon" options={{ headerShown: false }} />
-      <Stack.Screen name="women-pentathlon" options={{ headerShown: false }} />
-      <Stack.Screen name="saved-scores" options={{ headerShown: false }} />
-      <Stack.Screen name="saved-score-detail" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <ThemeProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="decathlon" options={{ headerShown: false }} />
+        <Stack.Screen name="men-heptathlon" options={{ headerShown: false }} />
+        <Stack.Screen name="women-heptathlon" options={{ headerShown: false }} />
+        <Stack.Screen name="women-pentathlon" options={{ headerShown: false }} />
+        <Stack.Screen name="saved-scores" options={{ headerShown: false }} />
+        <Stack.Screen name="saved-score-detail" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </ThemeProvider>
   );
 }
