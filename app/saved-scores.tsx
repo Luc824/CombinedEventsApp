@@ -71,7 +71,7 @@ export default function SavedScoresScreen() {
     });
   };
 
-  if (Platform.OS === 'web') {
+  if ((Platform.OS as string) === "web") {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   titleRow: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
+    marginTop: Platform.OS === "android" ? 26 : 14,
     marginBottom: 20,
     position: "relative",
     paddingLeft: 50,

@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   titleRow: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
+    marginTop: Platform.OS === "android" ? 26 : 14,
     marginBottom: 20,
     position: "relative",
     paddingLeft: 50,

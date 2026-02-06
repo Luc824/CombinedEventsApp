@@ -227,6 +227,7 @@ function PerformanceEntry({
         value={place}
         onChangeText={setPlace}
         keyboardType="number-pad"
+        inputMode="numeric"
         placeholder="Place"
         placeholderTextColor={colors.textMuted}
         maxLength={2}
@@ -236,6 +237,7 @@ function PerformanceEntry({
         value={points}
         onChangeText={setPoints}
         keyboardType="number-pad"
+        inputMode="numeric"
         placeholder="Points"
         placeholderTextColor={colors.textMuted}
         maxLength={5}
@@ -400,49 +402,54 @@ const styles = StyleSheet.create({
     }),
   },
   scrollContent: {
-    padding: 12,
-    paddingBottom: 20,
+    padding: 10,
+    paddingBottom: 16,
+    ...Platform.select({
+      android: {
+        paddingTop: 26,
+      },
+    }),
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: Platform.OS === "android" ? 24 : 14,
+    marginBottom: 14,
   },
   performanceSection: {
     backgroundColor: "rgba(34, 34, 34, 0.6)",
     borderWidth: 1,
     borderColor: "#333",
     borderRadius: 12,
-    padding: 10,
-    marginBottom: 10,
+    padding: 8,
+    marginBottom: 8,
     marginHorizontal: 16,
     minWidth: 0,
   },
   performanceTitle: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 3,
     textAlign: "center",
   },
   dropdown: {
     backgroundColor: "#222",
     borderRadius: 8,
-    paddingVertical: 8,
+    paddingVertical: 6,
     paddingHorizontal: 12,
-    marginBottom: 6,
+    marginBottom: 5,
     marginTop: 2,
   },
   dropdownText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 13,
   },
   dropdownPlaceholder: {
     color: "#aaa",
-    fontSize: 14,
+    fontSize: 13,
   },
   modalOverlay: {
     flex: 1,
@@ -521,21 +528,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#222",
     color: "#fff",
     borderRadius: 8,
-    paddingVertical: 6,
+    paddingVertical: 5,
     paddingHorizontal: 10,
-    fontSize: 14,
-    marginBottom: 6,
+    fontSize: 13,
+    marginBottom: 5,
     marginTop: 2,
-    height: 32,
+    height: 30,
+    ...Platform.select({
+      android: {
+        height: 32,
+        paddingVertical: 0,
+        textAlignVertical: "center",
+      },
+    }),
   },
   resultLabel: {
     color: "#fff",
-    fontSize: 13,
-    marginTop: 2,
+    fontSize: 12,
+    marginTop: 1,
   },
   resultValue: {
     color: TRACK_COLOR,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "bold",
   },
   averageBox: {
@@ -543,30 +557,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#333",
     borderRadius: 12,
-    padding: 10,
+    padding: 8,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 6,
     marginBottom: 0,
     marginHorizontal: 16,
   },
   averageLabel: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
-    marginBottom: 2,
+    marginBottom: 1,
   },
   averageValue: {
     color: TRACK_COLOR,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
   clearButton: {
     backgroundColor: "#444",
     borderRadius: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 24,
     alignItems: "center",
-    marginVertical: 8,
+    marginVertical: 6,
     marginHorizontal: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
