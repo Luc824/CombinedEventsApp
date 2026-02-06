@@ -1,26 +1,30 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
 } from "react-native";
 import { useTheme } from "../contexts/ThemeContext";
 import { ThemeColors } from "../constants/ThemeColors";
+import CalculatorTitleRow from "../components/calculators/CalculatorTitleRow";
+import EventInputRow from "../components/calculators/EventInputRow";
+import TotalScoreCard from "../components/calculators/TotalScoreCard";
+import ActionButtonsRow from "../components/calculators/ActionButtonsRow";
+import ClearButton from "../components/calculators/ClearButton";
+import ChartModal from "../components/calculators/ChartModal";
+import SaveScoreModal from "../components/calculators/SaveScoreModal";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
+import { convertTimeToSeconds } from "../utils/timeUtils";
 
 const TRACK_COLOR = "#D35400";
 
@@ -76,21 +80,6 @@ const EVENT_LABELS = [
   "PV",
   "1000m",
 ];
-
-const convertTimeToSeconds = (timeStr: string) => {
-  if (!timeStr) return 0;
-  timeStr = timeStr.replace(",", ".");
-  const parts = timeStr.split(":");
-  if (parts.length === 2) {
-    const minutes = parseFloat(parts[0]);
-    const secondsAndMs = parseFloat(parts[1]);
-    if (isNaN(minutes) || isNaN(secondsAndMs)) return 0;
-    return minutes * 60 + secondsAndMs;
-  } else if (parts.length === 1 && !isNaN(parseFloat(parts[0]))) {
-    return parseFloat(parts[0]);
-  }
-  return 0;
-};
 
 export default function MenHeptathlonScreen() {
   const router = useRouter();
@@ -203,78 +192,25 @@ export default function MenHeptathlonScreen() {
     event: (typeof HEPTATHLON_EVENTS)[0],
     index: number
   ) => {
-    let placeholderText = HEPTATHLON_PLACEHOLDERS[index];
+    const placeholderText = HEPTATHLON_PLACEHOLDERS[index];
     const maxLength = event.name === "1000m" ? 7 : 5;
     return (
-      <View key={index} style={[styles.eventContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[styles.eventName, { color: colors.text }]}>{event.name}</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
-          value={results[index]}
-          onChangeText={(text) => handleInputChange(text, index)}
-          keyboardType="number-pad"
-          placeholder={placeholderText}
-          placeholderTextColor={colors.textMuted}
-          maxLength={maxLength}
-        />
-        <Text style={[styles.points, { color: colors.text }]}>{points[index]} Points</Text>
-      </View>
-    );
-  };
-
-  const renderBarChart = () => {
-    const maxPoints = Math.max(...points, 1000); // Minimum scale of 1000
-    const chartHeight = 200;
-    const barWidth = 22;
-    const barSpacing = 4;
-
-    return (
-      <View style={[styles.chartContainer, { backgroundColor: colors.surfaceSolid }]}>
-        <Text style={[styles.chartTitle, { color: colors.text }]}>Performance Overview</Text>
-        <View style={styles.chartContent}>
-          {points.map((pointValue, index) => {
-            const barHeight = maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
-            const isLongLabel = EVENT_LABELS[index].length > 4; // "1000m" is 5 chars
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.barWrapper,
-                  { width: barWidth + barSpacing * 2 },
-                ]}
-              >
-                <Text style={[styles.barValue, { color: colors.text }]}>{pointValue}</Text>
-                <View style={styles.barContainer}>
-                  <View
-                    style={[
-                      styles.bar,
-                      {
-                        width: barWidth,
-                        height: Math.max(barHeight, 2), // Minimum height for visibility
-                        backgroundColor: TRACK_COLOR,
-                      },
-                    ]}
-                  />
-                </View>
-                <View style={styles.barLabelContainer}>
-                  <Text 
-                    style={[
-                      styles.barLabel,
-                      isLongLabel && styles.barLabelSmall,
-                      { color: colors.text }
-                    ]} 
-                    numberOfLines={1}
-                    adjustsFontSizeToFit={true}
-                    minimumFontScale={0.8}
-                  >
-                    {EVENT_LABELS[index]}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-      </View>
+      <EventInputRow
+        key={index}
+        eventName={event.name}
+        value={results[index]}
+        onChangeText={(text) => handleInputChange(text, index)}
+        placeholder={placeholderText}
+        maxLength={maxLength}
+        points={points[index]}
+        textColor={colors.text}
+        inputBackground={colors.inputBackground}
+        inputText={colors.inputText}
+        inputBorder={colors.inputBorder || colors.border}
+        containerBackground={colors.surface}
+        containerBorder={colors.border}
+        placeholderColor={colors.textMuted}
+      />
     );
   };
 
@@ -285,18 +221,13 @@ export default function MenHeptathlonScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.titleRow}>
-        {Platform.OS !== 'web' && (
-          <TouchableOpacity 
-            style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
-            onPress={() => router.back()}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="chevron-back" size={22} color={colors.text} />
-          </TouchableOpacity>
-        )}
-        <Text style={[styles.title, { color: colors.text }]}>Men's Heptathlon</Text>
-      </View>
+      <CalculatorTitleRow
+        title="Men's Heptathlon"
+        onBack={() => router.back()}
+        textColor={colors.text}
+        buttonBackground={colors.surfaceSolid}
+        buttonBorder={colors.border}
+      />
       {HEPTATHLON_EVENTS.map((event, index) => (
         <React.Fragment key={index}>
           {renderEventInput(event, index)}
@@ -320,33 +251,25 @@ export default function MenHeptathlonScreen() {
           )}
         </React.Fragment>
       ))}
-      <View style={[styles.totalContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[styles.totalText, { color: colors.text }]}>
-          Total Score: {getTotalPoints()} Points
-        </Text>
-        <Text style={[styles.resultScoreText, { color: TRACK_COLOR }]}>
-          Result Score: {getResultScore()}
-        </Text>
-      </View>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[styles.chartButton, { backgroundColor: colors.buttonPrimary }]}
-          onPress={() => setShowChart(true)}
-        >
-          <Text style={[styles.chartButtonText, { color: colors.buttonText }]}>View Chart</Text>
-        </TouchableOpacity>
-        {Platform.OS !== 'web' && (
-          <TouchableOpacity
-            style={[styles.saveButton, { backgroundColor: colors.buttonPrimary }]}
-            onPress={() => setShowSaveModal(true)}
-          >
-            <Text style={[styles.saveButtonText, { color: colors.buttonText }]}>Save Score</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      <TouchableOpacity style={[styles.clearButton, { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
-        <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
-      </TouchableOpacity>
+      <TotalScoreCard
+        totalScore={getTotalPoints()}
+        resultScore={getResultScore()}
+        textColor={colors.text}
+        trackColor={TRACK_COLOR}
+        backgroundColor={colors.surface}
+        borderColor={colors.border}
+      />
+      <ActionButtonsRow
+        onViewChart={() => setShowChart(true)}
+        onSaveScore={() => setShowSaveModal(true)}
+        buttonBackground={colors.buttonPrimary}
+        buttonTextColor={colors.buttonText}
+      />
+      <ClearButton
+        onPress={clearAll}
+        backgroundColor={colors.buttonSecondary}
+        textColor={colors.buttonText}
+      />
       <View style={{ height: 20 }} />
     </ScrollView>
   );
@@ -369,97 +292,46 @@ export default function MenHeptathlonScreen() {
           </TouchableWithoutFeedback>
         )}
       </KeyboardAvoidingView>
-      <Modal
+      <ChartModal
         visible={showChart}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowChart(false)}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
-          <TouchableWithoutFeedback onPress={() => setShowChart(false)}>
-            <View style={StyleSheet.absoluteFill} />
-          </TouchableWithoutFeedback>
-          <View style={styles.modalContentWrapper}>
-            <ScrollView
-              contentContainerStyle={styles.modalScrollContent}
-              style={styles.modalScrollView}
-            >
-              <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: colors.text }]}>Men's Heptathlon</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowChart(false)}
-                    style={[styles.closeButton, { backgroundColor: colors.surfaceSolid }]}
-                  >
-                    <Text style={[styles.closeButtonText, { color: colors.text }]}>✕</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={[styles.totalScoreCard, { backgroundColor: colors.surfaceSolid }]}>
-                  <Text style={[styles.totalScoreLabel, { color: colors.textSecondary }]}>Total Score</Text>
-                  <Text style={[styles.totalScoreValue, { color: colors.text }]}>
-                    {getTotalPoints()}
-                  </Text>
-                  <Text style={[styles.totalScoreUnit, { color: colors.text }]}>Points</Text>
-                </View>
-                {renderBarChart()}
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setShowChart(false)}
+        title="Men's Heptathlon"
+        totalPoints={getTotalPoints()}
+        points={points}
+        eventLabels={EVENT_LABELS}
+        trackColor={TRACK_COLOR}
+        textColor={colors.text}
+        secondaryTextColor={colors.textSecondary}
+        backgroundColor={colors.cardBackground}
+        surfaceColor={colors.surfaceSolid}
+        overlayColor={colors.modalOverlay}
+        barLabelContainerHeight={22}
+        barLabelFontSize={9}
+        barLabelSmallFontSize={8}
+        longLabelLength={4}
+      />
       {/* Save Score Modal */}
-      <Modal
+      <SaveScoreModal
         visible={showSaveModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {
+        onClose={() => {
           setShowSaveModal(false);
           setSaveTitle("");
         }}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setShowSaveModal(false);
-              setSaveTitle("");
-            }}
-          >
-            <View style={StyleSheet.absoluteFill} />
-          </TouchableWithoutFeedback>
-          <View style={[styles.saveModalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.saveModalTitle, { color: colors.text }]}>Save Score</Text>
-            <Text style={[styles.saveModalSubtitle, { color: colors.textSecondary }]}>
-              Enter a title for this score
-            </Text>
-            <TextInput
-              style={[styles.saveModalInput, { backgroundColor: colors.inputBackground, color: colors.inputText, borderColor: colors.border }]}
-              value={saveTitle}
-              onChangeText={setSaveTitle}
-              placeholder="e.g., My Personal Best"
-              placeholderTextColor={colors.textMuted}
-              autoFocus={true}
-              maxLength={50}
-            />
-            <View style={styles.saveModalButtons}>
-              <TouchableOpacity
-                style={[styles.saveModalButton, styles.saveModalButtonCancel, { backgroundColor: colors.buttonSecondary }]}
-                onPress={() => {
-                  setShowSaveModal(false);
-                  setSaveTitle("");
-                }}
-              >
-                <Text style={[styles.saveModalButtonText, { color: colors.buttonText }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.saveModalButton, styles.saveModalButtonSave, { backgroundColor: colors.buttonPrimary }]}
-                onPress={handleSaveScore}
-              >
-                <Text style={[styles.saveModalButtonText, { color: colors.buttonText }]}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onSave={handleSaveScore}
+        title={saveTitle}
+        setTitle={setSaveTitle}
+        backgroundColor={colors.cardBackground}
+        overlayColor={colors.modalOverlay}
+        textColor={colors.text}
+        secondaryTextColor={colors.textSecondary}
+        placeholderColor={colors.textMuted}
+        inputBackground={colors.inputBackground}
+        inputText={colors.inputText}
+        inputBorder={colors.border}
+        primaryButtonColor={colors.buttonPrimary}
+        secondaryButtonColor={colors.buttonSecondary}
+        buttonTextColor={colors.buttonText}
+      />
     </SafeAreaView>
   );
 }
@@ -521,13 +393,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     width: "100%",
-  },
-  dayTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginVertical: 6,
   },
   eventContainer: {
     flexDirection: "row",

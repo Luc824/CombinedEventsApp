@@ -18,93 +18,95 @@ import { ThemeColors } from "../../constants/ThemeColors";
 // import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 
 // Temporarily disabled types for Expo Go testing
-type PurchasesOffering = any;
-type PurchasesPackage = any;
+// type PurchasesOffering = any;
+// type PurchasesPackage = any;
 
 const TRACK_COLOR = "#D35400";
 
+// Temporarily disabled for Expo Go testing
 // UI falls back to static tiers if offerings are not available
-const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"];
+// const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"];
 
-const PACKAGE_LABELS: Record<string, string> = {
-  donation_tier1: "Amateur",
-  donation_tier2: "Pro",
-  donation_tier3: "GOAT",
-};
+// const PACKAGE_LABELS: Record<string, string> = {
+//   donation_tier1: "Amateur",
+//   donation_tier2: "Pro",
+//   donation_tier3: "GOAT",
+// };
 
-const PACKAGE_PRICES: Record<string, string> = {
-  donation_tier1: "0.99",
-  donation_tier2: "1.99",
-  donation_tier3: "9.99",
-};
+// const PACKAGE_PRICES: Record<string, string> = {
+//   donation_tier1: "0.99",
+//   donation_tier2: "1.99",
+//   donation_tier3: "9.99",
+// };
 
 
 export default function MoreScreen() {
   const router = useRouter();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
-  const [loading, setLoading] = useState(false);
-  const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
+  // Temporarily disabled for Expo Go testing
+  // const [loading, setLoading] = useState(false);
+  // const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 
-  useEffect(() => {
-    // Temporarily disabled for Expo Go testing
-    // RevenueCat requires native modules and doesn't work in Expo Go
-    /*
-    // Only load RevenueCat offerings on iOS/Android, not web
-    if (Platform.OS === 'web') {
-      return;
-    }
-    
-    const loadOfferings = async () => {
-      try {
-        setLoading(true);
-        const data = await Purchases.getOfferings();
-        const offering = (data as any).all?.tips || (data as any).current || null;
-        if (__DEV__) {
-          console.log("RC offering identifiers:", Object.keys(data.all || {}));
-          console.log("RC using offering:", offering?.identifier);
-          console.log(
-            "RC available packages:",
-            (offering?.availablePackages || []).map((p: any) => p.identifier)
-          );
-        }
-        setOfferings(offering);
-      } catch (e) {
-        if (__DEV__) {
-          console.warn("Failed to load RevenueCat offerings", e);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadOfferings();
-    */
-  }, []);  
+  // useEffect(() => {
+  //   // Temporarily disabled for Expo Go testing
+  //   // RevenueCat requires native modules and doesn't work in Expo Go
+  //   /*
+  //   // Only load RevenueCat offerings on iOS/Android, not web
+  //   if (Platform.OS === 'web') {
+  //     return;
+  //   }
+  //   
+  //   const loadOfferings = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const data = await Purchases.getOfferings();
+  //       const offering = (data as any).all?.tips || (data as any).current || null;
+  //       if (__DEV__) {
+  //         console.log("RC offering identifiers:", Object.keys(data.all || {}));
+  //         console.log("RC using offering:", offering?.identifier);
+  //         console.log(
+  //           "RC available packages:",
+  //           (offering?.availablePackages || []).map((p: any) => p.identifier)
+  //         );
+  //       }
+  //       setOfferings(offering);
+  //     } catch (e) {
+  //       if (__DEV__) {
+  //         console.warn("Failed to load RevenueCat offerings", e);
+  //       }
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   loadOfferings();
+  //   */
+  // }, []);  
 
-  const donationPackages = useMemo(() => {
-    if (!offerings) return [] as PurchasesPackage[];
-    const pkgs = offerings.availablePackages ?? [];
-    const map = new Map<string, PurchasesPackage>();
+  // const donationPackages = useMemo(() => {
+  //   if (!offerings) return [] as PurchasesPackage[];
+  //   const pkgs = offerings.availablePackages ?? [];
+  //   const map = new Map<string, PurchasesPackage>();
 
-    pkgs.forEach((pkg: any) => {
-      const candidates = [
-        pkg.storeProduct?.identifier,
-        pkg.storeProduct?.productIdentifier,
-        pkg.product?.identifier,
-        pkg.identifier,
-      ].filter(Boolean);
+  //   pkgs.forEach((pkg: any) => {
+  //     const candidates = [
+  //       pkg.storeProduct?.identifier,
+  //       pkg.storeProduct?.productIdentifier,
+  //       pkg.product?.identifier,
+  //       pkg.identifier,
+  //     ].filter(Boolean);
 
-      candidates.forEach((id: string) => {
-        if (!map.has(id)) {
-          map.set(id, pkg);
-        }
-      });
-    });
+  //     candidates.forEach((id: string) => {
+  //       if (!map.has(id)) {
+  //         map.set(id, pkg);
+  //       }
+  //     });
+  //   });
 
-    return ["donation_tier1", "donation_tier2", "donation_tier3"]
-      .map((id) => map.get(id))
-      .filter(Boolean) as PurchasesPackage[];
-  }, [offerings]);
+  //   return ["donation_tier1", "donation_tier2", "donation_tier3"]
+  //     .map((id) => map.get(id))
+  //     .filter(Boolean) as PurchasesPackage[];
+  // }, [offerings]);
   
   const handleFeedback = () => {
     // Update this email address to your preferred contact email
@@ -129,39 +131,40 @@ export default function MoreScreen() {
     router.push("/saved-scores" as any);
   };
 
-  const handleWebDonate = (amount: string) => {
-    // Replace with your PayPal donation links
-    // You can create these at: https://www.paypal.com/donate/buttons
-    const paypalLinks: Record<string, string> = {
-      "Amateur": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-      "Pro": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-      "GOAT": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-    };
-    
-    const link = paypalLinks[amount] || paypalLinks["Amateur"];
-    Linking.openURL(link);
-  };
+  // Temporarily disabled for Expo Go testing
+  // const handleWebDonate = (amount: string) => {
+  //   // Replace with your PayPal donation links
+  //   // You can create these at: https://www.paypal.com/donate/buttons
+  //   const paypalLinks: Record<string, string> = {
+  //     "Amateur": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+  //     "Pro": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+  //     "GOAT": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+  //   };
+  //   
+  //   const link = paypalLinks[amount] || paypalLinks["Amateur"];
+  //   Linking.openURL(link);
+  // };
 
-  const handleDonate = async (pkg?: PurchasesPackage) => {
-    // Temporarily disabled for Expo Go testing
-    Alert.alert("Unavailable", "Donations are temporarily disabled for testing.");
-    /*
-    try {
-      if (!pkg) {
-        Alert.alert("Unavailable", "No donation package is available right now.");
-        return;
-      }
-      setLoading(true);
-      const { customerInfo } = await Purchases.purchasePackage(pkg);
-      Alert.alert("Thank you!", "Your donation was successful. 🙏");
-    } catch (e: any) {
-      if (e?.userCancelled) return; // silent cancel
-      Alert.alert("Purchase failed", e?.message ?? "Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-    */
-  };
+  // const handleDonate = async (pkg?: PurchasesPackage) => {
+  //   // Temporarily disabled for Expo Go testing
+  //   Alert.alert("Unavailable", "Donations are temporarily disabled for testing.");
+  //   /*
+  //   try {
+  //     if (!pkg) {
+  //       Alert.alert("Unavailable", "No donation package is available right now.");
+  //       return;
+  //     }
+  //     setLoading(true);
+  //     const { customerInfo } = await Purchases.purchasePackage(pkg);
+  //     Alert.alert("Thank you!", "Your donation was successful. 🙏");
+  //   } catch (e: any) {
+  //     if (e?.userCancelled) return; // silent cancel
+  //     Alert.alert("Purchase failed", e?.message ?? "Please try again later.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  //   */
+  // };
 
 
   return (
@@ -205,8 +208,8 @@ export default function MoreScreen() {
           </TouchableOpacity>
         )}
 
+        {/* Temporarily disabled for Expo Go testing
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Tips</Text>
-        {/* Temporarily showing PayPal fallback for all platforms during Expo Go testing */}
         <View style={styles.donateRow}>
           {FALLBACK_TIERS.map((tier) => {
             const price = PACKAGE_PRICES[`donation_tier${FALLBACK_TIERS.indexOf(tier) + 1}`] ?? "";
@@ -222,7 +225,7 @@ export default function MoreScreen() {
             );
           })}
         </View>
-        {/* Temporarily disabled RevenueCat code for Expo Go testing
+        Temporarily disabled RevenueCat code for Expo Go testing
         {Platform.OS === 'web' ? (
           // Web donations using PayPal links
           <View style={styles.donateRow}>
@@ -282,9 +285,11 @@ export default function MoreScreen() {
         )}
         */}
 
+        {/* Temporarily disabled for Expo Go testing
         <Text style={[styles.donateMessage, { color: colors.textSecondary }]}>
           Support this app (no pole vault required!)
         </Text>
+        */}
       </View>
     </SafeAreaView>
   );

@@ -474,13 +474,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 4,
   },
-  modalOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    minHeight: 40,
-    width: "100%",
-    alignItems: "center",
-  },
   modalOptionRank: {
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -495,29 +488,11 @@ const styles = StyleSheet.create({
     width: 200,
     alignSelf: "center",
   },
-  modalOptionEvent: {
-    paddingVertical: 4,
-    paddingHorizontal: 0,
-    minHeight: 40,
-    alignItems: "stretch",
-    alignSelf: "center",
-    width: 240,
-    justifyContent: "center",
-  },
   modalOptionText: {
     color: "#fff",
     fontSize: 14,
     textAlign: "center",
     flexWrap: "wrap",
-  },
-  modalOptionTextEvent: {
-    fontSize: 14,
-    textAlign: "center",
-    flexWrap: "wrap",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    width: "100%",
   },
   rankOptionRow: {
     flexDirection: "row",

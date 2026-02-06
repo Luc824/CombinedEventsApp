@@ -1,26 +1,30 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { useTheme } from "../contexts/ThemeContext";
 import { ThemeColors } from "../constants/ThemeColors";
+import CalculatorTitleRow from "../components/calculators/CalculatorTitleRow";
+import EventInputRow from "../components/calculators/EventInputRow";
+import TotalScoreCard from "../components/calculators/TotalScoreCard";
+import ActionButtonsRow from "../components/calculators/ActionButtonsRow";
+import ClearButton from "../components/calculators/ClearButton";
+import ChartModal from "../components/calculators/ChartModal";
+import SaveScoreModal from "../components/calculators/SaveScoreModal";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
+import { convertTimeToSeconds } from "../utils/timeUtils";
 
 const TRACK_COLOR = "#D35400";
 
@@ -94,21 +98,6 @@ const EVENT_LABELS = [
   "JT",
   "1500m",
 ];
-
-const convertTimeToSeconds = (timeStr: string) => {
-  if (!timeStr) return 0;
-  timeStr = timeStr.replace(",", ".");
-  const parts = timeStr.split(":");
-  if (parts.length === 2) {
-    const minutes = parseFloat(parts[0]);
-    const secondsAndMs = parseFloat(parts[1]);
-    if (isNaN(minutes) || isNaN(secondsAndMs)) return 0;
-    return minutes * 60 + secondsAndMs;
-  } else if (parts.length === 1 && !isNaN(parseFloat(parts[0]))) {
-    return parseFloat(parts[0]);
-  }
-  return 0;
-};
 
 export default function DecathlonScreen() {
   const router = useRouter();
@@ -232,79 +221,26 @@ export default function DecathlonScreen() {
     event: (typeof DECATHLON_EVENTS)[0],
     index: number
   ) => {
-    let placeholderText = PLACEHOLDERS[index];
+    const placeholderText = PLACEHOLDERS[index];
     const maxLength = event.name === "1500m" ? 7 : 5;
 
     return (
-      <View key={index} style={[styles.eventContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[styles.eventName, { color: colors.text }]}>{event.name}</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
-          value={results[index]}
-          onChangeText={(text) => handleInputChange(text, index)}
-          keyboardType="number-pad"
-          placeholder={placeholderText}
-          placeholderTextColor={colors.textMuted}
-          maxLength={maxLength}
-        />
-        <Text style={[styles.points, { color: colors.text }]}>{points[index]} Points</Text>
-      </View>
-    );
-  };
-
-  const renderBarChart = () => {
-    const maxPoints = Math.max(...points, 1000); // Minimum scale of 1000
-    const chartHeight = 200;
-    const barWidth = 22;
-    const barSpacing = 4;
-
-    return (
-      <View style={[styles.chartContainer, { backgroundColor: colors.surfaceSolid }]}>
-        <Text style={[styles.chartTitle, { color: colors.text }]}>Performance Overview</Text>
-        <View style={styles.chartContent}>
-          {points.map((pointValue, index) => {
-            const barHeight = maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
-            const isLongLabel = EVENT_LABELS[index].length > 4; // "1500m" is 5 chars
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.barWrapper,
-                  { width: barWidth + barSpacing * 2 },
-                ]}
-              >
-                <Text style={[styles.barValue, { color: colors.text }]}>{pointValue}</Text>
-                <View style={styles.barContainer}>
-                  <View
-                    style={[
-                      styles.bar,
-                      {
-                        width: barWidth,
-                        height: Math.max(barHeight, 2), // Minimum height for visibility
-                        backgroundColor: TRACK_COLOR,
-                      },
-                    ]}
-                  />
-                </View>
-                <View style={styles.barLabelContainer}>
-                  <Text 
-                    style={[
-                      styles.barLabel,
-                      isLongLabel && styles.barLabelSmall,
-                      { color: colors.text }
-                    ]} 
-                    numberOfLines={1}
-                    adjustsFontSizeToFit={true}
-                    minimumFontScale={0.8}
-                  >
-                    {EVENT_LABELS[index]}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-      </View>
+      <EventInputRow
+        key={index}
+        eventName={event.name}
+        value={results[index]}
+        onChangeText={(text) => handleInputChange(text, index)}
+        placeholder={placeholderText}
+        maxLength={maxLength}
+        points={points[index]}
+        textColor={colors.text}
+        inputBackground={colors.inputBackground}
+        inputText={colors.inputText}
+        inputBorder={colors.inputBorder || colors.border}
+        containerBackground={colors.surface}
+        containerBorder={colors.border}
+        placeholderColor={colors.textMuted}
+      />
     );
   };
 
@@ -316,18 +252,13 @@ export default function DecathlonScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.titleRow}>
-        {Platform.OS !== 'web' && (
-          <TouchableOpacity 
-            style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
-            onPress={() => router.back()}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="chevron-back" size={22} color={colors.text} />
-          </TouchableOpacity>
-        )}
-        <Text style={[styles.title, { color: colors.text }]}>Men's Decathlon</Text>
-      </View>
+      <CalculatorTitleRow
+        title="Men's Decathlon"
+        onBack={() => router.back()}
+        textColor={colors.text}
+        buttonBackground={colors.surfaceSolid}
+        buttonBorder={colors.border}
+      />
       {/* All Events */}
       {DECATHLON_EVENTS.map((event, index) => (
         <React.Fragment key={index}>
@@ -353,33 +284,25 @@ export default function DecathlonScreen() {
         </React.Fragment>
       ))}
       {/* Day Totals and Total Score */}
-      <View style={[styles.totalContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[styles.totalText, { color: colors.text }]}>
-          Total Score: {getTotalPoints()} Points
-        </Text>
-        <Text style={[styles.resultScoreText, { color: TRACK_COLOR }]}>
-          Result Score: {getResultScore()}
-        </Text>
-      </View>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[styles.chartButton, { backgroundColor: colors.buttonPrimary }]}
-          onPress={() => setShowChart(true)}
-        >
-          <Text style={[styles.chartButtonText, { color: colors.buttonText }]}>View Chart</Text>
-        </TouchableOpacity>
-        {Platform.OS !== 'web' && (
-          <TouchableOpacity
-            style={[styles.saveButton, { backgroundColor: colors.buttonPrimary }]}
-            onPress={() => setShowSaveModal(true)}
-          >
-            <Text style={[styles.saveButtonText, { color: colors.buttonText }]}>Save Score</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      <TouchableOpacity style={[styles.clearButton, { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
-        <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
-      </TouchableOpacity>
+      <TotalScoreCard
+        totalScore={getTotalPoints()}
+        resultScore={getResultScore()}
+        textColor={colors.text}
+        trackColor={TRACK_COLOR}
+        backgroundColor={colors.surface}
+        borderColor={colors.border}
+      />
+      <ActionButtonsRow
+        onViewChart={() => setShowChart(true)}
+        onSaveScore={() => setShowSaveModal(true)}
+        buttonBackground={colors.buttonPrimary}
+        buttonTextColor={colors.buttonText}
+      />
+      <ClearButton
+        onPress={clearAll}
+        backgroundColor={colors.buttonSecondary}
+        textColor={colors.buttonText}
+      />
       <View style={{ height: 20 }} />
     </ScrollView>
   );
@@ -402,97 +325,46 @@ export default function DecathlonScreen() {
           </TouchableWithoutFeedback>
         )}
       </KeyboardAvoidingView>
-      <Modal
+      <ChartModal
         visible={showChart}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowChart(false)}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
-          <TouchableWithoutFeedback onPress={() => setShowChart(false)}>
-            <View style={StyleSheet.absoluteFill} />
-          </TouchableWithoutFeedback>
-          <View style={styles.modalContentWrapper}>
-            <ScrollView
-              contentContainerStyle={styles.modalScrollContent}
-              style={styles.modalScrollView}
-            >
-              <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                <View style={styles.modalHeader}>
-                  <Text style={[styles.modalTitle, { color: colors.text }]}>Men's Decathlon</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowChart(false)}
-                    style={[styles.closeButton, { backgroundColor: colors.surfaceSolid }]}
-                  >
-                    <Text style={[styles.closeButtonText, { color: colors.text }]}>✕</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={[styles.totalScoreCard, { backgroundColor: colors.surfaceSolid }]}>
-                  <Text style={[styles.totalScoreLabel, { color: colors.textSecondary }]}>Total Score</Text>
-                  <Text style={[styles.totalScoreValue, { color: colors.text }]}>
-                    {getTotalPoints()}
-                  </Text>
-                  <Text style={[styles.totalScoreUnit, { color: colors.text }]}>Points</Text>
-                </View>
-                {renderBarChart()}
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setShowChart(false)}
+        title="Men's Decathlon"
+        totalPoints={getTotalPoints()}
+        points={points}
+        eventLabels={EVENT_LABELS}
+        trackColor={TRACK_COLOR}
+        textColor={colors.text}
+        secondaryTextColor={colors.textSecondary}
+        backgroundColor={colors.cardBackground}
+        surfaceColor={colors.surfaceSolid}
+        overlayColor={colors.modalOverlay}
+        barLabelContainerHeight={22}
+        barLabelFontSize={9}
+        barLabelSmallFontSize={8}
+        longLabelLength={4}
+      />
       {/* Save Score Modal */}
-      <Modal
+      <SaveScoreModal
         visible={showSaveModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {
+        onClose={() => {
           setShowSaveModal(false);
           setSaveTitle("");
         }}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setShowSaveModal(false);
-              setSaveTitle("");
-            }}
-          >
-            <View style={StyleSheet.absoluteFill} />
-          </TouchableWithoutFeedback>
-          <View style={[styles.saveModalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.saveModalTitle, { color: colors.text }]}>Save Score</Text>
-            <Text style={[styles.saveModalSubtitle, { color: colors.textSecondary }]}>
-              Enter a title for this score
-            </Text>
-            <TextInput
-              style={[styles.saveModalInput, { backgroundColor: colors.inputBackground, color: colors.inputText, borderColor: colors.border }]}
-              value={saveTitle}
-              onChangeText={setSaveTitle}
-              placeholder="e.g., My Personal Best"
-              placeholderTextColor={colors.textMuted}
-              autoFocus={true}
-              maxLength={50}
-            />
-            <View style={styles.saveModalButtons}>
-              <TouchableOpacity
-                style={[styles.saveModalButton, styles.saveModalButtonCancel, { backgroundColor: colors.buttonSecondary }]}
-                onPress={() => {
-                  setShowSaveModal(false);
-                  setSaveTitle("");
-                }}
-              >
-                <Text style={[styles.saveModalButtonText, { color: colors.buttonText }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.saveModalButton, styles.saveModalButtonSave, { backgroundColor: colors.buttonPrimary }]}
-                onPress={handleSaveScore}
-              >
-                <Text style={[styles.saveModalButtonText, { color: colors.buttonText }]}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onSave={handleSaveScore}
+        title={saveTitle}
+        setTitle={setSaveTitle}
+        backgroundColor={colors.cardBackground}
+        overlayColor={colors.modalOverlay}
+        textColor={colors.text}
+        secondaryTextColor={colors.textSecondary}
+        placeholderColor={colors.textMuted}
+        inputBackground={colors.inputBackground}
+        inputText={colors.inputText}
+        inputBorder={colors.border}
+        primaryButtonColor={colors.buttonPrimary}
+        secondaryButtonColor={colors.buttonSecondary}
+        buttonTextColor={colors.buttonText}
+      />
     </SafeAreaView>
   );
 }
@@ -521,361 +393,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 10,
   },
-  titleRow: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 8,
-    marginBottom: 12,
-    position: "relative",
-    paddingLeft: 50,
-    paddingRight: 50,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    position: "absolute",
-    left: 0,
-    zIndex: 1,
-    backgroundColor: "#222",
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    width: "100%",
-  },
-  dayTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginVertical: 6,
-  },
-  eventContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-    marginHorizontal: 16,
-    backgroundColor: "rgba(34, 34, 34, 0.6)",
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 8,
-    padding: 5,
-  },
-  eventName: {
-    color: "#fff",
-    fontSize: 14,
-    flex: 1,
-    marginRight: 5,
-  },
-  input: {
-    width: 80,
-    height: 30,
-    borderWidth: 0,
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    backgroundColor: "#333",
-    marginRight: 5,
-    color: "#fff",
-    fontSize: 14,
-    textAlign: "right",
-  },
-  points: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff",
-    width: 90,
-    textAlign: "right",
-  },
-  totalContainer: {
-    marginTop: 8,
-    alignItems: "center",
-    paddingVertical: 8,
-    marginHorizontal: 16,
-    backgroundColor: "rgba(34, 34, 34, 0.6)",
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 10,
-    marginBottom: 12,
-  },
   inlineDayTotalText: {
-    color: "#bbb",
     fontSize: 13,
     fontWeight: "600",
     textAlign: "center",
     marginBottom: 2,
-  },
-  totalText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  resultScoreText: {
-    color: TRACK_COLOR,
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  dayTotalText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  clearButton: {
-    backgroundColor: "#444",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    marginVertical: 8,
-    marginHorizontal: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  clearButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 15,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-    marginVertical: 6,
-    marginHorizontal: 16,
-  },
-  chartButton: {
-    backgroundColor: TRACK_COLOR,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    minWidth: 140,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  chartButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 15,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContentWrapper: {
-    position: "absolute",
-    width: "90%",
-    maxWidth: 400,
-    maxHeight: "90%",
-  },
-  modalScrollView: {
-    width: "100%",
-  },
-  modalScrollContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  modalContent: {
-    backgroundColor: "#111",
-    borderRadius: 16,
-    padding: 20,
-    width: "100%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "#222",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  totalScoreCard: {
-    backgroundColor: "#222",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  totalScoreLabel: {
-    color: "#bbb",
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  totalScoreValue: {
-    color: "#fff",
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  totalScoreUnit: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  chartContainer: {
-    backgroundColor: "#222",
-    borderRadius: 12,
-    padding: 16,
-  },
-  chartTitle: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  chartContent: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-around",
-    height: 240,
-    paddingHorizontal: 8,
-  },
-  barWrapper: {
-    alignItems: "center",
-    justifyContent: "flex-end",
-    height: "100%",
-  },
-  barValue: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  barContainer: {
-    width: "100%",
-    height: 200,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  bar: {
-    borderRadius: 4,
-    minHeight: 2,
-  },
-  barLabelContainer: {
-    height: 22,
-    width: "100%",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    marginTop: 6,
-  },
-  barLabel: {
-    color: "#fff",
-    fontSize: 9,
-    textAlign: "center",
-    width: "100%",
-  },
-  barLabelSmall: {
-    fontSize: 8,
-  },
-  saveButton: {
-    backgroundColor: TRACK_COLOR,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    minWidth: 140,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  saveButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 15,
-  },
-  saveModalContent: {
-    backgroundColor: "#111",
-    borderRadius: 16,
-    padding: 20,
-    width: "85%",
-    maxWidth: 400,
-    alignSelf: "center",
-  },
-  saveModalTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  saveModalSubtitle: {
-    fontSize: 14,
-    color: "#bbb",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  saveModalInput: {
-    backgroundColor: "#222",
-    borderRadius: 8,
-    padding: 12,
-    color: "#fff",
-    fontSize: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  saveModalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  saveModalButton: {
-    flex: 1,
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  saveModalButtonCancel: {
-    backgroundColor: "#333",
-  },
-  saveModalButtonSave: {
-    backgroundColor: TRACK_COLOR,
-  },
-  saveModalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
   },
 });
