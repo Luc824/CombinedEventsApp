@@ -1,6 +1,7 @@
 import React from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type CalculatorTitleRowProps = {
   title: string;
@@ -42,25 +43,25 @@ const styles = StyleSheet.create({
   titleRow: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Platform.OS === "android" ? 26 : 14,
-    marginBottom: 12,
+    marginTop: Platform.OS === "android" ? scaleSpacing(26) : scaleSpacing(14),
+    marginBottom: scaleSpacing(12),
     position: "relative",
-    paddingLeft: 50,
-    paddingRight: 50,
+    paddingLeft: scaleSpacing(50),
+    paddingRight: scaleSpacing(50),
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: scaleSpacing(40),
+    height: scaleSpacing(40),
     position: "absolute",
     left: 0,
     zIndex: 1,
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: scaleSpacing(20),
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
-    fontSize: 28,
+    fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
     width: "100%",

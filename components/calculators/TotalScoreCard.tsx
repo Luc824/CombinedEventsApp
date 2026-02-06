@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type TotalScoreCardProps = {
   totalScore: number;
@@ -37,21 +38,21 @@ export default function TotalScoreCard({
 
 const styles = StyleSheet.create({
   totalContainer: {
-    marginTop: 8,
+    marginTop: scaleSpacing(8),
     alignItems: "center",
-    paddingVertical: 8,
-    marginHorizontal: 16,
+    paddingVertical: scaleSpacing(8),
+    marginHorizontal: scaleSpacing(16),
     borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 12,
+    borderRadius: scaleSpacing(10),
+    marginBottom: scaleSpacing(12),
   },
   totalText: {
-    fontSize: 24,
+    fontSize: scaleFont(24),
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: scaleSpacing(5),
   },
   resultScoreText: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "bold",
   },
 });

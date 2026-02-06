@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform, StyleSheet, Text, TextInput, View } from "react-native";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type EventInputRowProps = {
   eventName: string;
@@ -68,39 +69,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 3,
-    marginHorizontal: 16,
+    marginBottom: scaleSpacing(3),
+    marginHorizontal: scaleSpacing(16),
     borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 4,
+    borderRadius: scaleSpacing(8),
+    paddingVertical: scaleSpacing(4),
+    paddingHorizontal: scaleSpacing(4),
   },
   eventName: {
-    fontSize: 13,
+    fontSize: scaleFont(13),
     flex: 1,
-    marginRight: 5,
+    marginRight: scaleSpacing(5),
   },
   input: {
-    width: 80,
-    height: 28,
+    width: scaleSpacing(80),
+    height: scaleSpacing(28),
     borderWidth: 0,
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    marginRight: 5,
-    fontSize: 13,
+    borderRadius: scaleSpacing(20),
+    paddingHorizontal: scaleSpacing(8),
+    marginRight: scaleSpacing(5),
+    fontSize: scaleFont(13),
     textAlign: "right",
     ...Platform.select({
       android: {
-        height: 30,
+        height: scaleSpacing(30),
         paddingVertical: 0,
         textAlignVertical: "center",
       },
     }),
   },
   points: {
-    fontSize: 13,
+    fontSize: scaleFont(13),
     fontWeight: "bold",
-    width: 90,
+    width: scaleSpacing(90),
     textAlign: "right",
   },
 });

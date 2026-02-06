@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ThemeColors } from "../../constants/ThemeColors";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 // Temporarily disabled for Expo Go testing
 // import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 
@@ -303,26 +304,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: scaleSpacing(20),
   },
   title: {
-    fontSize: 28,
+    fontSize: scaleFont(28),
     fontWeight: "bold",
-    marginBottom: 30,
+    marginBottom: scaleSpacing(30),
     textAlign: "center",
-    lineHeight: 34,
+    lineHeight: scaleSpacing(34),
   },
   button: {
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 30,
-    marginBottom: 18,
+    borderRadius: scaleSpacing(30),
+    paddingVertical: scaleSpacing(14),
+    paddingHorizontal: scaleSpacing(30),
+    marginBottom: scaleSpacing(18),
     alignItems: "center",
     width: "100%",
-    maxWidth: 350,
+    maxWidth: scaleSpacing(350),
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
   },
   themeToggleRow: {
@@ -331,47 +332,47 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   themeIcon: {
-    marginRight: 8,
+    marginRight: scaleSpacing(8),
   },
   getAppButton: {
     // backgroundColor set dynamically
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: scaleFont(20),
     fontWeight: "bold",
-    marginTop: 30,
-    marginBottom: 10,
+    marginTop: scaleSpacing(30),
+    marginBottom: scaleSpacing(10),
     textAlign: "center",
   },
   donateRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    maxWidth: 350,
-    marginTop: 10,
-    gap: 12,
+    maxWidth: scaleSpacing(350),
+    marginTop: scaleSpacing(10),
+    gap: scaleSpacing(12),
   },
   donateButton: {
     flex: 1,
-    borderRadius: 20,
-    paddingVertical: 16,
+    borderRadius: scaleSpacing(20),
+    paddingVertical: scaleSpacing(16),
     alignItems: "center",
     marginHorizontal: 0,
   },
   donateTier: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: scaleSpacing(4),
   },
   donateAmount: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: scaleFont(15),
   },
   donateMessage: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
     textAlign: "center",
-    marginTop: 12,
+    marginTop: scaleSpacing(12),
     marginBottom: 0,
   },
 });

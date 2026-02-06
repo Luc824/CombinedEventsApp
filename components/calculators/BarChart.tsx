@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type BarChartProps = {
   points: number[];
@@ -25,9 +26,9 @@ export default function BarChart({
   longLabelLength = 4,
 }: BarChartProps) {
   const maxPoints = Math.max(...points, 1000);
-  const chartHeight = 200;
-  const barWidth = 22;
-  const barSpacing = 4;
+  const chartHeight = scaleSpacing(200);
+  const barWidth = scaleSpacing(22);
+  const barSpacing = scaleSpacing(4);
 
   return (
     <View style={[styles.chartContainer, { backgroundColor }]}>
@@ -66,14 +67,16 @@ export default function BarChart({
               <View
                 style={[
                   styles.barLabelContainer,
-                  { height: barLabelContainerHeight },
+                  { height: scaleSpacing(barLabelContainerHeight) },
                 ]}
               >
                 <Text
                   style={[
                     styles.barLabel,
-                    { color: textColor, fontSize: barLabelFontSize },
-                    isLongLabel && { fontSize: barLabelSmallFontSize },
+                    { color: textColor, fontSize: scaleFont(barLabelFontSize) },
+                    isLongLabel && barLabelSmallFontSize !== undefined
+                      ? { fontSize: scaleFont(barLabelSmallFontSize) }
+                      : null,
                   ]}
                   numberOfLines={1}
                   adjustsFontSizeToFit
@@ -92,21 +95,21 @@ export default function BarChart({
 
 const styles = StyleSheet.create({
   chartContainer: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: scaleSpacing(12),
+    padding: scaleSpacing(16),
   },
   chartTitle: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: scaleSpacing(16),
     textAlign: "center",
   },
   chartContent: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-around",
-    height: 240,
-    paddingHorizontal: 8,
+    height: scaleSpacing(240),
+    paddingHorizontal: scaleSpacing(8),
   },
   barWrapper: {
     alignItems: "center",
@@ -114,26 +117,26 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   barValue: {
-    fontSize: 12,
+    fontSize: scaleFont(12),
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: scaleSpacing(4),
     textAlign: "center",
   },
   barContainer: {
     width: "100%",
-    height: 200,
+    height: scaleSpacing(200),
     justifyContent: "flex-end",
     alignItems: "center",
   },
   bar: {
-    borderRadius: 4,
+    borderRadius: scaleSpacing(4),
     minHeight: 2,
   },
   barLabelContainer: {
     width: "100%",
     justifyContent: "flex-start",
     alignItems: "center",
-    marginTop: 6,
+    marginTop: scaleSpacing(6),
   },
   barLabel: {
     textAlign: "center",

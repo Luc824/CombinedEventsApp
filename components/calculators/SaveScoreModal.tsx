@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type SaveScoreModalProps = {
   visible: boolean;
@@ -107,43 +108,43 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   saveModalContent: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: scaleSpacing(16),
+    padding: scaleSpacing(20),
     width: "85%",
-    maxWidth: 400,
+    maxWidth: scaleSpacing(400),
     alignSelf: "center",
   },
   saveModalTitle: {
-    fontSize: 22,
+    fontSize: scaleFont(22),
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: scaleSpacing(8),
     textAlign: "center",
   },
   saveModalSubtitle: {
-    fontSize: 14,
-    marginBottom: 16,
+    fontSize: scaleFont(14),
+    marginBottom: scaleSpacing(16),
     textAlign: "center",
   },
   saveModalInput: {
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 20,
+    borderRadius: scaleSpacing(8),
+    padding: scaleSpacing(12),
+    fontSize: scaleFont(16),
+    marginBottom: scaleSpacing(20),
     borderWidth: 1,
   },
   saveModalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    gap: scaleSpacing(12),
   },
   saveModalButton: {
     flex: 1,
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: scaleSpacing(8),
+    paddingVertical: scaleSpacing(12),
     alignItems: "center",
   },
   saveModalButtonText: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: scaleFont(16),
   },
 });

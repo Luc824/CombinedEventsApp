@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import BarChart from "./BarChart";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type ChartModalProps = {
   visible: boolean;
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
   modalContentWrapper: {
     position: "absolute",
     width: "90%",
-    maxWidth: 400,
+    maxWidth: scaleSpacing(400),
     maxHeight: "90%",
   },
   modalScrollView: {
@@ -126,50 +127,50 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: scaleSpacing(20),
   },
   modalContent: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: scaleSpacing(16),
+    padding: scaleSpacing(20),
     width: "100%",
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: scaleSpacing(16),
   },
   modalTitle: {
-    fontSize: 22,
+    fontSize: scaleFont(22),
     fontWeight: "bold",
   },
   closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: scaleSpacing(30),
+    height: scaleSpacing(30),
+    borderRadius: scaleSpacing(15),
     justifyContent: "center",
     alignItems: "center",
   },
   closeButtonText: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "bold",
   },
   totalScoreCard: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: scaleSpacing(12),
+    padding: scaleSpacing(16),
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: scaleSpacing(20),
   },
   totalScoreLabel: {
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: scaleFont(14),
+    marginBottom: scaleSpacing(4),
   },
   totalScoreValue: {
-    fontSize: 32,
+    fontSize: scaleFont(32),
     fontWeight: "bold",
-    marginBottom: 2,
+    marginBottom: scaleSpacing(2),
   },
   totalScoreUnit: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
   },
 });

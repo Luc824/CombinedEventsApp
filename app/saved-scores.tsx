@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { useTheme } from "../contexts/ThemeContext";
 import { ThemeColors } from "../constants/ThemeColors";
 import { getSavedScores, deleteScore, SavedScore, getEventTypeDisplayName } from "../utils/scoreStorage";
+import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
 
@@ -178,38 +179,38 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: scaleSpacing(20),
   },
   titleRow: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Platform.OS === "android" ? 26 : 14,
-    marginBottom: 20,
+    marginTop: Platform.OS === "android" ? scaleSpacing(26) : scaleSpacing(14),
+    marginBottom: scaleSpacing(20),
     position: "relative",
-    paddingLeft: 50,
-    paddingRight: 50,
+    paddingLeft: scaleSpacing(50),
+    paddingRight: scaleSpacing(50),
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: scaleSpacing(40),
+    height: scaleSpacing(40),
     position: "absolute",
     left: 0,
     zIndex: 1,
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: scaleSpacing(20),
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
-    fontSize: 28,
+    fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
     width: "100%",
   },
   webMessage: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     textAlign: "center",
-    marginTop: 20,
+    marginTop: scaleSpacing(20),
   },
   centerContainer: {
     flex: 1,
@@ -217,75 +218,75 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: scaleSpacing(8),
   },
   emptySubtext: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
     textAlign: "center",
-    paddingHorizontal: 40,
+    paddingHorizontal: scaleSpacing(40),
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: scaleSpacing(20),
   },
   scoreCardWrapper: {
     position: "relative",
-    marginBottom: 12,
+    marginBottom: scaleSpacing(12),
   },
   scoreCard: {
-    borderRadius: 12,
-    padding: 16,
-    paddingRight: 50,
+    borderRadius: scaleSpacing(12),
+    padding: scaleSpacing(16),
+    paddingRight: scaleSpacing(50),
   },
   scoreHeader: {
-    marginBottom: 12,
+    marginBottom: scaleSpacing(12),
   },
   scoreTitleContainer: {
     flex: 1,
   },
   scoreTitle: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: scaleSpacing(4),
   },
   eventType: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
     fontWeight: "600",
   },
   deleteButton: {
     position: "absolute",
-    top: 16,
-    right: 16,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    top: scaleSpacing(16),
+    right: scaleSpacing(16),
+    width: scaleSpacing(28),
+    height: scaleSpacing(28),
+    borderRadius: scaleSpacing(14),
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
   },
   deleteButtonText: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
   },
   scoreDetails: {
     borderTopWidth: 1,
-    paddingTop: 12,
+    paddingTop: scaleSpacing(12),
   },
   scoreRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: scaleSpacing(8),
   },
   scoreLabel: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
   },
   scoreValue: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
   },
   resultScoreValue: {

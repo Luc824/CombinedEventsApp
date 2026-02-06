@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTheme } from "../contexts/ThemeContext";
 import { ThemeColors } from "../constants/ThemeColors";
 import { SavedScore, getEventTypeDisplayName, getEventNames } from "../utils/scoreStorage";
+import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
 
@@ -113,100 +114,100 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: scaleSpacing(20),
   },
   titleRow: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Platform.OS === "android" ? 26 : 14,
-    marginBottom: 20,
+    marginTop: Platform.OS === "android" ? scaleSpacing(26) : scaleSpacing(14),
+    marginBottom: scaleSpacing(20),
     position: "relative",
-    paddingLeft: 50,
-    paddingRight: 50,
+    paddingLeft: scaleSpacing(50),
+    paddingRight: scaleSpacing(50),
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: scaleSpacing(40),
+    height: scaleSpacing(40),
     position: "absolute",
     left: 0,
     zIndex: 1,
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: scaleSpacing(20),
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
-    fontSize: 28,
+    fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
     width: "100%",
   },
   errorText: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     textAlign: "center",
-    marginTop: 50,
+    marginTop: scaleSpacing(50),
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: scaleSpacing(20),
   },
   summaryCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
+    borderRadius: scaleSpacing(12),
+    padding: scaleSpacing(16),
+    marginBottom: scaleSpacing(24),
   },
   eventType: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: scaleSpacing(12),
   },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: scaleSpacing(8),
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
   },
   summaryValue: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "bold",
   },
   resultScoreValue: {
-    fontSize: 18,
+    fontSize: scaleFont(18),
     fontWeight: "bold",
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: scaleFont(20),
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: scaleSpacing(12),
   },
   eventCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: scaleSpacing(12),
+    padding: scaleSpacing(16),
+    marginBottom: scaleSpacing(12),
   },
   eventHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: scaleSpacing(8),
   },
   eventName: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "600",
     flex: 1,
   },
   eventPoints: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
-    marginLeft: 12,
+    marginLeft: scaleSpacing(12),
   },
   eventResult: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
   },
 });
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type ActionButtonsRowProps = {
   onViewChart: () => void;
@@ -44,18 +45,18 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 10,
-    marginVertical: 6,
-    marginHorizontal: 16,
+    gap: scaleSpacing(10),
+    marginVertical: scaleSpacing(6),
+    marginHorizontal: scaleSpacing(16),
   },
   chartButton: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    borderRadius: scaleSpacing(12),
+    paddingVertical: scaleSpacing(12),
+    paddingHorizontal: scaleSpacing(20),
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    minWidth: 140,
+    minWidth: scaleSpacing(140),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -64,16 +65,16 @@ const styles = StyleSheet.create({
   },
   chartButtonText: {
     fontWeight: "600",
-    fontSize: 15,
+    fontSize: scaleFont(15),
   },
   saveButton: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    borderRadius: scaleSpacing(12),
+    paddingVertical: scaleSpacing(12),
+    paddingHorizontal: scaleSpacing(20),
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    minWidth: 140,
+    minWidth: scaleSpacing(140),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -82,6 +83,6 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontWeight: "600",
-    fontSize: 15,
+    fontSize: scaleFont(15),
   },
 });

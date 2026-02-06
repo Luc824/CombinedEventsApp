@@ -12,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ThemeColors } from "../../constants/ThemeColors";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
 
@@ -71,9 +72,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: scaleSpacing(20),
     justifyContent: "flex-start",
-    paddingTop: 160,
+    paddingTop: scaleSpacing(160),
     ...Platform.select({
       web: {
         maxWidth: 700,
@@ -83,25 +84,25 @@ const styles = StyleSheet.create({
     }),
   },
   title: {
-    fontSize: 28,
+    fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 20,
-    marginBottom: 30,
-    lineHeight: 34,
+    marginTop: scaleSpacing(20),
+    marginBottom: scaleSpacing(30),
+    lineHeight: scaleSpacing(34),
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: scaleFont(20),
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: scaleSpacing(10),
+    marginTop: scaleSpacing(10),
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
-    gap: 20,
+    marginBottom: scaleSpacing(20),
+    gap: scaleSpacing(20),
   },
   button: {
     borderColor: "#fff",
@@ -111,13 +112,13 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   pillButton: {
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 30,
+    borderRadius: scaleSpacing(30),
+    paddingVertical: scaleSpacing(14),
+    paddingHorizontal: scaleSpacing(30),
     flex: 1,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
     textAlign: "center",
   },
