@@ -27,15 +27,23 @@ export default function BarChart({
 }: BarChartProps) {
   const maxPoints = Math.max(...points, 1000);
   const chartHeight = scaleSpacing(200);
-  const barWidth = scaleSpacing(22);
-  const barSpacing = scaleSpacing(4);
+  /** Decathlon (10 events): tighter gap + slightly wider columns so 4-digit labels fit without ellipsis. */
+  const denseDecathlon = points.length >= 10;
+  const barWidth = scaleSpacing(denseDecathlon ? 26 : 22);
+  const barSpacing = scaleSpacing(denseDecathlon ? 2 : 4);
 
   return (
     <View style={[styles.chartContainer, { backgroundColor }]}>
       <Text style={[styles.chartTitle, { color: textColor }]}>
         Performance Overview
       </Text>
-      <View style={styles.chartContent}>
+      <View
+        style={
+          denseDecathlon
+            ? [styles.chartContentDense, { gap: barSpacing }]
+            : styles.chartContent
+        }
+      >
         {points.map((pointValue, index) => {
           const barHeight =
             maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
@@ -47,9 +55,23 @@ export default function BarChart({
           return (
             <View
               key={index}
-              style={[styles.barWrapper, { width: barWidth + barSpacing * 2 }]}
+              style={[
+                styles.barWrapper,
+                {
+                  width: denseDecathlon
+                    ? barWidth
+                    : barWidth + barSpacing * 2,
+                },
+              ]}
             >
-              <Text style={[styles.barValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.barValue,
+                  denseDecathlon && styles.barValueDense,
+                  { color: textColor },
+                ]}
+                numberOfLines={1}
+              >
                 {pointValue}
               </Text>
               <View style={styles.barContainer}>
@@ -111,16 +133,31 @@ const styles = StyleSheet.create({
     height: scaleSpacing(240),
     paddingHorizontal: scaleSpacing(8),
   },
+  chartContentDense: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    height: scaleSpacing(240),
+    paddingHorizontal: scaleSpacing(14),
+    width: "100%",
+  },
   barWrapper: {
     alignItems: "center",
     justifyContent: "flex-end",
     height: "100%",
   },
+  /** Heptathlon / pentathlon: room for 4 digits at one size. */
   barValue: {
-    fontSize: scaleFont(12),
+    fontSize: scaleFont(10),
     fontWeight: "600",
     marginBottom: scaleSpacing(4),
     textAlign: "center",
+    width: "100%",
+  },
+  /** Decathlon: 10 narrow columns — one step smaller so 4-digit scores fit without "10…" ellipsis (same size for every bar). */
+  barValueDense: {
+    fontSize: scaleFont(9),
+    letterSpacing: -0.25,
   },
   barContainer: {
     width: "100%",
