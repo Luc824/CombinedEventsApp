@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Radius } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type BarChartProps = {
@@ -117,7 +118,7 @@ export default function BarChart({
 
 const styles = StyleSheet.create({
   chartContainer: {
-    borderRadius: scaleSpacing(12),
+    borderRadius: Radius.md,
     padding: scaleSpacing(16),
   },
   chartTitle: {

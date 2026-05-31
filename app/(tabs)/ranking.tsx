@@ -14,11 +14,10 @@ import {
   View,
 } from "react-native";
 import { ThemeColors } from "../../constants/ThemeColors";
+import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
-
-const TRACK_COLOR = "#D35400";
 
 const EVENTS = [
   { label: "Men's Decathlon", value: "decathlon", gender: "men" },
@@ -360,7 +359,7 @@ export default function RankingsScreen() {
         <Text style={[styles.averageLabel, { color: colors.text }]}>Ranking Score:</Text>
         <Text style={[styles.averageValue, { color: TRACK_COLOR }]}>{average}</Text>
       </View>
-      <TouchableOpacity style={[styles.clearButton, { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
+      <TouchableOpacity style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
         <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -383,7 +382,6 @@ export default function RankingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000",
     ...Platform.select({
       web: {
         alignItems: "center",
@@ -392,11 +390,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
-    paddingHorizontal: 10,
+    paddingHorizontal: scaleSpacing(10),
     ...Platform.select({
       web: {
-        maxWidth: 700,
+        maxWidth: ScreenLayout.contentMaxWidth,
         alignSelf: "center",
         width: "100%",
       },
@@ -405,62 +402,48 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: scaleSpacing(10),
     paddingBottom: scaleSpacing(16),
-    ...Platform.select({
-      android: {
-        paddingTop: scaleSpacing(26),
-      },
-    }),
+    paddingTop: ScreenLayout.topPadding,
   },
   title: {
-    fontSize: scaleFont(26),
+    fontSize: scaleFont(28),
     fontWeight: "bold",
-    color: "#fff",
     textAlign: "center",
-    marginTop: Platform.OS === "android" ? scaleSpacing(24) : scaleSpacing(14),
     marginBottom: scaleSpacing(14),
   },
   performanceSection: {
-    backgroundColor: "rgba(34, 34, 34, 0.6)",
     borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: scaleSpacing(12),
+    borderRadius: Radius.md,
     padding: scaleSpacing(8),
     marginBottom: scaleSpacing(8),
     marginHorizontal: scaleSpacing(16),
     minWidth: 0,
   },
   performanceTitle: {
-    color: "#fff",
     fontSize: scaleFont(14),
     fontWeight: "bold",
     marginBottom: scaleSpacing(3),
     textAlign: "center",
   },
   dropdown: {
-    backgroundColor: "#222",
-    borderRadius: scaleSpacing(8),
+    borderRadius: Radius.sm,
     paddingVertical: scaleSpacing(6),
     paddingHorizontal: scaleSpacing(12),
     marginBottom: scaleSpacing(5),
     marginTop: scaleSpacing(2),
   },
   dropdownText: {
-    color: "#fff",
     fontSize: scaleFont(13),
   },
   dropdownPlaceholder: {
-    color: "#aaa",
     fontSize: scaleFont(13),
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContentRefined: {
-    backgroundColor: "#222",
-    borderRadius: 12,
+    borderRadius: Radius.md,
     paddingVertical: 8,
     paddingHorizontal: 20,
     alignItems: "stretch",
@@ -468,8 +451,7 @@ const styles = StyleSheet.create({
     maxWidth: "90%",
   },
   modalContentEvent: {
-    backgroundColor: "#222",
-    borderRadius: 12,
+    borderRadius: Radius.md,
     paddingVertical: 8,
     paddingHorizontal: 16,
     alignItems: "center",
@@ -477,7 +459,6 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   modalPromptRefined: {
-    color: "#bbb",
     fontSize: 12,
     textAlign: "center",
     marginBottom: 4,
@@ -487,8 +468,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     minHeight: 40,
     width: "100%",
-    backgroundColor: "#333",
-    borderRadius: 8,
+    borderRadius: Radius.sm,
     marginVertical: 2,
     justifyContent: "center",
   },
@@ -497,7 +477,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   modalOptionText: {
-    color: "#fff",
     fontSize: 14,
     textAlign: "center",
     flexWrap: "wrap",
@@ -509,7 +488,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   rankLetter: {
-    color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
     width: 40,
@@ -518,7 +496,6 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   rankDescription: {
-    color: "#fff",
     fontSize: 14,
     flex: 1,
     textAlign: "left",
@@ -526,9 +503,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   input: {
-    backgroundColor: "#222",
-    color: "#fff",
-    borderRadius: scaleSpacing(8),
+    borderRadius: Radius.sm,
     paddingVertical: scaleSpacing(5),
     paddingHorizontal: scaleSpacing(10),
     fontSize: scaleFont(13),
@@ -544,20 +519,16 @@ const styles = StyleSheet.create({
     }),
   },
   resultLabel: {
-    color: "#fff",
     fontSize: scaleFont(12),
     marginTop: scaleSpacing(1),
   },
   resultValue: {
-    color: TRACK_COLOR,
     fontSize: scaleFont(12),
     fontWeight: "bold",
   },
   averageBox: {
-    backgroundColor: "rgba(34, 34, 34, 0.6)",
     borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: scaleSpacing(12),
+    borderRadius: Radius.md,
     padding: scaleSpacing(8),
     alignItems: "center",
     marginTop: scaleSpacing(6),
@@ -565,32 +536,19 @@ const styles = StyleSheet.create({
     marginHorizontal: scaleSpacing(16),
   },
   averageLabel: {
-    color: "#fff",
     fontSize: scaleFont(14),
     fontWeight: "bold",
     marginBottom: scaleSpacing(1),
   },
   averageValue: {
-    color: TRACK_COLOR,
     fontSize: scaleFont(16),
     fontWeight: "bold",
   },
   clearButton: {
-    backgroundColor: "#444",
-    borderRadius: scaleSpacing(12),
-    paddingVertical: scaleSpacing(10),
-    paddingHorizontal: scaleSpacing(24),
-    alignItems: "center",
     marginVertical: scaleSpacing(6),
     marginHorizontal: scaleSpacing(16),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   clearButtonText: {
-    color: "#fff",
     fontWeight: "600",
     fontSize: scaleFont(15),
   },

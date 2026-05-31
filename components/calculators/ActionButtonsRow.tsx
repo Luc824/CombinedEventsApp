@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { actionButtonStyle, buttonElevation } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type ActionButtonsRowProps = {
@@ -20,19 +21,19 @@ export default function ActionButtonsRow({
   return (
     <View style={styles.buttonRow}>
       <TouchableOpacity
-        style={[styles.chartButton, { backgroundColor: buttonBackground }]}
+        style={[styles.actionButton, actionButtonStyle, buttonElevation(), { backgroundColor: buttonBackground }]}
         onPress={onViewChart}
       >
-        <Text style={[styles.chartButtonText, { color: buttonTextColor }]}>
+        <Text style={[styles.actionButtonText, { color: buttonTextColor }]}>
           View Chart
         </Text>
       </TouchableOpacity>
       {showSaveButton && (
         <TouchableOpacity
-          style={[styles.saveButton, { backgroundColor: buttonBackground }]}
+          style={[styles.actionButton, actionButtonStyle, buttonElevation(), { backgroundColor: buttonBackground }]}
           onPress={onSaveScore}
         >
-          <Text style={[styles.saveButtonText, { color: buttonTextColor }]}>
+          <Text style={[styles.actionButtonText, { color: buttonTextColor }]}>
             Save Score
           </Text>
         </TouchableOpacity>
@@ -49,39 +50,11 @@ const styles = StyleSheet.create({
     marginVertical: scaleSpacing(6),
     marginHorizontal: scaleSpacing(16),
   },
-  chartButton: {
-    borderRadius: scaleSpacing(12),
-    paddingVertical: scaleSpacing(12),
-    paddingHorizontal: scaleSpacing(20),
-    alignItems: "center",
-    justifyContent: "center",
+  actionButton: {
     flex: 1,
     minWidth: scaleSpacing(140),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
-  chartButtonText: {
-    fontWeight: "600",
-    fontSize: scaleFont(15),
-  },
-  saveButton: {
-    borderRadius: scaleSpacing(12),
-    paddingVertical: scaleSpacing(12),
-    paddingHorizontal: scaleSpacing(20),
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    minWidth: scaleSpacing(140),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  saveButtonText: {
+  actionButtonText: {
     fontWeight: "600",
     fontSize: scaleFont(15),
   },

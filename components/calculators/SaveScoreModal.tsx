@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { Radius, actionButtonStyle, buttonElevation } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type SaveScoreModalProps = {
@@ -79,7 +80,7 @@ export default function SaveScoreModal({
           />
           <View style={styles.saveModalButtons}>
             <TouchableOpacity
-              style={[styles.saveModalButton, { backgroundColor: secondaryButtonColor }]}
+              style={[styles.saveModalButton, actionButtonStyle, buttonElevation(), { backgroundColor: secondaryButtonColor }]}
               onPress={onClose}
             >
               <Text style={[styles.saveModalButtonText, { color: buttonTextColor }]}>
@@ -87,7 +88,7 @@ export default function SaveScoreModal({
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.saveModalButton, { backgroundColor: primaryButtonColor }]}
+              style={[styles.saveModalButton, actionButtonStyle, buttonElevation(), { backgroundColor: primaryButtonColor }]}
               onPress={onSave}
             >
               <Text style={[styles.saveModalButtonText, { color: buttonTextColor }]}>
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   saveModalContent: {
-    borderRadius: scaleSpacing(16),
+    borderRadius: Radius.lg,
     padding: scaleSpacing(20),
     width: "85%",
     maxWidth: scaleSpacing(400),
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   saveModalInput: {
-    borderRadius: scaleSpacing(8),
+    borderRadius: Radius.sm,
     padding: scaleSpacing(12),
     fontSize: scaleFont(16),
     marginBottom: scaleSpacing(20),
@@ -139,12 +140,9 @@ const styles = StyleSheet.create({
   },
   saveModalButton: {
     flex: 1,
-    borderRadius: scaleSpacing(8),
-    paddingVertical: scaleSpacing(12),
-    alignItems: "center",
   },
   saveModalButtonText: {
-    fontWeight: "bold",
+    fontWeight: "600",
     fontSize: scaleFont(16),
   },
 });

@@ -1,20 +1,35 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  SafeAreaView,
-  Alert,
   Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { useTheme } from "../../contexts/ThemeContext";
 import { ThemeColors } from "../../constants/ThemeColors";
+import {
+  ScreenLayout,
+  pillButtonStyle,
+  sectionHeaderStyle,
+  buttonElevation,
+} from "../../constants/ui";
+import { useTheme } from "../../contexts/ThemeContext";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
-const TRACK_COLOR = "#D35400";
+const EVENT_BUTTONS = {
+  men: [
+    { label: "Decathlon", route: "/decathlon" as const },
+    { label: "Heptathlon", route: "/men-heptathlon" as const },
+  ],
+  women: [
+    { label: "Heptathlon", route: "/women-heptathlon" as const },
+    { label: "Pentathlon", route: "/women-pentathlon" as const },
+  ],
+};
 
 export default function EventsScreen() {
   const router = useRouter();
@@ -24,39 +39,55 @@ export default function EventsScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Combined Events{"\n"}Calculator</Text>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Men</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={[styles.title, { color: colors.text }]}>
+          Combined Events{"\n"}Calculator
+        </Text>
+
+        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Men</Text>
         <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
-            onPress={() => router.push("/decathlon")}
-          >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Decathlon</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
-            onPress={() => router.push("/men-heptathlon")}
-          >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Heptathlon</Text>
-          </TouchableOpacity>
+          {EVENT_BUTTONS.men.map((item) => (
+            <TouchableOpacity
+              key={item.route}
+              style={[
+                styles.eventButton,
+                pillButtonStyle,
+                buttonElevation(),
+                { backgroundColor: colors.buttonPrimary },
+              ]}
+              onPress={() => router.push(item.route)}
+            >
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Women</Text>
+
+        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Women</Text>
         <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
-            onPress={() => router.push("/women-heptathlon")}
-          >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Heptathlon</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.pillButton, { backgroundColor: colors.buttonPrimary }]}
-            onPress={() => router.push("/women-pentathlon")}
-          >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Pentathlon</Text>
-          </TouchableOpacity>
+          {EVENT_BUTTONS.women.map((item) => (
+            <TouchableOpacity
+              key={item.route}
+              style={[
+                styles.eventButton,
+                pillButtonStyle,
+                buttonElevation(),
+                { backgroundColor: colors.buttonPrimary },
+              ]}
+              onPress={() => router.push(item.route)}
+            >
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -65,61 +96,46 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     ...Platform.select({
-      web: {
-        alignItems: "center",
-      },
+      web: { alignItems: "center" },
     }),
   },
-  container: {
+  scrollView: {
     flex: 1,
-    padding: scaleSpacing(20),
-    justifyContent: "flex-start",
-    paddingTop: scaleSpacing(160),
     ...Platform.select({
-      web: {
-        maxWidth: 700,
-        alignSelf: "center",
-        width: "100%",
-      },
+      web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%" },
+    }),
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: ScreenLayout.horizontalPadding,
+    paddingTop: ScreenLayout.topPadding,
+    paddingBottom: scaleSpacing(32),
+    ...Platform.select({
+      web: { alignSelf: "center", width: "100%" },
     }),
   },
   title: {
     fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: scaleSpacing(20),
-    marginBottom: scaleSpacing(30),
+    marginBottom: ScreenLayout.sectionGap,
     lineHeight: scaleSpacing(34),
   },
-  sectionTitle: {
-    fontSize: scaleFont(20),
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: scaleSpacing(10),
-    marginTop: scaleSpacing(10),
+  sectionHeader: {
+    ...sectionHeaderStyle,
+    alignSelf: "flex-start",
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: scaleSpacing(20),
-    gap: scaleSpacing(20),
+    gap: ScreenLayout.buttonGap,
+    marginBottom: scaleSpacing(8),
   },
-  button: {
-    borderColor: "#fff",
-    borderWidth: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 0,
-  },
-  pillButton: {
-    borderRadius: scaleSpacing(30),
-    paddingVertical: scaleSpacing(14),
-    paddingHorizontal: scaleSpacing(30),
+  eventButton: {
     flex: 1,
   },
   buttonText: {
     fontSize: scaleFont(16),
-    fontWeight: "bold",
+    fontWeight: "600",
     textAlign: "center",
   },
 });

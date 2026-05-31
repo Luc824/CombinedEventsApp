@@ -1,27 +1,27 @@
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
+    Alert,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableWithoutFeedback,
+    View,
 } from "react-native";
-import { useTheme } from "../contexts/ThemeContext";
-import { ThemeColors } from "../constants/ThemeColors";
-import CalculatorTitleRow from "../components/calculators/CalculatorTitleRow";
-import EventInputRow from "../components/calculators/EventInputRow";
-import TotalScoreCard from "../components/calculators/TotalScoreCard";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ActionButtonsRow from "../components/calculators/ActionButtonsRow";
-import ClearButton from "../components/calculators/ClearButton";
+import CalculatorTitleRow from "../components/calculators/CalculatorTitleRow";
 import ChartModal from "../components/calculators/ChartModal";
+import ClearButton from "../components/calculators/ClearButton";
+import EventInputRow from "../components/calculators/EventInputRow";
 import SaveScoreModal from "../components/calculators/SaveScoreModal";
+import TotalScoreCard from "../components/calculators/TotalScoreCard";
+import { ThemeColors } from "../constants/ThemeColors";
+import { USE_NATIVE_HEADER } from "../constants/navigation";
+import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
 import { convertTimeToSeconds } from "../utils/timeUtils";
@@ -82,7 +82,6 @@ const EVENT_LABELS = [
 ];
 
 export default function MenHeptathlonScreen() {
-  const router = useRouter();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
   const [results, setResults] = useState<string[]>(Array(7).fill(""));
@@ -221,13 +220,15 @@ export default function MenHeptathlonScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <CalculatorTitleRow
-        title="Men's Heptathlon"
-        onBack={() => router.back()}
-        textColor={colors.text}
-        buttonBackground={colors.surfaceSolid}
-        buttonBorder={colors.border}
-      />
+      {!USE_NATIVE_HEADER && (
+        <CalculatorTitleRow
+          title="Men's Heptathlon"
+          onBack={() => {}}
+          textColor={colors.text}
+          buttonBackground={colors.surfaceSolid}
+          buttonBorder={colors.border}
+        />
+      )}
       {HEPTATHLON_EVENTS.map((event, index) => (
         <React.Fragment key={index}>
           {renderEventInput(event, index)}
@@ -275,7 +276,10 @@ export default function MenHeptathlonScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+      edges={USE_NATIVE_HEADER ? ["bottom"] : ["top", "bottom", "left", "right"]}
+    >
       <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}

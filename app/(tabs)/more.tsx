@@ -1,19 +1,28 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import {
-  Alert,
-  Linking,
-  Platform,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Linking,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { useTheme } from "../../contexts/ThemeContext";
 import { ThemeColors } from "../../constants/ThemeColors";
+import {
+  TRACK_COLOR,
+  Radius,
+  ScreenLayout,
+  pillButtonStyle,
+  surfacePillButtonStyle,
+  buttonElevation,
+} from "../../constants/ui";
+import { useTheme } from "../../contexts/ThemeContext";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 // Temporarily disabled for Expo Go testing
 // import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
@@ -21,8 +30,6 @@ import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 // Temporarily disabled types for Expo Go testing
 // type PurchasesOffering = any;
 // type PurchasesPackage = any;
-
-const TRACK_COLOR = "#D35400";
 
 // Temporarily disabled for Expo Go testing
 // UI falls back to static tiers if offerings are not available
@@ -171,11 +178,15 @@ export default function MoreScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
         
         <TouchableOpacity 
-          style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} 
+          style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
           onPress={toggleTheme}
         >
           <View style={styles.themeToggleRow}>
@@ -192,19 +203,19 @@ export default function MoreScreen() {
         </TouchableOpacity>
 
         {Platform.OS !== 'web' && (
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} onPress={handleSavedScores}>
+          <TouchableOpacity style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} onPress={handleSavedScores}>
             <Text style={[styles.buttonText, { color: colors.text }]}>Saved Scores</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} onPress={handleFeedback}>
+        <TouchableOpacity style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} onPress={handleFeedback}>
           <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]} onPress={handleReview}>
+        <TouchableOpacity style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} onPress={handleReview}>
           <Text style={[styles.buttonText, { color: colors.text }]}>Leave a Review</Text>
         </TouchableOpacity>
 
         {Platform.OS === 'web' && (
-          <TouchableOpacity style={[styles.button, styles.getAppButton, { backgroundColor: TRACK_COLOR }]} onPress={handleGetApp}>
+          <TouchableOpacity style={[styles.button, pillButtonStyle, buttonElevation(), { backgroundColor: TRACK_COLOR }]} onPress={handleGetApp}>
             <Text style={[styles.buttonText, { color: colors.buttonText }]}>📱 Get the App</Text>
           </TouchableOpacity>
         )}
@@ -291,7 +302,7 @@ export default function MoreScreen() {
           Support this app (no pole vault required!)
         </Text>
         */}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -299,32 +310,40 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    ...Platform.select({
+      web: { alignItems: "center" },
+    }),
   },
-  container: {
+  scrollView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: scaleSpacing(20),
+    ...Platform.select({
+      web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%" },
+    }),
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: ScreenLayout.horizontalPadding,
+    paddingTop: ScreenLayout.topPadding,
+    paddingBottom: scaleSpacing(32),
+    alignItems: "stretch",
+    ...Platform.select({
+      web: { alignSelf: "center", width: "100%" },
+    }),
   },
   title: {
     fontSize: scaleFont(28),
     fontWeight: "bold",
-    marginBottom: scaleSpacing(30),
+    marginBottom: ScreenLayout.sectionGap,
     textAlign: "center",
     lineHeight: scaleSpacing(34),
   },
   button: {
-    borderRadius: scaleSpacing(30),
-    paddingVertical: scaleSpacing(14),
-    paddingHorizontal: scaleSpacing(30),
-    marginBottom: scaleSpacing(18),
-    alignItems: "center",
+    marginBottom: ScreenLayout.buttonGap,
     width: "100%",
-    maxWidth: scaleSpacing(350),
   },
   buttonText: {
     fontSize: scaleFont(16),
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   themeToggleRow: {
     flexDirection: "row",
@@ -333,9 +352,6 @@ const styles = StyleSheet.create({
   },
   themeIcon: {
     marginRight: scaleSpacing(8),
-  },
-  getAppButton: {
-    // backgroundColor set dynamically
   },
   sectionTitle: {
     fontSize: scaleFont(20),
@@ -354,7 +370,7 @@ const styles = StyleSheet.create({
   },
   donateButton: {
     flex: 1,
-    borderRadius: scaleSpacing(20),
+    borderRadius: Radius.pill,
     paddingVertical: scaleSpacing(16),
     alignItems: "center",
     marginHorizontal: 0,

@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform, StyleSheet, Text, TextInput, View } from "react-native";
+import { Radius } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type EventInputRowProps = {
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
     marginBottom: scaleSpacing(3),
     marginHorizontal: scaleSpacing(16),
     borderWidth: 1,
-    borderRadius: scaleSpacing(8),
+    borderRadius: Radius.sm,
     paddingVertical: scaleSpacing(4),
     paddingHorizontal: scaleSpacing(4),
   },
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     width: scaleSpacing(80),
     height: scaleSpacing(28),
     borderWidth: 0,
-    borderRadius: scaleSpacing(20),
+    borderRadius: Radius.sm,
     paddingHorizontal: scaleSpacing(8),
     marginRight: scaleSpacing(5),
     fontSize: scaleFont(13),

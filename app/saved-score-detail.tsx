@@ -1,25 +1,24 @@
+import { Stack, useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useTheme } from "../contexts/ThemeContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeColors } from "../constants/ThemeColors";
-import { SavedScore, getEventTypeDisplayName, getEventNames } from "../utils/scoreStorage";
+import { USE_NATIVE_HEADER } from "../constants/navigation";
+import { Radius } from "../constants/ui";
+import { useTheme } from "../contexts/ThemeContext";
+import { SavedScore, getEventNames, getEventTypeDisplayName } from "../utils/scoreStorage";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
 
 export default function SavedScoreDetailScreen() {
-  const router = useRouter();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
   const params = useLocalSearchParams<{ score: string }>();
@@ -31,80 +30,80 @@ export default function SavedScoreDetailScreen() {
     console.error("Error parsing score:", error);
   }
 
+  const screenTitle = score?.title ?? "Saved Score";
+
   if (!score) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <View style={styles.titleRow}>
-            {Platform.OS !== 'web' && (
-              <TouchableOpacity 
-                style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
-                onPress={() => router.back()}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons name="chevron-back" size={22} color={colors.text} />
-              </TouchableOpacity>
+      <>
+        <Stack.Screen options={{ title: "Saved Score", headerBackTitle: "Saved Scores" }} />
+        <SafeAreaView
+          style={[styles.safeArea, { backgroundColor: colors.background }]}
+          edges={USE_NATIVE_HEADER ? ["bottom"] : ["top", "bottom", "left", "right"]}
+        >
+          <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+          <View style={[styles.container, { backgroundColor: colors.background }]}>
+            {!USE_NATIVE_HEADER && (
+              <View style={styles.titleRow}>
+                <Text style={[styles.title, { color: colors.text }]}>Saved Score</Text>
+              </View>
             )}
-            <Text style={[styles.title, { color: colors.text }]}>Saved Score</Text>
+            <Text style={[styles.errorText, { color: colors.text }]}>Score not found</Text>
           </View>
-          <Text style={[styles.errorText, { color: colors.text }]}>Score not found</Text>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </>
     );
   }
 
   const eventNames = getEventNames(score.eventType);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.titleRow}>
-          {Platform.OS !== 'web' && (
-            <TouchableOpacity 
-              style={[styles.backButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
-              onPress={() => router.back()}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="chevron-back" size={22} color={colors.text} />
-            </TouchableOpacity>
+    <>
+      <Stack.Screen options={{ title: screenTitle, headerBackTitle: "Saved Scores" }} />
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: colors.background }]}
+        edges={USE_NATIVE_HEADER ? ["bottom"] : ["top", "bottom", "left", "right"]}
+      >
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          {!USE_NATIVE_HEADER && (
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, { color: colors.text }]}>{score.title}</Text>
+            </View>
           )}
-          <Text style={[styles.title, { color: colors.text }]}>{score.title}</Text>
-        </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={[styles.summaryCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
-            <Text style={[styles.eventType, { color: TRACK_COLOR }]}>{getEventTypeDisplayName(score.eventType)}</Text>
-            <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Score:</Text>
-              <Text style={[styles.summaryValue, { color: colors.text }]}>{score.totalScore} Points</Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Result Score:</Text>
-              <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>{score.resultScore}</Text>
-            </View>
-          </View>
-
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>
-          {eventNames.map((eventName, index) => (
-            <View key={index} style={[styles.eventCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
-              <View style={styles.eventHeader}>
-                <Text style={[styles.eventName, { color: colors.text }]}>{eventName}</Text>
-                <Text style={[styles.eventPoints, { color: TRACK_COLOR }]}>{score.points[index]} Points</Text>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={[styles.summaryCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
+              <Text style={[styles.eventType, { color: TRACK_COLOR }]}>{getEventTypeDisplayName(score.eventType)}</Text>
+              <View style={styles.summaryRow}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Score:</Text>
+                <Text style={[styles.summaryValue, { color: colors.text }]}>{score.totalScore} Points</Text>
               </View>
-              <Text style={[styles.eventResult, { color: colors.textSecondary }]}>
-                {score.results[index] || "No result"}
-              </Text>
+              <View style={styles.summaryRow}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Result Score:</Text>
+                <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>{score.resultScore}</Text>
+              </View>
             </View>
-          ))}
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>
+            {eventNames.map((eventName, index) => (
+              <View key={index} style={[styles.eventCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
+                <View style={styles.eventHeader}>
+                  <Text style={[styles.eventName, { color: colors.text }]}>{eventName}</Text>
+                  <Text style={[styles.eventPoints, { color: TRACK_COLOR }]}>{score.points[index]} Points</Text>
+                </View>
+                <Text style={[styles.eventResult, { color: colors.textSecondary }]}>
+                  {score.results[index] || "No result"}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -121,20 +120,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: Platform.OS === "android" ? scaleSpacing(26) : scaleSpacing(14),
     marginBottom: scaleSpacing(20),
-    position: "relative",
-    paddingLeft: scaleSpacing(50),
-    paddingRight: scaleSpacing(50),
-  },
-  backButton: {
-    width: scaleSpacing(40),
-    height: scaleSpacing(40),
-    position: "absolute",
-    left: 0,
-    zIndex: 1,
-    borderWidth: 1,
-    borderRadius: scaleSpacing(20),
-    alignItems: "center",
-    justifyContent: "center",
   },
   title: {
     fontSize: scaleFont(28),
@@ -154,7 +139,7 @@ const styles = StyleSheet.create({
     paddingBottom: scaleSpacing(20),
   },
   summaryCard: {
-    borderRadius: scaleSpacing(12),
+    borderRadius: Radius.md,
     padding: scaleSpacing(16),
     marginBottom: scaleSpacing(24),
   },
@@ -186,7 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: scaleSpacing(12),
   },
   eventCard: {
-    borderRadius: scaleSpacing(12),
+    borderRadius: Radius.md,
     padding: scaleSpacing(16),
     marginBottom: scaleSpacing(12),
   },
@@ -210,4 +195,3 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(14),
   },
 });
-

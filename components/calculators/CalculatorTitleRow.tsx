@@ -1,6 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type CalculatorTitleRowProps = {

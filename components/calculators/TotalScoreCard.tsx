@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Radius } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type TotalScoreCardProps = {
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     paddingVertical: scaleSpacing(8),
     marginHorizontal: scaleSpacing(16),
     borderWidth: 1,
-    borderRadius: scaleSpacing(10),
+    borderRadius: Radius.md,
     marginBottom: scaleSpacing(12),
   },
   totalText: {
