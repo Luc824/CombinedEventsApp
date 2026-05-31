@@ -14,9 +14,9 @@ import {
   View,
 } from "react-native";
 import { ThemeColors } from "../../constants/ThemeColors";
-import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 import { useTheme } from "../../contexts/ThemeContext";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
+import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
 
@@ -33,15 +33,15 @@ const worldAthleticsScoresTyped: Record<
   Record<string, number>
 > = worldAthleticsScores as any;
 const PLACING_SCORES: Record<string, number[]> = {
-  OW: [280, 250, 225, 205, 185, 170, 155, 145, 95, 85, 75, 65, 60, 55, 50, 46],
-  GW: [140, 120, 105, 90, 80, 70, 60, 50, 35, 30, 24, 18, 0, 0, 0, 0],
-  GL: [110, 90, 75, 65, 55, 50, 45, 40, 30, 25, 20, 15, 0, 0, 0, 0],
-  A: [80, 70, 60, 50, 45, 40, 35, 30, 20, 15, 0, 0, 0, 0, 0, 0],
-  B: [60, 50, 45, 40, 35, 30, 25, 20, 0, 0, 0, 0, 0, 0, 0, 0],
-  C: [45, 38, 32, 26, 22, 19, 17, 15, 0, 0, 0, 0, 0, 0, 0, 0],
-  D: [30, 22, 18, 16, 14, 12, 11, 10, 0, 0, 0, 0, 0, 0, 0, 0],
-  E: [20, 14, 10, 8, 7, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  F: [10, 6, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  OW: [200, 175, 160, 145, 130, 120, 110, 100, 67, 60, 53, 46, 42, 38, 35, 32],
+  GW: [100, 85, 75, 65, 56, 49, 42, 35, 25, 21, 17, 13, 0, 0, 0, 0],
+  GL: [80, 65, 55, 46, 39, 35, 31, 28, 21, 17, 14, 11, 0, 0, 0, 0],
+  A: [56, 49, 42, 35, 31, 27, 24, 21, 15, 13, 11, 9, 0, 0, 0, 0],
+  B: [42, 35, 31, 27, 24, 21, 18, 15,13, 11, 9, 8, 0, 0, 0, 0],
+  C: [32, 27, 22, 18, 15, 13, 12, 11, 10, 9, 8, 7, 0, 0, 0, 0],
+  D: [21, 15, 13, 11, 10, 9, 8, 7, 0, 0, 0, 0, 0, 0, 0, 0],
+  E: [14, 10, 7, 6, 5, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  F: [7, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 
 const RANK_DESCRIPTIONS: Record<string, string> = {
