@@ -22,10 +22,15 @@ function AppStack() {
         headerTitleStyle: { color: colors.text, fontWeight: "600" },
         headerShadowVisible: false,
         headerBackTitleVisible: false,
+        headerBackTitle: "",
+        headerBackButtonDisplayMode: "minimal",
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(tabs)"
+        options={{ headerShown: false, title: "Events" }}
+      />
       <Stack.Screen
         name="decathlon"
         options={{

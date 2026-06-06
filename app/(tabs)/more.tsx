@@ -31,21 +31,14 @@ import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 // type PurchasesOffering = any;
 // type PurchasesPackage = any;
 
-// Temporarily disabled for Expo Go testing
-// UI falls back to static tiers if offerings are not available
-// const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"];
+/** Static tip tiers — UI preview in Expo Go; RevenueCat wired in production builds */
+const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
 
-// const PACKAGE_LABELS: Record<string, string> = {
-//   donation_tier1: "Amateur",
-//   donation_tier2: "Pro",
-//   donation_tier3: "GOAT",
-// };
-
-// const PACKAGE_PRICES: Record<string, string> = {
-//   donation_tier1: "0.99",
-//   donation_tier2: "1.99",
-//   donation_tier3: "9.99",
-// };
+const PACKAGE_PRICES: Record<string, string> = {
+  donation_tier1: "0.99",
+  donation_tier2: "1.99",
+  donation_tier3: "9.99",
+};
 
 
 export default function MoreScreen() {
@@ -139,40 +132,22 @@ export default function MoreScreen() {
     router.push("/saved-scores" as any);
   };
 
-  // Temporarily disabled for Expo Go testing
-  // const handleWebDonate = (amount: string) => {
-  //   // Replace with your PayPal donation links
-  //   // You can create these at: https://www.paypal.com/donate/buttons
-  //   const paypalLinks: Record<string, string> = {
-  //     "Amateur": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-  //     "Pro": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-  //     "GOAT": "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-  //   };
-  //   
-  //   const link = paypalLinks[amount] || paypalLinks["Amateur"];
-  //   Linking.openURL(link);
-  // };
+  const handleWebDonate = (tier: string) => {
+    const paypalLinks: Record<string, string> = {
+      Amateur: "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+      Pro: "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+      GOAT: "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+    };
+    Linking.openURL(paypalLinks[tier] ?? paypalLinks.Amateur);
+  };
 
-  // const handleDonate = async (pkg?: PurchasesPackage) => {
-  //   // Temporarily disabled for Expo Go testing
-  //   Alert.alert("Unavailable", "Donations are temporarily disabled for testing.");
-  //   /*
-  //   try {
-  //     if (!pkg) {
-  //       Alert.alert("Unavailable", "No donation package is available right now.");
-  //       return;
-  //     }
-  //     setLoading(true);
-  //     const { customerInfo } = await Purchases.purchasePackage(pkg);
-  //     Alert.alert("Thank you!", "Your donation was successful. 🙏");
-  //   } catch (e: any) {
-  //     if (e?.userCancelled) return; // silent cancel
-  //     Alert.alert("Purchase failed", e?.message ?? "Please try again later.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  //   */
-  // };
+  /** Expo Go / dev preview — purchases need a native build + RevenueCat */
+  const handleTipPress = (tier: string) => {
+    if (Platform.OS === "web") {
+      handleWebDonate(tier);
+      return;
+    }
+  };
 
 
   return (
@@ -220,88 +195,26 @@ export default function MoreScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Temporarily disabled for Expo Go testing
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Tips</Text>
         <View style={styles.donateRow}>
-          {FALLBACK_TIERS.map((tier) => {
-            const price = PACKAGE_PRICES[`donation_tier${FALLBACK_TIERS.indexOf(tier) + 1}`] ?? "";
+          {FALLBACK_TIERS.map((tier, index) => {
+            const price = PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
             return (
               <TouchableOpacity
                 key={tier}
                 style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-                onPress={() => handleWebDonate(tier)}
+                onPress={() => handleTipPress(tier)}
               >
                 <Text style={styles.donateTier}>{tier}</Text>
-                {price && <Text style={styles.donateAmount}>{price}</Text>}
+                {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
               </TouchableOpacity>
             );
           })}
         </View>
-        Temporarily disabled RevenueCat code for Expo Go testing
-        {Platform.OS === 'web' ? (
-          // Web donations using PayPal links
-          <View style={styles.donateRow}>
-            {FALLBACK_TIERS.map((tier) => {
-              const price = PACKAGE_PRICES[`donation_tier${FALLBACK_TIERS.indexOf(tier) + 1}`] ?? "";
-              return (
-                <TouchableOpacity
-                  key={tier}
-                  style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-                  onPress={() => handleWebDonate(tier)}
-                >
-                  <Text style={styles.donateTier}>{tier}</Text>
-                  {price && <Text style={styles.donateAmount}>{price}</Text>}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        ) : (
-          // iOS/Android donations using RevenueCat
-          donationPackages.length > 0 ? (
-            <View style={styles.donateRow}>
-              {donationPackages.slice(0, 3).map((pkg: any) => {
-                const sp = pkg.storeProduct ?? pkg.product;
-                const pkgId =
-                  pkg.storeProduct?.identifier ??
-                  pkg.storeProduct?.productIdentifier ??
-                  pkg.product?.identifier ??
-                  pkg.identifier;
-                const label = PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
-                const price = PACKAGE_PRICES[pkgId] ?? "";
-                return (
-                  <TouchableOpacity
-                    key={pkg.identifier}
-                    style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: loading ? 0.7 : 1 }]}
-                    onPress={() => handleDonate(pkg)}
-                    disabled={loading}
-                  >
-                    <Text style={styles.donateTier}>{label}</Text>
-                    {price && <Text style={styles.donateAmount}>{price}</Text>}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          ) : (
-            <View style={styles.donateRow}>
-              {FALLBACK_TIERS.map((tier) => (
-                <TouchableOpacity
-                  key={tier}
-                  style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
-                  onPress={() => Alert.alert("Coming soon", "Donation products loading. Try again later.")}
-                >
-                  <Text style={styles.donateTier}>{tier}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )
-        )}
-        */}
 
-        {/* Temporarily disabled for Expo Go testing
         <Text style={[styles.donateMessage, { color: colors.textSecondary }]}>
           Support this app (no pole vault required!)
         </Text>
-        */}
       </ScrollView>
     </SafeAreaView>
   );
