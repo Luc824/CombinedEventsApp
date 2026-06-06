@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import {
-    Alert,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableWithoutFeedback,
-    View,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActionButtonsRow from "../components/calculators/ActionButtonsRow";
@@ -61,13 +61,13 @@ const HEPTATHLON_EVENTS = [
 ];
 
 const HEPTATHLON_PLACEHOLDERS = [
-  "6.79", // 60m
-  "8.16", // Long Jump
-  "14.56", // Shot Put
-  "2.03", // High Jump
-  "7.68", // 60m Hurdles
-  "5.20", // Pole Vault
-  "2:32.77", // 1000m
+  "6.69", // 60m
+  "8.15", // Long Jump
+  "14.87", // Shot Put
+  "2.02", // High Jump
+  "7.52", // 60m Hurdles
+  "5.30", // Pole Vault
+  "2:41.04", // 1000m
 ];
 
 // Event labels for chart display (abbreviated)
