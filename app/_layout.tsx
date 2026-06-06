@@ -21,6 +21,7 @@ function AppStack() {
         headerTintColor: TRACK_COLOR,
         headerTitleStyle: { color: colors.text, fontWeight: "600" },
         headerShadowVisible: false,
+        headerBackTitleVisible: false,
         contentStyle: { backgroundColor: colors.background },
       }}
     >
@@ -29,35 +30,30 @@ function AppStack() {
         name="decathlon"
         options={{
           title: "Men's Decathlon",
-          headerBackTitle: "Events",
         }}
       />
       <Stack.Screen
         name="men-heptathlon"
         options={{
           title: "Men's Heptathlon",
-          headerBackTitle: "Events",
         }}
       />
       <Stack.Screen
         name="women-heptathlon"
         options={{
           title: "Women's Heptathlon",
-          headerBackTitle: "Events",
         }}
       />
       <Stack.Screen
         name="women-pentathlon"
         options={{
           title: "Women's Pentathlon",
-          headerBackTitle: "Events",
         }}
       />
       <Stack.Screen
         name="saved-scores"
         options={{
           title: "Saved Scores",
-          headerBackTitle: "More",
           headerLargeTitle: true,
         }}
       />
@@ -65,7 +61,6 @@ function AppStack() {
         name="saved-score-detail"
         options={{
           title: "Saved Score",
-          headerBackTitle: "Saved Scores",
         }}
       />
       <Stack.Screen name="+not-found" />

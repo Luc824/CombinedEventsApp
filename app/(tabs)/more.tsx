@@ -322,9 +322,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    justifyContent: "center",
     paddingHorizontal: ScreenLayout.horizontalPadding,
-    paddingTop: ScreenLayout.topPadding,
-    paddingBottom: scaleSpacing(32),
+    paddingVertical: scaleSpacing(32),
     alignItems: "stretch",
     ...Platform.select({
       web: { alignSelf: "center", width: "100%" },

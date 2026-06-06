@@ -3,7 +3,6 @@ import React from "react";
 import {
   Platform,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -20,16 +19,22 @@ import {
 import { useTheme } from "../../contexts/ThemeContext";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
-const EVENT_BUTTONS = {
-  men: [
-    { label: "Decathlon", route: "/decathlon" as const },
-    { label: "Heptathlon", route: "/men-heptathlon" as const },
-  ],
-  women: [
-    { label: "Heptathlon", route: "/women-heptathlon" as const },
-    { label: "Pentathlon", route: "/women-pentathlon" as const },
-  ],
-};
+const SECTIONS = [
+  {
+    title: "Men",
+    items: [
+      { label: "Decathlon", route: "/decathlon" as const },
+      { label: "Heptathlon", route: "/men-heptathlon" as const },
+    ],
+  },
+  {
+    title: "Women",
+    items: [
+      { label: "Heptathlon", route: "/women-heptathlon" as const },
+      { label: "Pentathlon", route: "/women-pentathlon" as const },
+    ],
+  },
+];
 
 export default function EventsScreen() {
   const router = useRouter();
@@ -39,55 +44,40 @@ export default function EventsScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.title, { color: colors.text }]}>
           Combined Events{"\n"}Calculator
         </Text>
 
-        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Men</Text>
-        <View style={styles.buttonRow}>
-          {EVENT_BUTTONS.men.map((item) => (
-            <TouchableOpacity
-              key={item.route}
-              style={[
-                styles.eventButton,
-                pillButtonStyle,
-                buttonElevation(),
-                { backgroundColor: colors.buttonPrimary },
-              ]}
-              onPress={() => router.push(item.route)}
+        <View style={styles.buttonsArea}>
+          {SECTIONS.map((section, sectionIndex) => (
+            <View
+              key={section.title}
+              style={[styles.section, sectionIndex > 0 && styles.sectionSpaced]}
             >
-              <Text style={[styles.buttonText, { color: colors.buttonText }]}>
-                {item.label}
+              <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+                {section.title}
               </Text>
-            </TouchableOpacity>
+              {section.items.map((item) => (
+                <TouchableOpacity
+                  key={item.route}
+                  style={[
+                    styles.eventButton,
+                    pillButtonStyle,
+                    buttonElevation(),
+                    { backgroundColor: colors.buttonPrimary },
+                  ]}
+                  onPress={() => router.push(item.route)}
+                >
+                  <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           ))}
         </View>
-
-        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Women</Text>
-        <View style={styles.buttonRow}>
-          {EVENT_BUTTONS.women.map((item) => (
-            <TouchableOpacity
-              key={item.route}
-              style={[
-                styles.eventButton,
-                pillButtonStyle,
-                buttonElevation(),
-                { backgroundColor: colors.buttonPrimary },
-              ]}
-              onPress={() => router.push(item.route)}
-            >
-              <Text style={[styles.buttonText, { color: colors.buttonText }]}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -99,39 +89,44 @@ const styles = StyleSheet.create({
       web: { alignItems: "center" },
     }),
   },
-  scrollView: {
+  container: {
     flex: 1,
+    paddingHorizontal: ScreenLayout.horizontalPadding,
     ...Platform.select({
       web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%" },
-    }),
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: ScreenLayout.horizontalPadding,
-    paddingTop: ScreenLayout.topPadding,
-    paddingBottom: scaleSpacing(32),
-    ...Platform.select({
-      web: { alignSelf: "center", width: "100%" },
     }),
   },
   title: {
     fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: ScreenLayout.sectionGap,
+    marginTop: ScreenLayout.topPadding,
     lineHeight: scaleSpacing(34),
+  },
+  buttonsArea: {
+    marginTop: scaleSpacing(88),
+    alignItems: "center",
+    width: "100%",
+  },
+  section: {
+    width: "100%",
+    maxWidth: scaleSpacing(220),
+    alignItems: "center",
+  },
+  sectionSpaced: {
+    marginTop: scaleSpacing(14),
   },
   sectionHeader: {
     ...sectionHeaderStyle,
-    alignSelf: "flex-start",
-  },
-  buttonRow: {
-    flexDirection: "row",
-    gap: ScreenLayout.buttonGap,
+    textAlign: "center",
+    width: "100%",
+    marginTop: 0,
     marginBottom: scaleSpacing(8),
   },
   eventButton: {
-    flex: 1,
+    width: "100%",
+    alignSelf: "center",
+    marginBottom: ScreenLayout.buttonGap,
   },
   buttonText: {
     fontSize: scaleFont(16),

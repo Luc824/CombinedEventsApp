@@ -35,7 +35,7 @@ export default function SavedScoreDetailScreen() {
   if (!score) {
     return (
       <>
-        <Stack.Screen options={{ title: "Saved Score", headerBackTitle: "Saved Scores" }} />
+        <Stack.Screen options={{ title: "Saved Score" }} />
         <SafeAreaView
           style={[styles.safeArea, { backgroundColor: colors.background }]}
           edges={USE_NATIVE_HEADER ? ["bottom"] : ["top", "bottom", "left", "right"]}
@@ -58,7 +58,7 @@ export default function SavedScoreDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: screenTitle, headerBackTitle: "Saved Scores" }} />
+      <Stack.Screen options={{ title: screenTitle }} />
       <SafeAreaView
         style={[styles.safeArea, { backgroundColor: colors.background }]}
         edges={USE_NATIVE_HEADER ? ["bottom"] : ["top", "bottom", "left", "right"]}
