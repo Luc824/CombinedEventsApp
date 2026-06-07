@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import GlassCloseButton from "../components/GlassCloseButton";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { Radius, ScreenLayout } from "../constants/ui";
@@ -127,12 +128,14 @@ export default function SavedScoresScreen() {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.deleteButton, { backgroundColor: colors.buttonSecondary }]}
+        <GlassCloseButton
           onPress={() => handleDelete(score.id, score.title)}
-        >
-          <Text style={[styles.deleteButtonText, { color: colors.buttonText }]}>✕</Text>
-        </TouchableOpacity>
+          textColor={colors.text}
+          surfaceColor={colors.buttonSecondary}
+          size={scaleSpacing(28)}
+          accessibilityLabel={`Delete ${score.title}`}
+          style={styles.deleteButton}
+        />
       </View>
     ));
   };
@@ -266,16 +269,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: scaleSpacing(16),
     right: scaleSpacing(16),
-    width: scaleSpacing(28),
-    height: scaleSpacing(28),
-    borderRadius: scaleSpacing(14),
-    justifyContent: "center",
-    alignItems: "center",
     zIndex: 10,
-  },
-  deleteButtonText: {
-    fontSize: scaleFont(16),
-    fontWeight: "bold",
   },
   scoreDetails: {
     borderTopWidth: 1,

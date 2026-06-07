@@ -4,10 +4,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import GlassCloseButton from "../GlassCloseButton";
 import BarChart from "./BarChart";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
@@ -69,14 +69,12 @@ export default function ChartModal({
                 <Text style={[styles.modalTitle, { color: textColor }]}>
                   {title}
                 </Text>
-                <TouchableOpacity
+                <GlassCloseButton
                   onPress={onClose}
-                  style={[styles.closeButton, { backgroundColor: surfaceColor }]}
-                >
-                  <Text style={[styles.closeButtonText, { color: textColor }]}>
-                    ✕
-                  </Text>
-                </TouchableOpacity>
+                  textColor={textColor}
+                  surfaceColor={surfaceColor}
+                  accessibilityLabel="Close chart"
+                />
               </View>
               <View style={[styles.totalScoreCard, { backgroundColor: surfaceColor }]}>
                 <Text style={[styles.totalScoreLabel, { color: secondaryTextColor }]}>
@@ -142,17 +140,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: scaleFont(22),
-    fontWeight: "bold",
-  },
-  closeButton: {
-    width: scaleSpacing(30),
-    height: scaleSpacing(30),
-    borderRadius: scaleSpacing(15),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  closeButtonText: {
-    fontSize: scaleFont(18),
     fontWeight: "bold",
   },
   totalScoreCard: {
