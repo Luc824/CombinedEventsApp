@@ -1,6 +1,6 @@
 import React from "react";
-import { Platform, StyleSheet, Text, TextInput, View } from "react-native";
-import { Radius } from "../../constants/ui";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { Radius, formFieldStyle } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type EventInputRowProps = {
@@ -45,10 +45,11 @@ export default function EventInputRow({
       <TextInput
         style={[
           styles.input,
+          formFieldStyle,
           {
             backgroundColor: inputBackground,
             color: inputText,
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: inputBorder,
           },
         ]}
@@ -84,20 +85,8 @@ const styles = StyleSheet.create({
   },
   input: {
     width: scaleSpacing(80),
-    height: scaleSpacing(28),
-    borderWidth: 0,
-    borderRadius: Radius.sm,
-    paddingHorizontal: scaleSpacing(8),
     marginRight: scaleSpacing(5),
-    fontSize: scaleFont(13),
     textAlign: "right",
-    ...Platform.select({
-      android: {
-        height: scaleSpacing(30),
-        paddingVertical: 0,
-        textAlignVertical: "center",
-      },
-    }),
   },
   points: {
     fontSize: scaleFont(13),

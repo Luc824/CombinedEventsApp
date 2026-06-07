@@ -14,7 +14,7 @@ import {
   View,
 } from "react-native";
 import { ThemeColors } from "../../constants/ThemeColors";
-import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation } from "../../constants/ui";
+import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
@@ -106,7 +106,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
   return (
     <>
       <TouchableOpacity
-        style={[styles.dropdown, { backgroundColor: colors.inputBackground, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
+        style={[styles.dropdown, formDropdownStyle, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder || colors.border }]}
         onPress={() => setModalVisible(true)}
       >
         <Text style={[value ? styles.dropdownText : styles.dropdownPlaceholder, { color: value ? colors.text : colors.textMuted }]}>
@@ -204,9 +204,20 @@ function PerformanceEntry({
 }: PerformanceEntryProps) {
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  const inputStyle = [
+    formFieldStyle,
+    {
+      backgroundColor: colors.inputBackground,
+      color: colors.inputText,
+      borderColor: colors.inputBorder || colors.border,
+    },
+  ];
+
   return (
-    <View style={[styles.performanceSection, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-      <Text style={[styles.performanceTitle, { color: colors.text }]}>Performance {index + 1}</Text>
+    <View style={[styles.performanceSection, index > 0 && styles.performanceSectionSpaced]}>
+      <Text style={[styles.performanceTitle, { color: colors.text }]}>
+        Performance {index + 1}
+      </Text>
       <Dropdown
         label="Event"
         value={event}
@@ -222,36 +233,42 @@ function PerformanceEntry({
         }))}
         onSelect={setRank}
       />
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
-        value={place}
-        onChangeText={setPlace}
-        keyboardType="number-pad"
-        inputMode="numeric"
-        placeholder="Place"
-        placeholderTextColor={colors.textMuted}
-        maxLength={2}
-      />
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.inputBackground, color: colors.inputText, borderWidth: 1, borderColor: colors.inputBorder || colors.border }]}
-        value={points}
-        onChangeText={setPoints}
-        keyboardType="number-pad"
-        inputMode="numeric"
-        placeholder="Points"
-        placeholderTextColor={colors.textMuted}
-        maxLength={5}
-      />
-      <Text style={[styles.resultLabel, { color: colors.text }]}>
-        Result Score: <Text style={[styles.resultValue, { color: TRACK_COLOR }]}>{resultScore}</Text>
-      </Text>
-      <Text style={[styles.resultLabel, { color: colors.text }]}>
-        Placing Score: <Text style={[styles.resultValue, { color: TRACK_COLOR }]}>{placingScore}</Text>
-      </Text>
-      <Text style={[styles.resultLabel, { color: colors.text }]}>
-        Performance Score:{" "}
-        <Text style={[styles.resultValue, { color: TRACK_COLOR }]}>{performanceScore}</Text>
-      </Text>
+      <View style={styles.inputRow}>
+        <TextInput
+          style={[...inputStyle, styles.inputHalf]}
+          value={place}
+          onChangeText={setPlace}
+          keyboardType="number-pad"
+          inputMode="numeric"
+          placeholder="Place"
+          placeholderTextColor={colors.textMuted}
+          maxLength={2}
+        />
+        <TextInput
+          style={[...inputStyle, styles.inputHalf]}
+          value={points}
+          onChangeText={setPoints}
+          keyboardType="number-pad"
+          inputMode="numeric"
+          placeholder="Points"
+          placeholderTextColor={colors.textMuted}
+          maxLength={5}
+        />
+      </View>
+      <View style={styles.scoreSummary}>
+        <Text style={[styles.scoreLine, { color: colors.text }]}>
+          Result Score:{" "}
+          <Text style={[styles.scoreValue, { color: TRACK_COLOR }]}>{resultScore}</Text>
+        </Text>
+        <Text style={[styles.scoreLine, { color: colors.text }]}>
+          Placing Score:{" "}
+          <Text style={[styles.scoreValue, { color: TRACK_COLOR }]}>{placingScore}</Text>
+        </Text>
+        <Text style={[styles.scoreLine, { color: colors.text }]}>
+          Performance Score:{" "}
+          <Text style={[styles.scoreValue, { color: TRACK_COLOR }]}>{performanceScore}</Text>
+        </Text>
+      </View>
     </View>
   );
 }
@@ -301,10 +318,9 @@ export default function RankingsScreen() {
     event1 && rank1 && place1 && points1 &&
     event2 && rank2 && place2 && points2;
 
-  const average =
-    allInputsFilled
-      ? Math.floor((performanceScore1 + performanceScore2) / 2).toString()
-      : "-";
+  const rankingScore = allInputsFilled
+    ? Math.floor((performanceScore1 + performanceScore2) / 2)
+    : 0;
 
   const clearAll = () => {
     setEvent1("");
@@ -355,11 +371,21 @@ export default function RankingsScreen() {
         placingScore={placingScore2}
         performanceScore={performanceScore2}
       />
-      <View style={[styles.averageBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[styles.averageLabel, { color: colors.text }]}>Ranking Score:</Text>
-        <Text style={[styles.averageValue, { color: TRACK_COLOR }]}>{average}</Text>
+      <View style={[styles.rankingBox, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]}>
+        <Text style={[styles.rankingLabel, { color: colors.text }]}>Ranking Score</Text>
+        <Text
+          style={[
+            styles.rankingValue,
+            { color: allInputsFilled ? TRACK_COLOR : colors.text },
+          ]}
+        >
+          {rankingScore}
+        </Text>
       </View>
-      <TouchableOpacity style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor: colors.buttonSecondary }]} onPress={clearAll}>
+      <TouchableOpacity
+        style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor: colors.buttonSecondary }]}
+        onPress={clearAll}
+      >
         <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -390,7 +416,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: scaleSpacing(10),
     ...Platform.select({
       web: {
         maxWidth: ScreenLayout.contentMaxWidth,
@@ -400,36 +425,31 @@ const styles = StyleSheet.create({
     }),
   },
   scrollContent: {
-    padding: scaleSpacing(10),
+    paddingHorizontal: ScreenLayout.horizontalPadding,
     paddingBottom: scaleSpacing(16),
-    paddingTop: ScreenLayout.topPadding,
+    paddingTop: scaleSpacing(16),
   },
   title: {
     fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: scaleSpacing(14),
+    marginBottom: scaleSpacing(24),
   },
   performanceSection: {
-    borderWidth: 1,
-    borderRadius: Radius.md,
-    padding: scaleSpacing(8),
-    marginBottom: scaleSpacing(8),
-    marginHorizontal: scaleSpacing(16),
-    minWidth: 0,
+    width: "100%",
+    marginBottom: 0,
+  },
+  performanceSectionSpaced: {
+    marginTop: scaleSpacing(12),
   },
   performanceTitle: {
-    fontSize: scaleFont(14),
+    fontSize: scaleFont(15),
     fontWeight: "bold",
-    marginBottom: scaleSpacing(3),
+    marginBottom: scaleSpacing(8),
     textAlign: "center",
   },
   dropdown: {
-    borderRadius: Radius.sm,
-    paddingVertical: scaleSpacing(6),
-    paddingHorizontal: scaleSpacing(12),
     marginBottom: scaleSpacing(5),
-    marginTop: scaleSpacing(2),
   },
   dropdownText: {
     fontSize: scaleFont(13),
@@ -459,9 +479,9 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   modalPromptRefined: {
-    fontSize: 12,
+    fontSize: scaleFont(12),
     textAlign: "center",
-    marginBottom: 4,
+    marginBottom: scaleSpacing(4),
   },
   modalOptionRank: {
     paddingVertical: 8,
@@ -477,7 +497,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   modalOptionText: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
     textAlign: "center",
     flexWrap: "wrap",
   },
@@ -488,65 +508,61 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   rankLetter: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
     fontWeight: "bold",
-    width: 40,
+    width: scaleSpacing(40),
     textAlign: "left",
-    marginRight: 8,
+    marginRight: scaleSpacing(8),
     flexShrink: 0,
   },
   rankDescription: {
-    fontSize: 14,
+    fontSize: scaleFont(14),
     flex: 1,
     textAlign: "left",
     flexShrink: 1,
     minWidth: 0,
   },
-  input: {
-    borderRadius: Radius.sm,
-    paddingVertical: scaleSpacing(5),
-    paddingHorizontal: scaleSpacing(10),
-    fontSize: scaleFont(13),
-    marginBottom: scaleSpacing(5),
-    marginTop: scaleSpacing(2),
-    height: scaleSpacing(30),
-    ...Platform.select({
-      android: {
-        height: scaleSpacing(32),
-        paddingVertical: 0,
-        textAlignVertical: "center",
-      },
-    }),
+  inputRow: {
+    flexDirection: "row",
+    gap: scaleSpacing(8),
+    marginBottom: scaleSpacing(6),
   },
-  resultLabel: {
+  inputHalf: {
+    flex: 1,
+  },
+  scoreSummary: {
+    marginTop: scaleSpacing(2),
+    marginBottom: scaleSpacing(8),
+  },
+  scoreLine: {
     fontSize: scaleFont(12),
     marginTop: scaleSpacing(1),
   },
-  resultValue: {
+  scoreValue: {
     fontSize: scaleFont(12),
     fontWeight: "bold",
   },
-  averageBox: {
+  rankingBox: {
     borderWidth: 1,
     borderRadius: Radius.md,
-    padding: scaleSpacing(8),
+    paddingVertical: scaleSpacing(10),
+    paddingHorizontal: scaleSpacing(12),
     alignItems: "center",
-    marginTop: scaleSpacing(6),
-    marginBottom: 0,
-    marginHorizontal: scaleSpacing(16),
+    marginTop: scaleSpacing(20),
+    marginBottom: scaleSpacing(10),
+    width: "100%",
   },
-  averageLabel: {
+  rankingLabel: {
     fontSize: scaleFont(14),
-    fontWeight: "bold",
-    marginBottom: scaleSpacing(1),
+    fontWeight: "600",
+    marginBottom: scaleSpacing(4),
   },
-  averageValue: {
-    fontSize: scaleFont(16),
+  rankingValue: {
+    fontSize: scaleFont(32),
     fontWeight: "bold",
   },
   clearButton: {
-    marginVertical: scaleSpacing(6),
-    marginHorizontal: scaleSpacing(16),
+    marginBottom: scaleSpacing(4),
   },
   clearButtonText: {
     fontWeight: "600",

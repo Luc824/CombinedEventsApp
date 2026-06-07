@@ -44,6 +44,32 @@ export const surfacePillButtonStyle: ViewStyle = {
   borderWidth: 1,
 };
 
+/** Compact form fields — matches calculator event inputs */
+export const formFieldStyle: ViewStyle = {
+  borderRadius: Radius.sm,
+  borderWidth: 1,
+  paddingHorizontal: scaleSpacing(10),
+  fontSize: scaleFont(13),
+  height: scaleSpacing(28),
+  ...Platform.select({
+    android: {
+      height: scaleSpacing(30),
+      paddingVertical: 0,
+      textAlignVertical: "center",
+    },
+  }),
+};
+
+/** Tappable dropdown row — same height/typography as form fields */
+export const formDropdownStyle: ViewStyle = {
+  borderRadius: Radius.sm,
+  borderWidth: 1,
+  paddingVertical: scaleSpacing(6),
+  paddingHorizontal: scaleSpacing(12),
+  minHeight: scaleSpacing(30),
+  justifyContent: "center",
+};
+
 /** Moderate-radius action button for in-screen workflows (calculators, rankings) */
 export const actionButtonStyle: ViewStyle = {
   borderRadius: Radius.md,
