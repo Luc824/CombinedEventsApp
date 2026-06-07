@@ -1,7 +1,7 @@
 /** @type {import('expo/config').ExpoConfig} */
 module.exports = {
   expo: {
-    name: "Combined Events Calculator",
+    name: "CE Points",
     slug: "decathlon-calculator",
     version: "1.1.0",
     orientation: "portrait",
