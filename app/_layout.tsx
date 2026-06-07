@@ -1,13 +1,10 @@
-import Constants from "expo-constants";
 import { Stack } from "expo-router";
-import React, { useEffect } from "react";
-import { Platform } from "react-native";
-import Purchases from "react-native-purchases";
+import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
-
+import "../utils/purchases";
 const TRACK_COLOR = "#D35400";
 
 function AppStack() {
@@ -74,25 +71,7 @@ function AppStack() {
 }
 
 export default function RootLayout() {
-  useEffect(() => {
-    if (Platform.OS === "web") {
-      return;
-    }
-
-    const apiKey =
-      Platform.select({
-        ios: Constants.expoConfig?.extra?.revenueCatApiKeyIos as string | undefined,
-        android: Constants.expoConfig?.extra?.revenueCatApiKeyAndroid as string | undefined,
-        default: undefined,
-      }) || undefined;
-
-    if (apiKey && !apiKey.startsWith("YOUR_")) {
-      Purchases.configure({ apiKey });
-    }
-  }, []);
-
-  return (
-    <SafeAreaProvider>
+  return (    <SafeAreaProvider>
       <ThemeProvider>
         <AppStack />
       </ThemeProvider>

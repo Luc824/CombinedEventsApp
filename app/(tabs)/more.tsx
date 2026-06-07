@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Linking,
@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
+import Purchases, { PurchasesPackage } from "react-native-purchases";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   TRACK_COLOR,
@@ -24,6 +24,7 @@ import {
   buttonElevation,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+import { loadDonationPackages } from "../../utils/purchases";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
@@ -65,55 +66,31 @@ export default function MoreScreen() {
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
   const [loading, setLoading] = useState(false);
-  const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
+  const [donationPackages, setDonationPackages] = useState<PurchasesPackage[]>([]);
 
-  useEffect(() => {
+  const refreshDonationPackages = useCallback(async () => {
     if (Platform.OS === "web") {
       return;
     }
 
-    const loadOfferings = async () => {
-      try {
-        setLoading(true);
-        const data = await Purchases.getOfferings();
-        const offering = (data as any).all?.tips || data.current || null;
-        setOfferings(offering);
-      } catch (e) {
-        if (__DEV__) {
-          console.warn("Failed to load RevenueCat offerings", e);
-        }
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      const packages = await loadDonationPackages();
+      setDonationPackages(packages);
+    } catch (e) {
+      if (__DEV__) {
+        console.warn("Failed to load RevenueCat offerings", e);
       }
-    };
-
-    loadOfferings();
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const donationPackages = useMemo(() => {
-    if (!offerings) return [] as PurchasesPackage[];
-    const pkgs = offerings.availablePackages ?? [];
-    const map = new Map<string, PurchasesPackage>();
-
-    pkgs.forEach((pkg) => {
-      const candidates = [
-        pkg.storeProduct?.identifier,
-        pkg.storeProduct?.productIdentifier,
-        (pkg as any).product?.identifier,
-        pkg.identifier,
-      ].filter(Boolean) as string[];
-
-      candidates.forEach((id) => {
-        if (!map.has(id)) {
-          map.set(id, pkg);
-        }
-      });
-    });
-
-    return ["donation_tier1", "donation_tier2", "donation_tier3"]
-      .map((id) => map.get(id))
-      .filter(Boolean) as PurchasesPackage[];
-  }, [offerings]);
+  useFocusEffect(
+    useCallback(() => {
+      refreshDonationPackages();
+    }, [refreshDonationPackages])
+  );
 
   const handleFeedback = () => {
     Linking.openURL("mailto:luc.coolbrew@gmail.com?subject=App Feedback");
@@ -216,7 +193,10 @@ export default function MoreScreen() {
               key={tier}
               style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
               onPress={() =>
-                Alert.alert("Coming soon", "Donation products loading. Try again later.")
+                Alert.alert(
+                  "Tips unavailable",
+                  "In-app tips could not be loaded. Check your connection and try again, or update the app once products are configured in App Store Connect."
+                )
               }
             >
               <Text style={styles.donateTier}>{tier}</Text>
