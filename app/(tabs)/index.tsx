@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingBottom: scaleSpacing(32),
+    paddingBottom: scaleSpacing(52),
     paddingHorizontal: ScreenLayout.horizontalPadding,
     ...Platform.select({
       web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%" },
