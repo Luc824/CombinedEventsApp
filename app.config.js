@@ -1,16 +1,20 @@
 /** @type {import('expo/config').ExpoConfig} */
+const IS_DEV = process.env.APP_VARIANT === "development";
+
 module.exports = {
   expo: {
-    name: "CE Points",
+    name: IS_DEV ? "CE Points Dev" : "CE Points",
     slug: "decathlon-calculator",
     version: "1.1.0",
     orientation: "portrait",
-    scheme: "decathloncalculator",
+    scheme: IS_DEV ? "decathloncalculator-dev" : "decathloncalculator",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.luc.decathloncalculator",
+      bundleIdentifier: IS_DEV
+        ? "com.luc.decathloncalculator.dev"
+        : "com.luc.decathloncalculator",
       icon: "./assets/images/icon.png",
       buildNumber: "3",
       infoPlist: {
@@ -24,6 +28,9 @@ module.exports = {
       },
     },
     android: {
+      package: IS_DEV
+        ? "com.luc.decathloncalculator.dev"
+        : "com.luc.decathloncalculator",
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
