@@ -28,7 +28,7 @@ export function configurePurchases(): boolean {
   }
 
   const apiKey = getApiKey();
-  if (apiKey && !apiKey.startsWith("YOUR_")) {
+  if (apiKey) {
     Purchases.configure({ apiKey });
     configured = true;
   }

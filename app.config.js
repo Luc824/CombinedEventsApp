@@ -1,0 +1,57 @@
+/** @type {import('expo/config').ExpoConfig} */
+module.exports = {
+  expo: {
+    name: "decathlon-calculator",
+    slug: "decathlon-calculator",
+    version: "1.1.0",
+    orientation: "portrait",
+    scheme: "decathloncalculator",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: true,
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.luc.decathloncalculator",
+      icon: "./assets/images/icon.png",
+      buildNumber: "3",
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+        NSCameraUsageDescription:
+          "This app does not use the camera. This permission is required by third-party libraries.",
+        NSPhotoLibraryUsageDescription:
+          "This app does not access your photos. This permission is required by third-party libraries.",
+        NSMicrophoneUsageDescription:
+          "This app does not use the microphone. This permission is required by third-party libraries.",
+      },
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      edgeToEdgeEnabled: true,
+    },
+    web: {
+      favicon: "./assets/images/favicon.png",
+      name: "Combined Events Points Calculator",
+      shortName: "Decathlon Calculator",
+      description:
+        "Calculate points for Decathlon, Heptathlon, and Pentathlon events. Track your performance and compare with World Athletics standards.",
+      themeColor: "#D35400",
+      backgroundColor: "#000000",
+      bundler: "metro",
+    },
+    plugins: ["expo-router", "expo-web-browser", "expo-font"],
+    experiments: {
+      typedRoutes: true,
+      reactNativeNewArchitecture: true,
+    },
+    extra: {
+      revenueCatApiKeyAndroid: process.env.REVENUECAT_API_KEY_ANDROID ?? "",
+      revenueCatApiKeyIos: process.env.REVENUECAT_API_KEY_IOS ?? "",
+      router: {},
+      eas: {
+        projectId: "7fe2922b-6541-4524-a99c-c18f9e547e70",
+      },
+    },
+  },
+};

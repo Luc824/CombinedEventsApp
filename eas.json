@@ -10,7 +10,9 @@
       "env": {
         "EXPO_IMAGE_UTILS_NO_CACHE": "1",
         "EXPO_NO_DANGEROUS": "1",
-        "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp"
+        "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp",
+        "REVENUECAT_API_KEY_IOS": "@revenuecat-api-key-ios",
+        "REVENUECAT_API_KEY_ANDROID": "@revenuecat-api-key-android"
       }
     },
     "preview": {
@@ -18,7 +20,9 @@
       "env": {
         "EXPO_IMAGE_UTILS_NO_CACHE": "1",
         "EXPO_NO_DANGEROUS": "1",
-        "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp"
+        "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp",
+        "REVENUECAT_API_KEY_IOS": "@revenuecat-api-key-ios",
+        "REVENUECAT_API_KEY_ANDROID": "@revenuecat-api-key-android"
       }
     },
     "production": {
@@ -28,7 +32,9 @@
         "EXPO_NO_DANGEROUS": "1",
         "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp",
         "EXPO_USE_NEW_ARCH": "1",
-        "RCT_NEW_ARCH_ENABLED": "1"
+        "RCT_NEW_ARCH_ENABLED": "1",
+        "REVENUECAT_API_KEY_IOS": "@revenuecat-api-key-ios",
+        "REVENUECAT_API_KEY_ANDROID": "@revenuecat-api-key-android"
       }
     }
   },
