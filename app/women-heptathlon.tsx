@@ -100,7 +100,7 @@ export default function WomenHeptathlonScreen() {
         inputValue = parseFloat(value) * 100;
       }
       return Math.floor(event.formula(inputValue));
-    } catch (error) {
+    } catch {
       return 0;
     }
   };
@@ -187,7 +187,7 @@ export default function WomenHeptathlonScreen() {
       Alert.alert("Success", "Score saved successfully!");
       setShowSaveModal(false);
       setSaveTitle("");
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to save score. Please try again.");
     }
   };

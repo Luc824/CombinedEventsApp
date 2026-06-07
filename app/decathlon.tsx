@@ -116,7 +116,7 @@ export default function DecathlonScreen() {
       const inputValue =
         index === 9 ? convertTimeToSeconds(value) : parseFloat(value);
       return Math.floor(event.formula(inputValue));
-    } catch (error) {
+    } catch {
       return 0;
     }
   };
@@ -211,7 +211,7 @@ export default function DecathlonScreen() {
       Alert.alert("Success", "Score saved successfully!");
       setShowSaveModal(false);
       setSaveTitle("");
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to save score. Please try again.");
     }
   };

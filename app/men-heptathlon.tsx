@@ -97,7 +97,7 @@ export default function MenHeptathlonScreen() {
       const inputValue =
         index === 6 ? convertTimeToSeconds(value) : parseFloat(value);
       return Math.floor(event.formula(inputValue));
-    } catch (error) {
+    } catch {
       return 0;
     }
   };
@@ -182,7 +182,7 @@ export default function MenHeptathlonScreen() {
       Alert.alert("Success", "Score saved successfully!");
       setShowSaveModal(false);
       setSaveTitle("");
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to save score. Please try again.");
     }
   };

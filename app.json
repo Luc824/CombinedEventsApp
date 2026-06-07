@@ -2,7 +2,7 @@
   "expo": {
     "name": "decathlon-calculator",
     "slug": "decathlon-calculator",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "orientation": "portrait",
     "scheme": "decathloncalculator",
     "userInterfaceStyle": "automatic",
@@ -11,7 +11,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.luc.decathloncalculator",
       "icon": "./assets/images/icon.png",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app does not use the camera. This permission is required by third-party libraries.",

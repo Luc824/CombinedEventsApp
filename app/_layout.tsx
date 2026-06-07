@@ -1,11 +1,12 @@
+import Constants from "expo-constants";
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
+import Purchases from "react-native-purchases";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
-// Temporarily disabled for Expo Go testing
-// import Purchases from "react-native-purchases";
 
 const TRACK_COLOR = "#D35400";
 
@@ -21,7 +22,6 @@ function AppStack() {
         headerTintColor: TRACK_COLOR,
         headerTitleStyle: { color: colors.text, fontWeight: "600" },
         headerShadowVisible: false,
-        headerBackTitleVisible: false,
         headerBackTitle: "",
         headerBackButtonDisplayMode: "minimal",
         contentStyle: { backgroundColor: colors.background },
@@ -75,20 +75,22 @@ function AppStack() {
 
 export default function RootLayout() {
   useEffect(() => {
-    // Temporarily disabled for Expo Go testing
-    // RevenueCat requires native modules and doesn't work in Expo Go
-    /*
+    if (Platform.OS === "web") {
+      return;
+    }
+
     const apiKey =
       Platform.select({
-        ios: Constants.expoConfig?.extra?.revenueCatApiKeyIos,
-        android: Constants.expoConfig?.extra?.revenueCatApiKeyAndroid,
+        ios: Constants.expoConfig?.extra?.revenueCatApiKeyIos as string | undefined,
+        android: Constants.expoConfig?.extra?.revenueCatApiKeyAndroid as string | undefined,
         default: undefined,
       }) || undefined;
-    if (apiKey) {
+
+    if (apiKey && !apiKey.startsWith("YOUR_")) {
       Purchases.configure({ apiKey });
     }
-    */
   }, []);
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>

@@ -1,18 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-    Alert,
-    Linking,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Linking,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   TRACK_COLOR,
@@ -24,15 +25,14 @@ import {
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
-// Temporarily disabled for Expo Go testing
-// import Purchases, { PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 
-// Temporarily disabled types for Expo Go testing
-// type PurchasesOffering = any;
-// type PurchasesPackage = any;
-
-/** Static tip tiers — UI preview in Expo Go; RevenueCat wired in production builds */
 const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
+
+const PACKAGE_LABELS: Record<string, string> = {
+  donation_tier1: "Amateur",
+  donation_tier2: "Pro",
+  donation_tier3: "GOAT",
+};
 
 const PACKAGE_PRICES: Record<string, string> = {
   donation_tier1: "0.99",
@@ -40,78 +40,82 @@ const PACKAGE_PRICES: Record<string, string> = {
   donation_tier3: "9.99",
 };
 
+function getPackageLabel(pkg: PurchasesPackage): string {
+  const sp = pkg.storeProduct ?? (pkg as any).product;
+  const pkgId =
+    pkg.storeProduct?.identifier ??
+    pkg.storeProduct?.productIdentifier ??
+    sp?.identifier ??
+    pkg.identifier;
+  return PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
+}
+
+function getPackagePrice(pkg: PurchasesPackage): string {
+  const sp = pkg.storeProduct ?? (pkg as any).product;
+  const pkgId =
+    pkg.storeProduct?.identifier ??
+    pkg.storeProduct?.productIdentifier ??
+    sp?.identifier ??
+    pkg.identifier;
+  return PACKAGE_PRICES[pkgId] ?? sp?.priceString ?? "";
+}
 
 export default function MoreScreen() {
   const router = useRouter();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
-  // Temporarily disabled for Expo Go testing
-  // const [loading, setLoading] = useState(false);
-  // const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 
-  // useEffect(() => {
-  //   // Temporarily disabled for Expo Go testing
-  //   // RevenueCat requires native modules and doesn't work in Expo Go
-  //   /*
-  //   // Only load RevenueCat offerings on iOS/Android, not web
-  //   if (Platform.OS === 'web') {
-  //     return;
-  //   }
-  //   
-  //   const loadOfferings = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const data = await Purchases.getOfferings();
-  //       const offering = (data as any).all?.tips || (data as any).current || null;
-  //       if (__DEV__) {
-  //         console.log("RC offering identifiers:", Object.keys(data.all || {}));
-  //         console.log("RC using offering:", offering?.identifier);
-  //         console.log(
-  //           "RC available packages:",
-  //           (offering?.availablePackages || []).map((p: any) => p.identifier)
-  //         );
-  //       }
-  //       setOfferings(offering);
-  //     } catch (e) {
-  //       if (__DEV__) {
-  //         console.warn("Failed to load RevenueCat offerings", e);
-  //       }
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   loadOfferings();
-  //   */
-  // }, []);  
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      return;
+    }
 
-  // const donationPackages = useMemo(() => {
-  //   if (!offerings) return [] as PurchasesPackage[];
-  //   const pkgs = offerings.availablePackages ?? [];
-  //   const map = new Map<string, PurchasesPackage>();
+    const loadOfferings = async () => {
+      try {
+        setLoading(true);
+        const data = await Purchases.getOfferings();
+        const offering = (data as any).all?.tips || data.current || null;
+        setOfferings(offering);
+      } catch (e) {
+        if (__DEV__) {
+          console.warn("Failed to load RevenueCat offerings", e);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   pkgs.forEach((pkg: any) => {
-  //     const candidates = [
-  //       pkg.storeProduct?.identifier,
-  //       pkg.storeProduct?.productIdentifier,
-  //       pkg.product?.identifier,
-  //       pkg.identifier,
-  //     ].filter(Boolean);
+    loadOfferings();
+  }, []);
 
-  //     candidates.forEach((id: string) => {
-  //       if (!map.has(id)) {
-  //         map.set(id, pkg);
-  //       }
-  //     });
-  //   });
+  const donationPackages = useMemo(() => {
+    if (!offerings) return [] as PurchasesPackage[];
+    const pkgs = offerings.availablePackages ?? [];
+    const map = new Map<string, PurchasesPackage>();
 
-  //   return ["donation_tier1", "donation_tier2", "donation_tier3"]
-  //     .map((id) => map.get(id))
-  //     .filter(Boolean) as PurchasesPackage[];
-  // }, [offerings]);
-  
+    pkgs.forEach((pkg) => {
+      const candidates = [
+        pkg.storeProduct?.identifier,
+        pkg.storeProduct?.productIdentifier,
+        (pkg as any).product?.identifier,
+        pkg.identifier,
+      ].filter(Boolean) as string[];
+
+      candidates.forEach((id) => {
+        if (!map.has(id)) {
+          map.set(id, pkg);
+        }
+      });
+    });
+
+    return ["donation_tier1", "donation_tier2", "donation_tier3"]
+      .map((id) => map.get(id))
+      .filter(Boolean) as PurchasesPackage[];
+  }, [offerings]);
+
   const handleFeedback = () => {
-    // Update this email address to your preferred contact email
-    // You can use a Gmail alias like: yourname+app@gmail.com
     Linking.openURL("mailto:luc.coolbrew@gmail.com?subject=App Feedback");
   };
 
@@ -120,12 +124,11 @@ export default function MoreScreen() {
   };
 
   const handleGetApp = () => {
-    // Replace YOUR_APP_ID with your actual App Store ID
     Linking.openURL("https://apps.apple.com/app/6752707829");
   };
 
   const handleSavedScores = () => {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       Alert.alert("Not Available", "This feature is only available on iOS and Android.");
       return;
     }
@@ -141,14 +144,89 @@ export default function MoreScreen() {
     Linking.openURL(paypalLinks[tier] ?? paypalLinks.Amateur);
   };
 
-  /** Expo Go / dev preview — purchases need a native build + RevenueCat */
-  const handleTipPress = (tier: string) => {
-    if (Platform.OS === "web") {
-      handleWebDonate(tier);
-      return;
+  const handleDonate = async (pkg?: PurchasesPackage) => {
+    try {
+      if (!pkg) {
+        Alert.alert("Unavailable", "No donation package is available right now.");
+        return;
+      }
+      setLoading(true);
+      await Purchases.purchasePackage(pkg);
+      Alert.alert("Thank you!", "Your donation was successful.");
+    } catch (e: any) {
+      if (e?.userCancelled) return;
+      Alert.alert("Purchase failed", e?.message ?? "Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const renderTipButtons = () => {
+    if (Platform.OS === "web") {
+      return (
+        <View style={styles.donateRow}>
+          {FALLBACK_TIERS.map((tier, index) => {
+            const price = PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
+            return (
+              <TouchableOpacity
+                key={tier}
+                style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
+                onPress={() => handleWebDonate(tier)}
+              >
+                <Text style={styles.donateTier}>{tier}</Text>
+                {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      );
+    }
+
+    if (donationPackages.length > 0) {
+      return (
+        <View style={styles.donateRow}>
+          {donationPackages.slice(0, 3).map((pkg) => {
+            const label = getPackageLabel(pkg);
+            const price = getPackagePrice(pkg);
+            return (
+              <TouchableOpacity
+                key={pkg.identifier}
+                style={[
+                  styles.donateButton,
+                  { backgroundColor: TRACK_COLOR, opacity: loading ? 0.7 : 1 },
+                ]}
+                onPress={() => handleDonate(pkg)}
+                disabled={loading}
+              >
+                <Text style={styles.donateTier}>{label}</Text>
+                {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.donateRow}>
+        {FALLBACK_TIERS.map((tier, index) => {
+          const price = PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
+          return (
+            <TouchableOpacity
+              key={tier}
+              style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
+              onPress={() =>
+                Alert.alert("Coming soon", "Donation products loading. Try again later.")
+              }
+            >
+              <Text style={styles.donateTier}>{tier}</Text>
+              {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -159,16 +237,20 @@ export default function MoreScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
-        
-        <TouchableOpacity 
-          style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} 
+
+        <TouchableOpacity
+          style={[
+            styles.button,
+            surfacePillButtonStyle,
+            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+          ]}
           onPress={toggleTheme}
         >
           <View style={styles.themeToggleRow}>
-            <Ionicons 
-              name={isDark ? "sunny" : "moon"} 
-              size={20} 
-              color={colors.text} 
+            <Ionicons
+              name={isDark ? "sunny" : "moon"}
+              size={20}
+              color={colors.text}
               style={styles.themeIcon}
             />
             <Text style={[styles.buttonText, { color: colors.text }]}>
@@ -177,40 +259,55 @@ export default function MoreScreen() {
           </View>
         </TouchableOpacity>
 
-        {Platform.OS !== 'web' && (
-          <TouchableOpacity style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} onPress={handleSavedScores}>
+        {Platform.OS !== "web" && (
+          <TouchableOpacity
+            style={[
+              styles.button,
+              surfacePillButtonStyle,
+              { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+            ]}
+            onPress={handleSavedScores}
+          >
             <Text style={[styles.buttonText, { color: colors.text }]}>Saved Scores</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} onPress={handleFeedback}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            surfacePillButtonStyle,
+            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+          ]}
+          onPress={handleFeedback}
+        >
           <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, surfacePillButtonStyle, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]} onPress={handleReview}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            surfacePillButtonStyle,
+            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+          ]}
+          onPress={handleReview}
+        >
           <Text style={[styles.buttonText, { color: colors.text }]}>Leave a Review</Text>
         </TouchableOpacity>
 
-        {Platform.OS === 'web' && (
-          <TouchableOpacity style={[styles.button, pillButtonStyle, buttonElevation(), { backgroundColor: TRACK_COLOR }]} onPress={handleGetApp}>
+        {Platform.OS === "web" && (
+          <TouchableOpacity
+            style={[
+              styles.button,
+              pillButtonStyle,
+              buttonElevation(),
+              { backgroundColor: TRACK_COLOR },
+            ]}
+            onPress={handleGetApp}
+          >
             <Text style={[styles.buttonText, { color: colors.buttonText }]}>📱 Get the App</Text>
           </TouchableOpacity>
         )}
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Tips</Text>
-        <View style={styles.donateRow}>
-          {FALLBACK_TIERS.map((tier, index) => {
-            const price = PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
-            return (
-              <TouchableOpacity
-                key={tier}
-                style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-                onPress={() => handleTipPress(tier)}
-              >
-                <Text style={styles.donateTier}>{tier}</Text>
-                {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {renderTipButtons()}
 
         <Text style={[styles.donateMessage, { color: colors.textSecondary }]}>
           Support this app (no pole vault required!)
