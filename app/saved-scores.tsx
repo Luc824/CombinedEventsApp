@@ -1,19 +1,19 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
-import { Radius } from "../constants/ui";
+import { Radius, ScreenLayout } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
 import { deleteScore, getEventTypeDisplayName, getSavedScores, SavedScore } from "../utils/scoreStorage";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
@@ -35,7 +35,7 @@ export default function SavedScoresScreen() {
     try {
       const savedScores = await getSavedScores();
       setScores(savedScores);
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to load saved scores.");
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ export default function SavedScoresScreen() {
             try {
               await deleteScore(id);
               await loadScores();
-            } catch (error) {
+            } catch {
               Alert.alert("Error", "Failed to delete score.");
             }
           },
@@ -72,22 +72,6 @@ export default function SavedScoresScreen() {
       year: "numeric",
     });
   };
-
-  if ((Platform.OS as string) === "web") {
-    return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <View style={styles.titleRow}>
-            <Text style={[styles.title, { color: colors.text }]}>Saved Scores</Text>
-          </View>
-          <Text style={[styles.webMessage, { color: colors.textMuted }]}>
-            This feature is only available on iOS and Android.
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   const renderContent = () => {
     if (loading) {
@@ -113,10 +97,12 @@ export default function SavedScoresScreen() {
       <View key={score.id} style={styles.scoreCardWrapper}>
         <TouchableOpacity
           style={[styles.scoreCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}
-          onPress={() => router.push({
-            pathname: "/saved-score-detail",
-            params: { score: JSON.stringify(score) },
-          } as any)}
+          onPress={() =>
+            router.push({
+              pathname: "/saved-score-detail",
+              params: { score: JSON.stringify(score) },
+            } as any)
+          }
           activeOpacity={0.7}
         >
           <View style={styles.scoreHeader}>
@@ -130,15 +116,11 @@ export default function SavedScoresScreen() {
           <View style={[styles.scoreDetails, { borderTopColor: colors.border }]}>
             <View style={styles.scoreRow}>
               <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>Total Score:</Text>
-              <Text style={[styles.scoreValue, { color: colors.text }]}>
-                {score.totalScore} Points
-              </Text>
+              <Text style={[styles.scoreValue, { color: colors.text }]}>{score.totalScore} Points</Text>
             </View>
             <View style={styles.scoreRow}>
               <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>Result Score:</Text>
-              <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>
-                {score.resultScore}
-              </Text>
+              <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>{score.resultScore}</Text>
             </View>
             <Text style={[styles.dateText, { color: colors.textMuted }]}>
               Saved on {formatDate(score.dateSaved)}
@@ -155,22 +137,38 @@ export default function SavedScoresScreen() {
     ));
   };
 
+  if ((Platform.OS as string) === "web") {
+    return (
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <Text style={[styles.webTitle, { color: colors.text }]}>Saved Scores</Text>
+          <Text style={[styles.webMessage, { color: colors.textMuted }]}>
+            This feature is only available on iOS and Android.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const scrollView = (
+    <ScrollView
+      style={[styles.scrollView, { backgroundColor: colors.background }]}
+      contentContainerStyle={[
+        styles.scrollContent,
+        (loading || scores.length === 0) && styles.scrollContentEmpty,
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
+      {renderContent()}
+    </ScrollView>
+  );
+
   if (USE_NATIVE_HEADER) {
     return (
       <>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        <ScrollView
-          style={[styles.scrollView, { backgroundColor: colors.background }]}
-          contentContainerStyle={[
-            styles.scrollContent,
-            styles.nativeScrollContent,
-            (loading || scores.length === 0) && styles.nativeScrollContentEmpty,
-          ]}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        >
-          {renderContent()}
-        </ScrollView>
+        {scrollView}
       </>
     );
   }
@@ -181,23 +179,10 @@ export default function SavedScoresScreen() {
       edges={["top", "bottom", "left", "right"]}
     >
       <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.titleRow}>
-          <Text style={[styles.title, { color: colors.text }]}>Saved Scores</Text>
-        </View>
-
-        {loading || scores.length === 0 ? (
-          renderContent()
-        ) : (
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {renderContent()}
-          </ScrollView>
-        )}
+      <View style={styles.webTitleRow}>
+        <Text style={[styles.webTitle, { color: colors.text }]}>Saved Scores</Text>
       </View>
+      {scrollView}
     </SafeAreaView>
   );
 }
@@ -210,17 +195,15 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: scaleSpacing(20),
   },
-  titleRow: {
+  webTitleRow: {
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: Platform.OS === "android" ? scaleSpacing(26) : scaleSpacing(14),
-    marginBottom: scaleSpacing(20),
+    paddingVertical: scaleSpacing(12),
+    paddingHorizontal: ScreenLayout.horizontalPadding,
   },
-  title: {
-    fontSize: scaleFont(28),
-    fontWeight: "bold",
+  webTitle: {
+    fontSize: scaleFont(17),
+    fontWeight: "600",
     textAlign: "center",
-    width: "100%",
   },
   webMessage: {
     fontSize: scaleFont(16),
@@ -231,6 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    minHeight: scaleSpacing(280),
   },
   emptyText: {
     fontSize: scaleFont(18),
@@ -246,13 +230,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    paddingHorizontal: ScreenLayout.horizontalPadding,
+    paddingTop: scaleSpacing(12),
     paddingBottom: scaleSpacing(20),
   },
-  nativeScrollContent: {
-    paddingHorizontal: scaleSpacing(20),
-    paddingTop: scaleSpacing(8),
-  },
-  nativeScrollContentEmpty: {
+  scrollContentEmpty: {
     flexGrow: 1,
     justifyContent: "center",
   },
@@ -313,12 +295,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   resultScoreValue: {
-    fontSize: 16,
+    fontSize: scaleFont(16),
     fontWeight: "bold",
   },
   dateText: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: scaleFont(12),
+    marginTop: scaleSpacing(4),
   },
 });
-

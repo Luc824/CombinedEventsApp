@@ -1,9 +1,9 @@
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
+import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
 // Temporarily disabled for Expo Go testing
 // import Purchases from "react-native-purchases";
 
@@ -59,7 +59,7 @@ function AppStack() {
         name="saved-scores"
         options={{
           title: "Saved Scores",
-          headerLargeTitle: true,
+          headerLargeTitle: false,
         }}
       />
       <Stack.Screen

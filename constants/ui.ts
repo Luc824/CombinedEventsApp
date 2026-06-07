@@ -44,8 +44,8 @@ export const surfacePillButtonStyle: ViewStyle = {
   borderWidth: 1,
 };
 
-/** Compact form fields — matches calculator event inputs */
-export const formFieldStyle: ViewStyle = {
+/** Compact form fields — matches calculator event inputs (TextInput-compatible) */
+export const formFieldStyle: TextStyle = {
   borderRadius: Radius.sm,
   borderWidth: 1,
   paddingHorizontal: scaleSpacing(10),

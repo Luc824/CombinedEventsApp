@@ -118,3 +118,19 @@ export const getEventNames = (eventType: EventType): string[] => {
   }
 };
 
+/** Abbreviated labels for bar charts — matches calculator EVENT_LABELS */
+export const getEventChartLabels = (eventType: EventType): string[] => {
+  switch (eventType) {
+    case 'decathlon':
+      return ["100m", "LJ", "SP", "HJ", "400m", "110H", "DT", "PV", "JT", "1500m"];
+    case 'menHeptathlon':
+      return ["60m", "LJ", "SP", "HJ", "60H", "PV", "1000m"];
+    case 'womenHeptathlon':
+      return ["100H", "HJ", "SP", "200m", "LJ", "JT", "800m"];
+    case 'womenPentathlon':
+      return ["60H", "HJ", "SP", "LJ", "800m"];
+    default:
+      return [];
+  }
+};
+

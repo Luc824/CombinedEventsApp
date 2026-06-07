@@ -1,26 +1,66 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    View,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ActionButtonsRow from "../components/calculators/ActionButtonsRow";
+import ChartModal from "../components/calculators/ChartModal";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { Radius } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
-import { SavedScore, getEventNames, getEventTypeDisplayName } from "../utils/scoreStorage";
+import {
+  EventType,
+  SavedScore,
+  getEventNames,
+  getEventChartLabels,
+  getEventTypeDisplayName,
+} from "../utils/scoreStorage";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
 
+const CHART_CONFIG: Record<
+  EventType,
+  {
+    barLabelContainerHeight: number;
+    barLabelFontSize: number;
+    barLabelSmallFontSize?: number;
+    longLabelLength?: number;
+  }
+> = {
+  decathlon: {
+    barLabelContainerHeight: 22,
+    barLabelFontSize: 9,
+    barLabelSmallFontSize: 8,
+    longLabelLength: 4,
+  },
+  menHeptathlon: {
+    barLabelContainerHeight: 22,
+    barLabelFontSize: 9,
+    barLabelSmallFontSize: 8,
+    longLabelLength: 4,
+  },
+  womenHeptathlon: {
+    barLabelContainerHeight: 20,
+    barLabelFontSize: 10,
+  },
+  womenPentathlon: {
+    barLabelContainerHeight: 20,
+    barLabelFontSize: 10,
+  },
+};
+
 export default function SavedScoreDetailScreen() {
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  const [showChart, setShowChart] = useState(false);
   const params = useLocalSearchParams<{ score: string }>();
   
   let score: SavedScore | null = null;
@@ -55,6 +95,9 @@ export default function SavedScoreDetailScreen() {
   }
 
   const eventNames = getEventNames(score.eventType);
+  const chartLabels = getEventChartLabels(score.eventType);
+  const chartTitle = getEventTypeDisplayName(score.eventType);
+  const chartConfig = CHART_CONFIG[score.eventType];
 
   return (
     <>
@@ -77,7 +120,7 @@ export default function SavedScoreDetailScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View style={[styles.summaryCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
-              <Text style={[styles.eventType, { color: TRACK_COLOR }]}>{getEventTypeDisplayName(score.eventType)}</Text>
+              <Text style={[styles.eventType, { color: TRACK_COLOR }]}>{chartTitle}</Text>
               <View style={styles.summaryRow}>
                 <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Total Score:</Text>
                 <Text style={[styles.summaryValue, { color: colors.text }]}>{score.totalScore} Points</Text>
@@ -86,6 +129,16 @@ export default function SavedScoreDetailScreen() {
                 <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Result Score:</Text>
                 <Text style={[styles.resultScoreValue, { color: TRACK_COLOR }]}>{score.resultScore}</Text>
               </View>
+            </View>
+
+            <View style={styles.chartButtonSpacer}>
+              <ActionButtonsRow
+                onViewChart={() => setShowChart(true)}
+                onSaveScore={() => {}}
+                showSaveButton={false}
+                buttonBackground={colors.buttonPrimary}
+                buttonTextColor={colors.buttonText}
+              />
             </View>
 
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>
@@ -102,6 +155,24 @@ export default function SavedScoreDetailScreen() {
             ))}
           </ScrollView>
         </View>
+        <ChartModal
+          visible={showChart}
+          onClose={() => setShowChart(false)}
+          title={chartTitle}
+          totalPoints={score.totalScore}
+          points={score.points}
+          eventLabels={chartLabels}
+          trackColor={TRACK_COLOR}
+          textColor={colors.text}
+          secondaryTextColor={colors.textSecondary}
+          backgroundColor={colors.cardBackground}
+          surfaceColor={colors.surfaceSolid}
+          overlayColor={colors.modalOverlay}
+          barLabelContainerHeight={chartConfig.barLabelContainerHeight}
+          barLabelFontSize={chartConfig.barLabelFontSize}
+          barLabelSmallFontSize={chartConfig.barLabelSmallFontSize}
+          longLabelLength={chartConfig.longLabelLength}
+        />
       </SafeAreaView>
     </>
   );
@@ -169,6 +240,9 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(20),
     fontWeight: "bold",
     marginBottom: scaleSpacing(12),
+  },
+  chartButtonSpacer: {
+    marginBottom: scaleSpacing(16),
   },
   eventCard: {
     borderRadius: Radius.md,

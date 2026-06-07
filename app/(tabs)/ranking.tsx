@@ -206,6 +206,7 @@ function PerformanceEntry({
   const colors = ThemeColors[theme];
   const inputStyle = [
     formFieldStyle,
+    styles.inputFullWidth,
     {
       backgroundColor: colors.inputBackground,
       color: colors.inputText,
@@ -234,26 +235,30 @@ function PerformanceEntry({
         onSelect={setRank}
       />
       <View style={styles.inputRow}>
-        <TextInput
-          style={[...inputStyle, styles.inputHalf]}
-          value={place}
-          onChangeText={setPlace}
-          keyboardType="number-pad"
-          inputMode="numeric"
-          placeholder="Place"
-          placeholderTextColor={colors.textMuted}
-          maxLength={2}
-        />
-        <TextInput
-          style={[...inputStyle, styles.inputHalf]}
-          value={points}
-          onChangeText={setPoints}
-          keyboardType="number-pad"
-          inputMode="numeric"
-          placeholder="Points"
-          placeholderTextColor={colors.textMuted}
-          maxLength={5}
-        />
+        <View style={styles.inputHalf}>
+          <TextInput
+            style={inputStyle}
+            value={place}
+            onChangeText={setPlace}
+            keyboardType="number-pad"
+            inputMode="numeric"
+            placeholder="Place"
+            placeholderTextColor={colors.textMuted}
+            maxLength={2}
+          />
+        </View>
+        <View style={styles.inputHalf}>
+          <TextInput
+            style={inputStyle}
+            value={points}
+            onChangeText={setPoints}
+            keyboardType="number-pad"
+            inputMode="numeric"
+            placeholder="Points"
+            placeholderTextColor={colors.textMuted}
+            maxLength={5}
+          />
+        </View>
       </View>
       <View style={styles.scoreSummary}>
         <Text style={[styles.scoreLine, { color: colors.text }]}>
@@ -529,6 +534,9 @@ const styles = StyleSheet.create({
   },
   inputHalf: {
     flex: 1,
+  },
+  inputFullWidth: {
+    width: "100%",
   },
   scoreSummary: {
     marginTop: scaleSpacing(2),
