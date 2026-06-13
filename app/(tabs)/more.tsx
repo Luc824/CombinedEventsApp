@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import Purchases, { PurchasesPackage } from "react-native-purchases";
+import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   TRACK_COLOR,
@@ -25,6 +26,7 @@ import {
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import { loadDonationPackages } from "../../utils/purchases";
+import { openAppReview, openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
@@ -97,11 +99,11 @@ export default function MoreScreen() {
   };
 
   const handleReview = () => {
-    Linking.openURL("https://apps.apple.com/app/6752707829?action=write-review");
+    openAppReview();
   };
 
   const handleGetApp = () => {
-    Linking.openURL("https://apps.apple.com/app/6752707829");
+    openAppStore();
   };
 
   const handleSavedScores = () => {
@@ -209,13 +211,14 @@ export default function MoreScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
-        showsVerticalScrollIndicator={false}
-      >
+    <SwipeableTabWrapper tabIndex={2}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
+          showsVerticalScrollIndicator={false}
+        >
         <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
 
         <TouchableOpacity
@@ -261,16 +264,18 @@ export default function MoreScreen() {
         >
           <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            surfacePillButtonStyle,
-            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
-          ]}
-          onPress={handleReview}
-        >
-          <Text style={[styles.buttonText, { color: colors.text }]}>Leave a Review</Text>
-        </TouchableOpacity>
+        {Platform.OS !== "web" && (
+          <TouchableOpacity
+            style={[
+              styles.button,
+              surfacePillButtonStyle,
+              { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+            ]}
+            onPress={handleReview}
+          >
+            <Text style={[styles.buttonText, { color: colors.text }]}>Leave a Review</Text>
+          </TouchableOpacity>
+        )}
 
         {Platform.OS === "web" && (
           <TouchableOpacity
@@ -293,7 +298,8 @@ export default function MoreScreen() {
           Support this app (no pole vault required!)
         </Text>
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SwipeableTabWrapper>
   );
 }
 

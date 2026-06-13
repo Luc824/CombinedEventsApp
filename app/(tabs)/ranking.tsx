@@ -3,7 +3,6 @@ import {
   Keyboard,
   Modal,
   Platform,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,6 +12,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -51,7 +52,7 @@ const RANK_DESCRIPTIONS: Record<string, string> = {
   B: "National Championships / Silver Meetings",
   C: "Bronze Meetings",
   D: "National Indoor Championships",
-  E: "Euh...",
+  E: "Other national events",
   F: "Other",
 };
 
@@ -86,9 +87,14 @@ const getResultScore = (event: string, points: string): number => {
 const getPlacingScore = (rank: string, place: string): number => {
   if (!rank || !PLACING_SCORES[rank]) return 0;
   const numericPlace = Number(place);
-  if (isNaN(numericPlace) || place === "") return 0;
-  const placeIndex = Math.max(0, Math.min(numericPlace - 1, 15));
+  if (!Number.isInteger(numericPlace) || numericPlace < 1) return 0;
+  const placeIndex = Math.min(numericPlace - 1, 15);
   return PLACING_SCORES[rank][placeIndex] || 0;
+};
+
+const isValidPlace = (place: string): boolean => {
+  const numericPlace = Number(place);
+  return place !== "" && Number.isInteger(numericPlace) && numericPlace >= 1;
 };
 
 interface DropdownProps {
@@ -292,23 +298,21 @@ export default function RankingsScreen() {
   const [place2, setPlace2] = useState("");
   const [points2, setPoints2] = useState("");
 
-  // Synchronize event options for both performances
   let event1Options = EVENTS;
   let event2Options = EVENTS;
   const event1Obj = EVENTS.find((e) => e.value === event1);
   const event2Obj = EVENTS.find((e) => e.value === event2);
-  if (event1Obj && event2Obj) {
-    // If both are selected, restrict both to the same gender
-    if (event1Obj.gender === event2Obj.gender) {
-      event1Options = event2Options = EVENTS.filter(
-        (e) => e.gender === event1Obj.gender
-      );
-    }
-  } else if (event1Obj) {
+
+  // Restrict both performances to the same gender once either event is selected.
+  if (event1Obj) {
     event2Options = EVENTS.filter((e) => e.gender === event1Obj.gender);
-  } else if (event2Obj) {
+  }
+  if (event2Obj) {
     event1Options = EVENTS.filter((e) => e.gender === event2Obj.gender);
   }
+
+  const genderMismatch =
+    event1Obj && event2Obj && event1Obj.gender !== event2Obj.gender;
 
   const resultScore1 = getResultScore(event1, points1);
   const placingScore1 = getPlacingScore(rank1, place1);
@@ -318,10 +322,16 @@ export default function RankingsScreen() {
   const placingScore2 = getPlacingScore(rank2, place2);
   const performanceScore2 = Number(resultScore2) + Number(placingScore2);
 
-  // Check if all inputs for both performances are filled
-  const allInputsFilled = 
-    event1 && rank1 && place1 && points1 &&
-    event2 && rank2 && place2 && points2;
+  const allInputsFilled =
+    event1 &&
+    rank1 &&
+    isValidPlace(place1) &&
+    points1 &&
+    event2 &&
+    rank2 &&
+    isValidPlace(place2) &&
+    points2 &&
+    !genderMismatch;
 
   const rankingScore = allInputsFilled
     ? Math.floor((performanceScore1 + performanceScore2) / 2)
@@ -378,14 +388,20 @@ export default function RankingsScreen() {
       />
       <View style={[styles.rankingBox, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]}>
         <Text style={[styles.rankingLabel, { color: colors.text }]}>Ranking Score</Text>
-        <Text
-          style={[
-            styles.rankingValue,
-            { color: allInputsFilled ? TRACK_COLOR : colors.text },
-          ]}
-        >
-          {rankingScore}
-        </Text>
+        {genderMismatch ? (
+          <Text style={[styles.rankingError, { color: colors.textSecondary }]}>
+            Both performances must be the same gender.
+          </Text>
+        ) : (
+          <Text
+            style={[
+              styles.rankingValue,
+              { color: allInputsFilled ? TRACK_COLOR : colors.text },
+            ]}
+          >
+            {rankingScore}
+          </Text>
+        )}
       </View>
       <TouchableOpacity
         style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor: colors.buttonSecondary }]}
@@ -397,16 +413,18 @@ export default function RankingsScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      {Platform.OS === 'web' ? (
-        scrollContent
-      ) : (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          {scrollContent}
-        </TouchableWithoutFeedback>
-      )}
-    </SafeAreaView>
+    <SwipeableTabWrapper tabIndex={1}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        {Platform.OS === 'web' ? (
+          scrollContent
+        ) : (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.dismissArea}>{scrollContent}</View>
+          </TouchableWithoutFeedback>
+        )}
+      </SafeAreaView>
+    </SwipeableTabWrapper>
   );
 }
 
@@ -418,6 +436,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
       },
     }),
+  },
+  dismissArea: {
+    flex: 1,
+    width: "100%",
   },
   container: {
     flex: 1,
@@ -568,6 +590,11 @@ const styles = StyleSheet.create({
   rankingValue: {
     fontSize: scaleFont(32),
     fontWeight: "bold",
+  },
+  rankingError: {
+    fontSize: scaleFont(14),
+    textAlign: "center",
+    marginTop: scaleSpacing(4),
   },
   clearButton: {
     marginBottom: scaleSpacing(4),

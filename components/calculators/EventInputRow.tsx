@@ -1,5 +1,11 @@
 import React from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { Radius, formFieldStyle } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
@@ -19,6 +25,13 @@ type EventInputRowProps = {
   placeholderColor: string;
 };
 
+function pointsFontSize(value: number): number {
+  const digits = String(Math.abs(value)).length;
+  if (digits >= 4) return scaleFont(10);
+  if (digits >= 3) return scaleFont(11);
+  return scaleFont(13);
+}
+
 export default function EventInputRow({
   eventName,
   value,
@@ -34,6 +47,9 @@ export default function EventInputRow({
   containerBorder,
   placeholderColor,
 }: EventInputRowProps) {
+  const displayPoints = Number.isFinite(points) ? points : 0;
+  const isWeb = Platform.OS === "web";
+
   return (
     <View
       style={[
@@ -41,7 +57,9 @@ export default function EventInputRow({
         { backgroundColor: containerBackground, borderColor: containerBorder },
       ]}
     >
-      <Text style={[styles.eventName, { color: textColor }]}>{eventName}</Text>
+      <Text style={[styles.eventName, { color: textColor }]} numberOfLines={2}>
+        {eventName}
+      </Text>
       <TextInput
         style={[
           styles.input,
@@ -49,7 +67,6 @@ export default function EventInputRow({
           {
             backgroundColor: inputBackground,
             color: inputText,
-            borderWidth: 0,
             borderColor: inputBorder,
           },
         ]}
@@ -61,7 +78,25 @@ export default function EventInputRow({
         placeholderTextColor={placeholderColor}
         maxLength={maxLength}
       />
-      <Text style={[styles.points, { color: textColor }]}>{points} Points</Text>
+      <View style={styles.pointsWrap}>
+        <Text
+          style={[
+            styles.pointsValue,
+            { color: textColor, fontSize: pointsFontSize(displayPoints) },
+            isWeb && styles.pointsValueWeb,
+          ]}
+          {...(isWeb
+            ? {}
+            : {
+                numberOfLines: 1,
+                adjustsFontSizeToFit: true,
+                minimumFontScale: 0.75,
+              })}
+        >
+          {displayPoints}
+        </Text>
+        <Text style={[styles.pointsSuffix, { color: textColor }]}>pts</Text>
+      </View>
     </View>
   );
 }
@@ -81,17 +116,45 @@ const styles = StyleSheet.create({
   eventName: {
     fontSize: scaleFont(13),
     flex: 1,
-    marginRight: scaleSpacing(5),
+    marginRight: scaleSpacing(4),
+    lineHeight: scaleFont(16),
   },
   input: {
-    width: scaleSpacing(80),
-    marginRight: scaleSpacing(5),
+    width: scaleSpacing(76),
+    marginRight: scaleSpacing(4),
+    textAlign: "right",
+    flexShrink: 0,
+    ...Platform.select({
+      web: {
+        outlineStyle: "none" as any,
+      },
+    }),
+  },
+  pointsWrap: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "flex-end",
+    minWidth: scaleSpacing(64),
+    maxWidth: scaleSpacing(72),
+    flexShrink: 0,
+    gap: scaleSpacing(2),
+  },
+  pointsValue: {
+    fontWeight: "700",
     textAlign: "right",
   },
-  points: {
-    fontSize: scaleFont(13),
-    fontWeight: "bold",
-    width: scaleSpacing(90),
-    textAlign: "right",
+  pointsValueWeb: {
+    flexShrink: 1,
+    ...Platform.select({
+      web: {
+        whiteSpace: "nowrap" as any,
+      },
+    }),
+  },
+  pointsSuffix: {
+    fontSize: scaleFont(11),
+    fontWeight: "600",
+    opacity: 0.85,
+    flexShrink: 0,
   },
 });

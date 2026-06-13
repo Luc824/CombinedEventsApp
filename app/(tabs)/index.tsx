@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   ScreenLayout,
@@ -41,47 +42,49 @@ export default function EventsScreen() {
   const colors = ThemeColors[theme];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.contentBlock}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Combined Events{"\n"}Calculator
-        </Text>
+    <SwipeableTabWrapper tabIndex={0}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+          <View style={styles.contentBlock}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Combined Events{"\n"}Calculator
+          </Text>
 
-        <View style={styles.buttonsArea}>
-          {SECTIONS.map((section, sectionIndex) => (
-            <View
-              key={section.title}
-              style={[styles.section, sectionIndex > 0 && styles.sectionSpaced]}
-            >
-              <Text style={[styles.sectionHeader, { color: colors.text }]}>
-                {section.title}
-              </Text>
-              <View style={styles.buttonRow}>
-                {section.items.map((item) => (
-                  <TouchableOpacity
-                    key={item.route}
-                    style={[
-                      styles.eventButton,
-                      pillButtonStyle,
-                      buttonElevation(),
-                      { backgroundColor: colors.buttonPrimary },
-                    ]}
-                    onPress={() => router.push(item.route)}
-                  >
-                    <Text style={[styles.buttonText, { color: colors.buttonText }]}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+          <View style={styles.buttonsArea}>
+            {SECTIONS.map((section, sectionIndex) => (
+              <View
+                key={section.title}
+                style={[styles.section, sectionIndex > 0 && styles.sectionSpaced]}
+              >
+                <Text style={[styles.sectionHeader, { color: colors.text }]}>
+                  {section.title}
+                </Text>
+                <View style={styles.buttonRow}>
+                  {section.items.map((item) => (
+                    <TouchableOpacity
+                      key={item.route}
+                      style={[
+                        styles.eventButton,
+                        pillButtonStyle,
+                        buttonElevation(),
+                        { backgroundColor: colors.buttonPrimary },
+                      ]}
+                      onPress={() => router.push(item.route)}
+                    >
+                      <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
+          </View>
         </View>
-        </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SwipeableTabWrapper>
   );
 }
 

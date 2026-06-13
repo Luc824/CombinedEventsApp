@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
@@ -71,7 +72,20 @@ function AppStack() {
 }
 
 export default function RootLayout() {
-  return (    <SafeAreaProvider>
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      return;
+    }
+    const timer = setTimeout(() => {
+      void import("../utils/reviewPrompt").then(({ trackAppLaunch }) =>
+        trackAppLaunch()
+      );
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <SafeAreaProvider>
       <ThemeProvider>
         <AppStack />
       </ThemeProvider>

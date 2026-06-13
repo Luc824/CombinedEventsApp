@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { Radius } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
@@ -15,6 +15,43 @@ type BarChartProps = {
   longLabelLength?: number;
 };
 
+const BAR_AREA_HEIGHT = scaleSpacing(140);
+const VALUE_AREA_HEIGHT = scaleSpacing(20);
+const LABEL_AREA_HEIGHT = scaleSpacing(28);
+
+function getDensity(eventCount: number) {
+  if (eventCount >= 10) {
+    return {
+      valueBase: scaleFont(8),
+      valueFourDigit: scaleFont(7),
+      labelSize: scaleFont(7),
+      barMaxWidth: scaleSpacing(22),
+      labelLines: 2 as const,
+    };
+  }
+  if (eventCount >= 7) {
+    return {
+      valueBase: scaleFont(9),
+      valueFourDigit: scaleFont(8),
+      labelSize: scaleFont(8),
+      barMaxWidth: scaleSpacing(26),
+      labelLines: 2 as const,
+    };
+  }
+  return {
+    valueBase: scaleFont(10),
+    valueFourDigit: scaleFont(9),
+    labelSize: scaleFont(9),
+    barMaxWidth: scaleSpacing(30),
+    labelLines: 1 as const,
+  };
+}
+
+function valueFontSize(pointValue: number, density: ReturnType<typeof getDensity>): number {
+  const digits = String(pointValue).length;
+  return digits >= 4 ? density.valueFourDigit : density.valueBase;
+}
+
 export default function BarChart({
   points,
   eventLabels,
@@ -26,84 +63,72 @@ export default function BarChart({
   barLabelSmallFontSize,
   longLabelLength = 4,
 }: BarChartProps) {
-  const maxPoints = Math.max(...points, 1000);
-  const chartHeight = scaleSpacing(200);
-  /** Decathlon (10 events): tighter gap + slightly wider columns so 4-digit labels fit without ellipsis. */
-  const denseDecathlon = points.length >= 10;
-  const barWidth = scaleSpacing(denseDecathlon ? 26 : 22);
-  const barSpacing = scaleSpacing(denseDecathlon ? 2 : 4);
+  const safePoints = points.map((point) =>
+    Number.isFinite(point) && point > 0 ? point : 0
+  );
+  const maxPoints = Math.max(...safePoints, 1000);
+  const density = getDensity(safePoints.length);
+  const labelHeight = Math.max(
+    scaleSpacing(barLabelContainerHeight),
+    LABEL_AREA_HEIGHT
+  );
 
   return (
     <View style={[styles.chartContainer, { backgroundColor }]}>
       <Text style={[styles.chartTitle, { color: textColor }]}>
         Performance Overview
       </Text>
-      <View
-        style={
-          denseDecathlon
-            ? [styles.chartContentDense, { gap: barSpacing }]
-            : styles.chartContent
-        }
-      >
-        {points.map((pointValue, index) => {
+      <View style={styles.chartRow}>
+        {safePoints.map((pointValue, index) => {
           const barHeight =
-            maxPoints > 0 ? (pointValue / maxPoints) * chartHeight : 0;
+            maxPoints > 0 ? (pointValue / maxPoints) * BAR_AREA_HEIGHT : 0;
           const label = eventLabels[index] ?? "";
           const isLongLabel =
-            barLabelSmallFontSize !== undefined &&
-            label.length > longLabelLength;
+            barLabelSmallFontSize !== undefined && label.length > longLabelLength;
+          const labelFontSize = isLongLabel
+            ? Math.min(scaleFont(barLabelSmallFontSize!), density.labelSize)
+            : Math.min(scaleFont(barLabelFontSize), density.labelSize);
 
           return (
-            <View
-              key={index}
-              style={[
-                styles.barWrapper,
-                {
-                  width: denseDecathlon
-                    ? barWidth
-                    : barWidth + barSpacing * 2,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.barValue,
-                  denseDecathlon && styles.barValueDense,
-                  { color: textColor },
-                ]}
-                numberOfLines={1}
-              >
-                {pointValue}
-              </Text>
-              <View style={styles.barContainer}>
+            <View key={index} style={styles.barColumn}>
+              <View style={[styles.valueArea, { height: VALUE_AREA_HEIGHT }]}>
+                <Text
+                  style={[
+                    styles.barValue,
+                    {
+                      color: textColor,
+                      fontSize: valueFontSize(pointValue, density),
+                    },
+                  ]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.5}
+                >
+                  {pointValue}
+                </Text>
+              </View>
+              <View style={[styles.barArea, { height: BAR_AREA_HEIGHT }]}>
                 <View
                   style={[
                     styles.bar,
                     {
-                      width: barWidth,
+                      width: density.barMaxWidth,
+                      maxWidth: "85%",
                       height: Math.max(barHeight, 2),
                       backgroundColor: trackColor,
                     },
                   ]}
                 />
               </View>
-              <View
-                style={[
-                  styles.barLabelContainer,
-                  { height: scaleSpacing(barLabelContainerHeight) },
-                ]}
-              >
+              <View style={[styles.labelArea, { height: labelHeight }]}>
                 <Text
                   style={[
                     styles.barLabel,
-                    { color: textColor, fontSize: scaleFont(barLabelFontSize) },
-                    isLongLabel && barLabelSmallFontSize !== undefined
-                      ? { fontSize: scaleFont(barLabelSmallFontSize) }
-                      : null,
+                    { color: textColor, fontSize: labelFontSize },
                   ]}
-                  numberOfLines={1}
+                  numberOfLines={density.labelLines}
                   adjustsFontSizeToFit
-                  minimumFontScale={0.8}
+                  minimumFontScale={0.5}
                 >
                   {label}
                 </Text>
@@ -119,65 +144,63 @@ export default function BarChart({
 const styles = StyleSheet.create({
   chartContainer: {
     borderRadius: Radius.md,
-    padding: scaleSpacing(16),
+    paddingVertical: scaleSpacing(12),
+    paddingHorizontal: scaleSpacing(8),
+    overflow: "hidden",
+    width: "100%",
   },
   chartTitle: {
     fontSize: scaleFont(16),
     fontWeight: "bold",
-    marginBottom: scaleSpacing(16),
+    marginBottom: scaleSpacing(10),
     textAlign: "center",
   },
-  chartContent: {
+  chartRow: {
     flexDirection: "row",
     alignItems: "flex-end",
-    justifyContent: "space-around",
-    height: scaleSpacing(240),
-    paddingHorizontal: scaleSpacing(8),
-  },
-  chartContentDense: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    height: scaleSpacing(240),
-    paddingHorizontal: scaleSpacing(14),
     width: "100%",
   },
-  barWrapper: {
+  barColumn: {
+    flex: 1,
+    minWidth: 0,
     alignItems: "center",
-    justifyContent: "flex-end",
-    height: "100%",
+    paddingHorizontal: scaleSpacing(1),
   },
-  /** Heptathlon / pentathlon: room for 4 digits at one size. */
+  valueArea: {
+    width: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
   barValue: {
-    fontSize: scaleFont(10),
     fontWeight: "600",
-    marginBottom: scaleSpacing(4),
     textAlign: "center",
     width: "100%",
+    lineHeight: scaleFont(11),
+    ...Platform.select({
+      web: {
+        overflow: "hidden" as any,
+        textOverflow: "clip" as any,
+      },
+    }),
   },
-  /** Decathlon: 10 narrow columns — one step smaller so 4-digit scores fit without "10…" ellipsis (same size for every bar). */
-  barValueDense: {
-    fontSize: scaleFont(9),
-    letterSpacing: -0.25,
-  },
-  barContainer: {
+  barArea: {
     width: "100%",
-    height: scaleSpacing(200),
     justifyContent: "flex-end",
     alignItems: "center",
   },
   bar: {
-    borderRadius: scaleSpacing(4),
+    borderRadius: scaleSpacing(3),
     minHeight: 2,
   },
-  barLabelContainer: {
+  labelArea: {
     width: "100%",
     justifyContent: "flex-start",
     alignItems: "center",
-    marginTop: scaleSpacing(6),
+    marginTop: scaleSpacing(4),
   },
   barLabel: {
     textAlign: "center",
     width: "100%",
+    lineHeight: scaleFont(10),
   },
 });

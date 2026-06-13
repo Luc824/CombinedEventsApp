@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label, VectorIcon } from "expo-router/unstable-native-tabs";
 import React from "react";
-import { DynamicColorIOS, Platform } from "react-native";
+import { DynamicColorIOS, Platform, useColorScheme } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -57,8 +57,9 @@ function WebTabsLayout() {
 }
 
 function NativeTabsLayout() {
-  const { theme } = useTheme();
-  const colors = ThemeColors[theme];
+  // NativeTabs renders outside ThemeProvider — use system scheme for tab colors.
+  const colorScheme = useColorScheme();
+  const colors = ThemeColors[colorScheme === "light" ? "light" : "dark"];
   const inactiveColor =
     Platform.OS === "ios"
       ? DynamicColorIOS({ dark: "#aaaaaa", light: "#888888" })

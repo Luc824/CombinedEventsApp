@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -114,9 +115,14 @@ const styles = StyleSheet.create({
   },
   modalContentWrapper: {
     position: "absolute",
-    width: "90%",
-    maxWidth: scaleSpacing(400),
+    width: "92%",
+    maxWidth: scaleSpacing(440),
     maxHeight: "90%",
+    ...Platform.select({
+      web: {
+        maxWidth: 480,
+      },
+    }),
   },
   modalScrollView: {
     width: "100%",

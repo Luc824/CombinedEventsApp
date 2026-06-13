@@ -19,15 +19,15 @@ export const ThemeColors = {
   },
   light: {
     background: "#f5f5f5",
-    surface: "rgba(255, 255, 255, 0.9)",
+    surface: "#ffffff",
     surfaceSolid: "#fff",
-    border: "#d0d0d0",
+    border: "#c8c8c8",
     text: "#111",
     textSecondary: "#555",
     textMuted: "#888",
-    inputBackground: "#fff",
+    inputBackground: "#fafafa",
     inputText: "#111",
-    inputBorder: "#ccc", // Specific border color for inputs in light mode
+    inputBorder: "#b0b0b0",
     buttonPrimary: "#D35400", // TRACK_COLOR (same for both)
     buttonSecondary: "#666",
     buttonText: "#fff",

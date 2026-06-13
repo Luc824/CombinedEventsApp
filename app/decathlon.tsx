@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
     Alert,
     Keyboard,
@@ -25,6 +25,11 @@ import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
 import { convertTimeToSeconds } from "../utils/timeUtils";
+import {
+  safeFloorPoints,
+  shouldCalculatePoints,
+  validateScoreForSave,
+} from "../utils/pointsUtils";
 
 const TRACK_COLOR = "#D35400";
 
@@ -107,15 +112,17 @@ export default function DecathlonScreen() {
   const [showChart, setShowChart] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
-  const scrollViewRef = useRef<ScrollView>(null);
 
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
     const event = DECATHLON_EVENTS[index];
+    const isTrack = ["100m", "400m", "110m Hurdles", "1500m"].includes(event.name);
+    const isLongTrack = event.name === "1500m";
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
     try {
       const inputValue =
         index === 9 ? convertTimeToSeconds(value) : parseFloat(value);
-      return Math.floor(event.formula(inputValue));
+      return safeFloorPoints(event.formula(inputValue));
     } catch {
       return 0;
     }
@@ -194,8 +201,9 @@ export default function DecathlonScreen() {
     }
 
     const totalPoints = getTotalPoints();
-    if (totalPoints === 0) {
-      Alert.alert("Error", "Cannot save a score with 0 points.");
+    const validationError = validateScoreForSave(results, points, totalPoints);
+    if (validationError) {
+      Alert.alert("Error", validationError);
       return;
     }
 
@@ -245,7 +253,6 @@ export default function DecathlonScreen() {
 
   const scrollContent = (
     <ScrollView
-      ref={scrollViewRef}
       scrollEnabled={true}
       contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="handled"
@@ -321,11 +328,8 @@ export default function DecathlonScreen() {
         {Platform.OS === 'web' ? (
           scrollContent
         ) : (
-          <TouchableWithoutFeedback
-            onPress={Keyboard.dismiss}
-            style={{ flex: 1 }}
-          >
-            {scrollContent}
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.dismissArea}>{scrollContent}</View>
           </TouchableWithoutFeedback>
         )}
       </KeyboardAvoidingView>
@@ -396,6 +400,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     paddingTop: 10,
+  },
+  dismissArea: {
+    flex: 1,
   },
   inlineDayTotalText: {
     fontSize: 13,

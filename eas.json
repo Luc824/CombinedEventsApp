@@ -17,12 +17,11 @@
     },
     "preview": {
       "distribution": "internal",
+      "environment": "preview",
       "env": {
         "EXPO_IMAGE_UTILS_NO_CACHE": "1",
         "EXPO_NO_DANGEROUS": "1",
-        "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp",
-        "REVENUECAT_API_KEY_IOS": "@revenuecat-api-key-ios",
-        "REVENUECAT_API_KEY_ANDROID": "@revenuecat-api-key-android"
+        "EXPO_IMAGE_UTILS_CACHE_DIR": "/tmp"
       }
     },
     "production": {

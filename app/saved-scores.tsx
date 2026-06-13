@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Platform,
@@ -16,7 +16,13 @@ import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { Radius, ScreenLayout } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
-import { deleteScore, getEventTypeDisplayName, getSavedScores, SavedScore } from "../utils/scoreStorage";
+import {
+  SavedScoresStorageError,
+  deleteScore,
+  getEventTypeDisplayName,
+  getSavedScores,
+  SavedScore,
+} from "../utils/scoreStorage";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
 const TRACK_COLOR = "#D35400";
@@ -28,20 +34,27 @@ export default function SavedScoresScreen() {
   const [scores, setScores] = useState<SavedScore[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadScores();
-  }, []);
-
-  const loadScores = async () => {
+  const loadScores = useCallback(async () => {
     try {
+      setLoading(true);
       const savedScores = await getSavedScores();
       setScores(savedScores);
-    } catch {
-      Alert.alert("Error", "Failed to load saved scores.");
+    } catch (error) {
+      const message =
+        error instanceof SavedScoresStorageError
+          ? error.message
+          : "Failed to load saved scores.";
+      Alert.alert("Error", message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadScores();
+    }, [loadScores])
+  );
 
   const handleDelete = (id: string, title: string) => {
     Alert.alert(
@@ -101,7 +114,7 @@ export default function SavedScoresScreen() {
           onPress={() =>
             router.push({
               pathname: "/saved-score-detail",
-              params: { score: JSON.stringify(score) },
+              params: { id: score.id },
             } as any)
           }
           activeOpacity={0.7}

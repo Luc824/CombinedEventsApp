@@ -6,53 +6,109 @@ export interface SavedScore {
   id: string;
   title: string;
   eventType: EventType;
-  results: string[]; // Individual event performances
-  points: number[]; // Individual event points
+  results: string[];
+  points: number[];
   totalScore: number;
-  resultScore: string; // World Athletics ranking score
-  dateSaved: string; // ISO date string
+  resultScore: string;
+  dateSaved: string;
 }
 
 const STORAGE_KEY = '@saved_scores';
 
-export const saveScore = async (score: Omit<SavedScore, 'id' | 'dateSaved'>): Promise<void> => {
-  try {
-    const existingScores = await getSavedScores();
-    const newScore: SavedScore = {
-      ...score,
-      id: Date.now().toString(),
-      dateSaved: new Date().toISOString(),
-    };
-    const updatedScores = [newScore, ...existingScores];
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScores));
-  } catch (error) {
-    console.error('Error saving score:', error);
-    throw error;
+export class SavedScoresStorageError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SavedScoresStorageError';
   }
-};
+}
+
+let saveQueue: Promise<void> = Promise.resolve();
+
+function generateScoreId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function isValidSavedScore(value: unknown): value is SavedScore {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const score = value as SavedScore;
+  return (
+    typeof score.id === 'string' &&
+    typeof score.title === 'string' &&
+    typeof score.eventType === 'string' &&
+    Array.isArray(score.results) &&
+    Array.isArray(score.points) &&
+    typeof score.totalScore === 'number' &&
+    typeof score.resultScore === 'string' &&
+    typeof score.dateSaved === 'string'
+  );
+}
 
 export const getSavedScores = async (): Promise<SavedScore[]> => {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEY);
-    if (data) {
-      return JSON.parse(data);
+    if (!data) {
+      return [];
     }
-    return [];
+
+    const parsed: unknown = JSON.parse(data);
+    if (!Array.isArray(parsed)) {
+      throw new SavedScoresStorageError('Saved scores data is corrupted.');
+    }
+
+    return parsed.filter(isValidSavedScore);
   } catch (error) {
+    if (error instanceof SavedScoresStorageError) {
+      throw error;
+    }
     console.error('Error loading scores:', error);
-    return [];
+    throw new SavedScoresStorageError('Failed to load saved scores.');
   }
 };
 
+export const getSavedScoreById = async (id: string): Promise<SavedScore | null> => {
+  const scores = await getSavedScores();
+  return scores.find((score) => score.id === id) ?? null;
+};
+
+export const saveScore = async (score: Omit<SavedScore, 'id' | 'dateSaved'>): Promise<void> => {
+  const task = async () => {
+    try {
+      const existingScores = await getSavedScores();
+      const newScore: SavedScore = {
+        ...score,
+        id: generateScoreId(),
+        dateSaved: new Date().toISOString(),
+      };
+      const updatedScores = [newScore, ...existingScores];
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScores));
+      const { trackScoreSaved } = await import("./reviewPrompt");
+      void trackScoreSaved();
+    } catch (error) {
+      console.error('Error saving score:', error);
+      throw error;
+    }
+  };
+
+  saveQueue = saveQueue.then(task, task);
+  return saveQueue;
+};
+
 export const deleteScore = async (id: string): Promise<void> => {
-  try {
-    const existingScores = await getSavedScores();
-    const updatedScores = existingScores.filter(score => score.id !== id);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScores));
-  } catch (error) {
-    console.error('Error deleting score:', error);
-    throw error;
-  }
+  const task = async () => {
+    try {
+      const existingScores = await getSavedScores();
+      const updatedScores = existingScores.filter((score) => score.id !== id);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScores));
+    } catch (error) {
+      console.error('Error deleting score:', error);
+      throw error;
+    }
+  };
+
+  saveQueue = saveQueue.then(task, task);
+  return saveQueue;
 };
 
 export const getEventTypeDisplayName = (eventType: EventType): string => {
@@ -133,4 +189,3 @@ export const getEventChartLabels = (eventType: EventType): string[] => {
       return [];
   }
 };
-

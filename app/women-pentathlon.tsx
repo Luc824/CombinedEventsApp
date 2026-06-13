@@ -24,6 +24,11 @@ import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
 import { convertTimeToSeconds } from "../utils/timeUtils";
+import {
+  safeFloorPoints,
+  shouldCalculatePoints,
+  validateScoreForSave,
+} from "../utils/pointsUtils";
 
 const TRACK_COLOR = "#D35400";
 
@@ -79,6 +84,9 @@ export default function WomenPentathlonScreen() {
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
     const event = WOMEN_PENTATHLON_EVENTS[index];
+    const isTrack = ["60m Hurdles", "800m"].includes(event.name);
+    const isLongTrack = event.name === "800m";
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
     let inputValue = parseFloat(value);
     try {
       if (event.name === "800m") {
@@ -86,7 +94,7 @@ export default function WomenPentathlonScreen() {
       } else if (event.name === "High Jump" || event.name === "Long Jump") {
         inputValue = parseFloat(value) * 100;
       }
-      return Math.floor(event.formula(inputValue));
+      return safeFloorPoints(event.formula(inputValue));
     } catch {
       return 0;
     }
@@ -95,13 +103,19 @@ export default function WomenPentathlonScreen() {
   const handleInputChange = (text: string, index: number) => {
     let formattedText = text.replace(",", ".");
     const eventName = WOMEN_PENTATHLON_EVENTS[index].name;
-    if (eventName === "800m") {
+    if (["60m Hurdles", "800m"].includes(eventName)) {
       formattedText = formattedText.replace(/[^0-9]/g, "");
       if (formattedText.length > 0) {
-        const minutes = formattedText.slice(0, -4);
-        const seconds = formattedText.slice(-4, -2);
-        const milliseconds = formattedText.slice(-2);
-        formattedText = `${minutes}:${seconds}.${milliseconds}`;
+        if (eventName === "800m") {
+          const minutes = formattedText.slice(0, -4);
+          const seconds = formattedText.slice(-4, -2);
+          const milliseconds = formattedText.slice(-2);
+          formattedText = `${minutes}:${seconds}.${milliseconds}`;
+        } else {
+          const seconds = formattedText.slice(0, -2);
+          const milliseconds = formattedText.slice(-2);
+          formattedText = `${seconds}.${milliseconds}`;
+        }
       }
     } else {
       formattedText = formattedText.replace(/[^0-9]/g, "");
@@ -147,8 +161,9 @@ export default function WomenPentathlonScreen() {
     }
 
     const totalPoints = getTotalPoints();
-    if (totalPoints === 0) {
-      Alert.alert("Error", "Cannot save a score with 0 points.");
+    const validationError = validateScoreForSave(results, points, totalPoints);
+    if (validationError) {
+      Alert.alert("Error", validationError);
       return;
     }
 
@@ -252,11 +267,8 @@ export default function WomenPentathlonScreen() {
         {Platform.OS === 'web' ? (
           scrollContent
         ) : (
-          <TouchableWithoutFeedback
-            onPress={Keyboard.dismiss}
-            style={{ flex: 1 }}
-          >
-            {scrollContent}
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.dismissArea}>{scrollContent}</View>
           </TouchableWithoutFeedback>
         )}
       </KeyboardAvoidingView>
@@ -325,6 +337,9 @@ const styles = StyleSheet.create({
     }),
   },
   contentContainer: {
+    flex: 1,
+  },
+  dismissArea: {
     flex: 1,
   },
   scrollContent: {

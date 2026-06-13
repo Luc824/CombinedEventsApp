@@ -25,6 +25,11 @@ import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
 import { convertTimeToSeconds } from "../utils/timeUtils";
+import {
+  safeFloorPoints,
+  shouldCalculatePoints,
+  validateScoreForSave,
+} from "../utils/pointsUtils";
 
 const TRACK_COLOR = "#D35400";
 
@@ -93,10 +98,13 @@ export default function MenHeptathlonScreen() {
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
     const event = HEPTATHLON_EVENTS[index];
+    const isTrack = ["60m", "60m Hurdles", "1000m"].includes(event.name);
+    const isLongTrack = event.name === "1000m";
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
     try {
       const inputValue =
         index === 6 ? convertTimeToSeconds(value) : parseFloat(value);
-      return Math.floor(event.formula(inputValue));
+      return safeFloorPoints(event.formula(inputValue));
     } catch {
       return 0;
     }
@@ -165,8 +173,9 @@ export default function MenHeptathlonScreen() {
     }
 
     const totalPoints = getTotalPoints();
-    if (totalPoints === 0) {
-      Alert.alert("Error", "Cannot save a score with 0 points.");
+    const validationError = validateScoreForSave(results, points, totalPoints);
+    if (validationError) {
+      Alert.alert("Error", validationError);
       return;
     }
 
@@ -288,11 +297,8 @@ export default function MenHeptathlonScreen() {
         {Platform.OS === 'web' ? (
           scrollContent
         ) : (
-          <TouchableWithoutFeedback
-            onPress={Keyboard.dismiss}
-            style={{ flex: 1 }}
-          >
-            {scrollContent}
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.dismissArea}>{scrollContent}</View>
           </TouchableWithoutFeedback>
         )}
       </KeyboardAvoidingView>
@@ -368,6 +374,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 10,
     paddingBottom: 30,
+  },
+  dismissArea: {
+    flex: 1,
   },
   inlineDayTotalText: {
     color: "#bbb",
