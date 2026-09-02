@@ -286,9 +286,11 @@ export default function MoreScreen() {
               surfacePillButtonStyle,
               { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
             ]}
-            onPress={() => router.push("/how-it-works")}
+            onPress={() => router.push("/combined-events-explained")}
           >
-            <Text style={[styles.buttonText, { color: colors.text }]}>How It Works</Text>
+            <Text style={[styles.buttonText, { color: colors.text }]}>
+              Combined Events explained
+            </Text>
           </TouchableOpacity>
         )}
 

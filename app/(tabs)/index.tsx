@@ -63,7 +63,7 @@ export default function EventsScreen() {
             </Text>
             {Platform.OS !== "web" && (
               <View style={styles.infoButton}>
-                <InfoButton onPress={() => router.push("/how-it-works")} />
+                <InfoButton onPress={() => router.push("/combined-events-explained")} />
               </View>
             )}
           </View>

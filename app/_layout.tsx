@@ -54,9 +54,9 @@ function AppStack() {
         }}
       />
       <Stack.Screen
-        name="how-it-works"
+        name="combined-events-explained"
         options={{
-          title: "How It Works",
+          title: "Combined Events explained",
         }}
       />
       <Stack.Screen

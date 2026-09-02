@@ -3,6 +3,11 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/how-it-works"
+  to = "/combined-events-explained"
+  status = 301
+
+[[redirects]]
   from = "/support.html"
   to = "/support.html"
   status = 200

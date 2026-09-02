@@ -364,7 +364,10 @@ export default function RankingsScreen() {
           <View style={styles.infoButton}>
             <InfoButton
               onPress={() =>
-                router.push({ pathname: "/how-it-works", params: { section: "rankings" } })
+                router.push({
+                  pathname: "/combined-events-explained",
+                  params: { section: "rankings" },
+                })
               }
             />
           </View>

@@ -16,6 +16,8 @@ import { ScreenLayout, TRACK_COLOR } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
+const PAGE_TITLE = "Combined Events explained";
+
 const SECTIONS = [
   {
     id: "what",
@@ -25,12 +27,12 @@ const SECTIONS = [
   {
     id: "points",
     title: "How points are calculated",
-    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. If an athlete no-heights in the pole vault, or has no valid throw in the discus, that is zero points. There is no catching up. The athlete has no way of winning.\n\nOpening height is not a warm-up. Skipping the 1500m is not a strategy, unfortunately.\n\nThis app makes it easy to get the points for each event, and your total.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. That idea stuck. The tables have been updated since then, but about 1,000 points in a single event is still a world-class mark.",
+    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. If an athlete no-heights in the pole vault, or has no valid throw in the discus, that is zero points. There is no catching up. The athlete has no way of winning. Skipping the 1500m is not a strategy, unfortunately.\n\nThis app makes it easy to get the points for each event, and your total.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. The tables have been updated since then, but 1,000 points in a single event is still a world-class mark.",
   },
   {
     id: "winner",
     title: "How someone wins",
-    body: "Add up the points from every event. Highest total wins.\n\nYou do not have to win every event. A steady score across the board often beats being brilliant in two events and weak in the rest.\n\nA great day one is not enough. Day two starts with hurdles. The legs do not get a vote. In the heptathlon, the 800m at the end is not optional either.",
+    body: "Add up the points from every event. Highest total wins.\n\nYou do not have to win every event. A steady score across the board often beats being brilliant in two events and weak in the rest.\n\nA great day one is not enough. Day two starts with hurdles. The legs do not get a vote. In the women's heptathlon, the 800m at the end is not optional either.",
   },
   {
     id: "rankings",
@@ -39,7 +41,7 @@ const SECTIONS = [
   },
 ] as const;
 
-export default function HowItWorksScreen() {
+export default function CombinedEventsExplainedScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
@@ -71,7 +73,7 @@ export default function HowItWorksScreen() {
       >
         {!USE_NATIVE_HEADER && (
           <CalculatorTitleRow
-            title="How It Works"
+            title={PAGE_TITLE}
             onBack={() => router.back()}
             showBack
             textColor={colors.text}
