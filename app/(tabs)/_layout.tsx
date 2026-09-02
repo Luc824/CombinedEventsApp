@@ -1,8 +1,9 @@
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label, VectorIcon } from "expo-router/unstable-native-tabs";
 import React from "react";
-import { DynamicColorIOS, Platform, useColorScheme } from "react-native";
+import { DynamicColorIOS, Platform, useColorScheme, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import WebNavBar from "../../components/WebNavBar";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -13,46 +14,22 @@ function WebTabsLayout() {
   const colors = ThemeColors[theme];
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border },
-        tabBarActiveTintColor: TRACK_COLOR,
-        tabBarInactiveTintColor: colors.textMuted,
-        headerStyle: { backgroundColor: colors.background },
-        headerTitleStyle: { color: colors.text },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Events",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="trophy-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="ranking"
-        options={{
-          title: "Rankings",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="podium-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: "More",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="ellipsis-horizontal" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <WebNavBar />
+      <View style={{ flex: 1 }}>
+        <Tabs
+          tabBar={() => null}
+          screenOptions={{
+            headerShown: false,
+            sceneStyle: { backgroundColor: colors.background },
+          }}
+        >
+          <Tabs.Screen name="index" options={{ title: "Events" }} />
+          <Tabs.Screen name="ranking" options={{ title: "Rankings" }} />
+          <Tabs.Screen name="more" options={{ title: "More" }} />
+        </Tabs>
+      </View>
+    </View>
   );
 }
 

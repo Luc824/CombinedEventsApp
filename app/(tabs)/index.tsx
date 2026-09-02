@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
@@ -40,15 +41,23 @@ export default function EventsScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  const { width } = useWindowDimensions();
+  const titleOnOneLine = Platform.OS === "web" && width >= 520;
 
   return (
     <SwipeableTabWrapper tabIndex={0}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: colors.background },
+            Platform.OS === "web" && styles.containerWeb,
+          ]}
+        >
           <View style={styles.contentBlock}>
           <Text style={[styles.title, { color: colors.text }]}>
-            Combined Events{"\n"}Calculator
+            Combined Events{titleOnOneLine ? " " : "\n"}Calculator
           </Text>
 
           <View style={styles.buttonsArea}>
@@ -101,8 +110,12 @@ const styles = StyleSheet.create({
     paddingBottom: scaleSpacing(52),
     paddingHorizontal: ScreenLayout.horizontalPadding,
     ...Platform.select({
-      web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%" },
+      web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%", paddingBottom: 0 },
     }),
+  },
+  containerWeb: {
+    justifyContent: "flex-start",
+    paddingTop: 96,
   },
   contentBlock: {
     width: "100%",
@@ -114,6 +127,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: scaleSpacing(32),
     lineHeight: scaleSpacing(34),
+    ...Platform.select({
+      web: {
+        marginBottom: scaleSpacing(24),
+        lineHeight: scaleSpacing(34),
+      },
+    }),
   },
   buttonsArea: {
     alignItems: "center",
@@ -123,6 +142,9 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: scaleSpacing(340),
     alignItems: "center",
+    ...Platform.select({
+      web: { maxWidth: 340 },
+    }),
   },
   sectionSpaced: {
     marginTop: scaleSpacing(14),

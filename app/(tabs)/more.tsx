@@ -254,16 +254,18 @@ export default function MoreScreen() {
             <Text style={[styles.buttonText, { color: colors.text }]}>Saved Scores</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={[
-            styles.button,
-            surfacePillButtonStyle,
-            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
-          ]}
-          onPress={handleFeedback}
-        >
-          <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
-        </TouchableOpacity>
+        {Platform.OS !== "web" && (
+          <TouchableOpacity
+            style={[
+              styles.button,
+              surfacePillButtonStyle,
+              { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+            ]}
+            onPress={handleFeedback}
+          >
+            <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
+          </TouchableOpacity>
+        )}
         {Platform.OS !== "web" && (
           <TouchableOpacity
             style={[
