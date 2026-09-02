@@ -283,6 +283,19 @@ export default function MoreScreen() {
           <TouchableOpacity
             style={[
               styles.button,
+              surfacePillButtonStyle,
+              { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+            ]}
+            onPress={() => router.push("/how-it-works")}
+          >
+            <Text style={[styles.buttonText, { color: colors.text }]}>How It Works</Text>
+          </TouchableOpacity>
+        )}
+
+        {Platform.OS === "web" && (
+          <TouchableOpacity
+            style={[
+              styles.button,
               pillButtonStyle,
               buttonElevation(),
               { backgroundColor: TRACK_COLOR },

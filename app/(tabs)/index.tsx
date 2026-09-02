@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import InfoButton from "../../components/InfoButton";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
@@ -56,9 +57,16 @@ export default function EventsScreen() {
           ]}
         >
           <View style={styles.contentBlock}>
-          <Text style={[styles.title, { color: colors.text }]}>
-            Combined Events{titleOnOneLine ? " " : "\n"}Calculator
-          </Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: colors.text }]}>
+              Combined Events{titleOnOneLine ? " " : "\n"}Calculator
+            </Text>
+            {Platform.OS !== "web" && (
+              <View style={styles.infoButton}>
+                <InfoButton onPress={() => router.push("/how-it-works")} />
+              </View>
+            )}
+          </View>
 
           <View style={styles.buttonsArea}>
             {SECTIONS.map((section, sectionIndex) => (
@@ -121,18 +129,25 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  titleRow: {
+    width: "100%",
+    position: "relative",
+    marginBottom: scaleSpacing(32),
+    ...Platform.select({
+      web: { marginBottom: scaleSpacing(24) },
+    }),
+  },
   title: {
     fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: scaleSpacing(32),
     lineHeight: scaleSpacing(34),
-    ...Platform.select({
-      web: {
-        marginBottom: scaleSpacing(24),
-        lineHeight: scaleSpacing(34),
-      },
-    }),
+    paddingHorizontal: scaleSpacing(32),
+  },
+  infoButton: {
+    position: "absolute",
+    right: 0,
+    top: 0,
   },
   buttonsArea: {
     alignItems: "center",

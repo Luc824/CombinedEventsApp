@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Keyboard,
@@ -13,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import InfoButton from "../../components/InfoButton";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
@@ -285,6 +287,7 @@ function PerformanceEntry({
 }
 
 export default function RankingsScreen() {
+  const router = useRouter();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
   // State for both performances
@@ -355,7 +358,18 @@ export default function RankingsScreen() {
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.title, { color: colors.text }]}>Rankings Calculator</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { color: colors.text }]}>Rankings Calculator</Text>
+        {Platform.OS !== "web" && (
+          <View style={styles.infoButton}>
+            <InfoButton
+              onPress={() =>
+                router.push({ pathname: "/how-it-works", params: { section: "rankings" } })
+              }
+            />
+          </View>
+        )}
+      </View>
       <PerformanceEntry
         index={0}
         event={event1}
@@ -456,11 +470,21 @@ const styles = StyleSheet.create({
     paddingBottom: scaleSpacing(16),
     paddingTop: scaleSpacing(16),
   },
+  titleRow: {
+    width: "100%",
+    position: "relative",
+    marginBottom: scaleSpacing(24),
+  },
   title: {
     fontSize: scaleFont(28),
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: scaleSpacing(24),
+    paddingHorizontal: scaleSpacing(32),
+  },
+  infoButton: {
+    position: "absolute",
+    right: 0,
+    top: 2,
   },
   performanceSection: {
     width: "100%",

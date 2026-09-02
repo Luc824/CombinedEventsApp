@@ -54,6 +54,12 @@ function AppStack() {
         }}
       />
       <Stack.Screen
+        name="how-it-works"
+        options={{
+          title: "How It Works",
+        }}
+      />
+      <Stack.Screen
         name="saved-scores"
         options={{
           title: "Saved Scores",
