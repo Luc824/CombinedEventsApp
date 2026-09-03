@@ -10,6 +10,14 @@ export function openExternalUrl(url: string): void {
   Linking.openURL(url);
 }
 
+export function openInNewTab(url: string): void {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  Linking.openURL(url);
+}
+
 export function openAppStore(): void {
   if (Platform.OS === "web" && typeof navigator !== "undefined") {
     const isIOS =

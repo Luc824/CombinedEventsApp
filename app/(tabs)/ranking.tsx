@@ -20,7 +20,13 @@ import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
+import { openInNewTab } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
+
+const WORLD_RANKINGS_URLS = {
+  men: "https://worldathletics.org/world-rankings/decathlon/men",
+  women: "https://worldathletics.org/world-rankings/heptathlon/women",
+} as const;
 
 const EVENTS = [
   { label: "Men's Decathlon", value: "decathlon", gender: "men" },
@@ -372,6 +378,25 @@ export default function RankingsScreen() {
             />
           </View>
         )}
+        <View style={styles.officialLinks}>
+          <Text
+            style={styles.officialLink}
+            onPress={() => openInNewTab(WORLD_RANKINGS_URLS.men)}
+            accessibilityRole="link"
+          >
+            Men's world rankings
+          </Text>
+          <Text style={[styles.officialLinkSeparator, { color: colors.textMuted }]}>
+            {" · "}
+          </Text>
+          <Text
+            style={styles.officialLink}
+            onPress={() => openInNewTab(WORLD_RANKINGS_URLS.women)}
+            accessibilityRole="link"
+          >
+            Women's world rankings
+          </Text>
+        </View>
       </View>
       <PerformanceEntry
         index={0}
@@ -488,6 +513,26 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 2,
+  },
+  officialLinks: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: scaleSpacing(10),
+    paddingHorizontal: scaleSpacing(8),
+  },
+  officialLink: {
+    color: TRACK_COLOR,
+    fontSize: scaleFont(14),
+    fontWeight: "600",
+    textAlign: "center",
+    ...Platform.select({
+      web: { cursor: "pointer" },
+    }),
+  },
+  officialLinkSeparator: {
+    fontSize: scaleFont(14),
   },
   performanceSection: {
     width: "100%",
