@@ -94,10 +94,6 @@ export default function MoreScreen() {
     }, [refreshDonationPackages])
   );
 
-  const handleFeedback = () => {
-    Linking.openURL("mailto:luc.coolbrew@gmail.com?subject=App Feedback");
-  };
-
   const handleReview = () => {
     openAppReview();
   };
@@ -252,18 +248,6 @@ export default function MoreScreen() {
             onPress={handleSavedScores}
           >
             <Text style={[styles.buttonText, { color: colors.text }]}>Saved Scores</Text>
-          </TouchableOpacity>
-        )}
-        {Platform.OS !== "web" && (
-          <TouchableOpacity
-            style={[
-              styles.button,
-              surfacePillButtonStyle,
-              { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
-            ]}
-            onPress={handleFeedback}
-          >
-            <Text style={[styles.buttonText, { color: colors.text }]}>Send Feedback</Text>
           </TouchableOpacity>
         )}
         {Platform.OS !== "web" && (
