@@ -38,9 +38,9 @@ const PACKAGE_LABELS: Record<string, string> = {
 };
 
 const PACKAGE_PRICES: Record<string, string> = {
-  donation_tier1: "0.99",
-  donation_tier2: "1.99",
-  donation_tier3: "9.99",
+  donation_tier1: "1.99",
+  donation_tier2: "9.99",
+  donation_tier3: "99.99",
 };
 
 function getPackageLabel(pkg: PurchasesPackage): string {
@@ -112,9 +112,10 @@ export default function MoreScreen() {
 
   const handleWebDonate = (tier: string) => {
     const paypalLinks: Record<string, string> = {
-      Amateur: "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-      Pro: "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
-      GOAT: "https://www.paypal.com/donate/?hosted_button_id=ADXATUGCAGQSQ",
+      Amateur:
+        "https://www.paypal.com/donate/?hosted_button_id=T8MY5NVGKJGHE",
+      Pro: "https://www.paypal.com/donate/?hosted_button_id=QXR3XBPLZ3YBN",
+      GOAT: "https://www.paypal.com/donate/?hosted_button_id=VZWTBDK6CNYQQ",
     };
     Linking.openURL(paypalLinks[tier] ?? paypalLinks.Amateur);
   };
