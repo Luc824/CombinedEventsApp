@@ -5,7 +5,7 @@ module.exports = {
   expo: {
     name: IS_DEV ? "CE Points Dev" : "CE Points",
     slug: "decathlon-calculator",
-    version: "1.1.0",
+    version: "1.2.0",
     orientation: "portrait",
     scheme: IS_DEV ? "decathloncalculator-dev" : "decathloncalculator",
     userInterfaceStyle: "automatic",
