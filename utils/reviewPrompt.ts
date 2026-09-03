@@ -10,7 +10,6 @@ const STORAGE_KEYS = {
 } as const;
 
 const MIN_LAUNCHES = 4;
-const MIN_SAVES = 1;
 const COOLDOWN_DAYS = 120;
 
 async function getNumber(key: string): Promise<number> {
@@ -39,8 +38,7 @@ async function canShowPrompt(): Promise<boolean> {
   }
 
   const launches = await getNumber(STORAGE_KEYS.launchCount);
-  const saves = await getNumber(STORAGE_KEYS.saveCount);
-  return launches >= MIN_LAUNCHES || saves >= MIN_SAVES;
+  return launches >= MIN_LAUNCHES;
 }
 
 async function markPromptShown(): Promise<void> {
