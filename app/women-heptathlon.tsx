@@ -24,6 +24,10 @@ import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
+import {
+  extractDigits,
+  getMaxDigitsForEvent,
+} from "../utils/performanceInput";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
   safeFloorPoints,
@@ -116,8 +120,11 @@ export default function WomenHeptathlonScreen() {
   const handleInputChange = (text: string, index: number) => {
     let formattedText = text.replace(",", ".");
     const eventName = WOMEN_HEPTATHLON_EVENTS[index].name;
+    const maxDigits = getMaxDigitsForEvent(eventName, ["800m"]);
+    const maxLength = eventName === "800m" ? 7 : 5;
+
     if (["100m Hurdles", "200m", "800m"].includes(eventName)) {
-      formattedText = formattedText.replace(/[^0-9]/g, "");
+      formattedText = extractDigits(formattedText, maxDigits);
       if (formattedText.length > 0) {
         if (eventName === "800m") {
           const minutes = formattedText.slice(0, -4);
@@ -131,13 +138,18 @@ export default function WomenHeptathlonScreen() {
         }
       }
     } else {
-      formattedText = formattedText.replace(/[^0-9]/g, "");
+      formattedText = extractDigits(formattedText, maxDigits);
       if (formattedText.length > 0) {
         const beforeDecimal = formattedText.slice(0, -2);
         const afterDecimal = formattedText.slice(-2);
         formattedText = beforeDecimal + "." + afterDecimal;
       }
     }
+
+    if (formattedText.length > maxLength) {
+      formattedText = formattedText.slice(0, maxLength);
+    }
+
     const newResults = [...results];
     newResults[index] = formattedText;
     setResults(newResults);

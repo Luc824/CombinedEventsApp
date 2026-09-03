@@ -77,6 +77,12 @@ export default function EventInputRow({
         placeholder={placeholder}
         placeholderTextColor={placeholderColor}
         maxLength={maxLength}
+        selectTextOnFocus
+        textContentType="none"
+        autoComplete="off"
+        importantForAutofill="no"
+        autoCorrect={false}
+        spellCheck={false}
       />
       <View style={styles.pointsWrap}>
         <Text
