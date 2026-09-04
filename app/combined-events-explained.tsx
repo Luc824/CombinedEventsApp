@@ -73,6 +73,33 @@ const WOMEN_EVENT_COLUMNS = [
   },
 ] as const;
 
+const WORLD_RECORDS = [
+  {
+    event: "Men's decathlon",
+    points: "9126",
+    athlete: "Kevin Mayer",
+    note: "Talence, 2018",
+  },
+  {
+    event: "Women's heptathlon",
+    points: "7291",
+    athlete: "Jackie Joyner-Kersee",
+    note: "Seoul, 1988",
+  },
+  {
+    event: "Men's indoor heptathlon",
+    points: "6670",
+    athlete: "Simon Ehammer",
+    note: "Toruń, 2026",
+  },
+  {
+    event: "Women's indoor pentathlon",
+    points: "5055",
+    athlete: "Nafissatou Thiam",
+    note: "Istanbul, 2023",
+  },
+] as const;
+
 const TEXT_SECTIONS = [
   {
     id: "points",
@@ -83,6 +110,11 @@ const TEXT_SECTIONS = [
     id: "winner",
     title: "How someone wins",
     body: "Add up the points from every event. Highest total wins.\n\nYou do not have to win every event. A steady score across the board often beats being brilliant in two events and weak in the rest. A great day one is not enough.",
+  },
+  {
+    id: "history",
+    title: "History and world records",
+    body: "The decathlon has been on the Olympic programme since 1912, the year Jim Thorpe won gold. Women competed in the outdoor pentathlon at the Olympics until 1984; the heptathlon replaced it from 1988. Indoors, men contest a heptathlon and women a pentathlon.\n\nThe world records below are the official World Athletics marks for each combined event. They are the benchmarks every serious combined events athlete knows.",
   },
   {
     id: "rankings",
@@ -126,6 +158,26 @@ function EventColumns({
 
 function BodyText({ children, color }: { children: string; color: string }) {
   return <Text style={[styles.body, { color }]}>{children}</Text>;
+}
+
+function WorldRecordsList({ textColor }: { textColor: string }) {
+  return (
+    <View style={styles.recordsList}>
+      {WORLD_RECORDS.map((record) => (
+        <View key={record.event} style={styles.recordRow}>
+          <Text style={[styles.recordEvent, { color: TRACK_COLOR }]}>
+            {record.event}
+          </Text>
+          <Text style={[styles.recordPoints, { color: textColor }]}>
+            {record.points} pts
+          </Text>
+          <Text style={[styles.recordDetail, { color: textColor }]}>
+            {record.athlete} · {record.note}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
 }
 
 export default function CombinedEventsExplainedScreen() {
@@ -221,6 +273,9 @@ export default function CombinedEventsExplainedScreen() {
           >
             <Text style={[styles.heading, { color: TRACK_COLOR }]}>{item.title}</Text>
             <BodyText color={colors.text}>{item.body}</BodyText>
+            {item.id === "history" ? (
+              <WorldRecordsList textColor={colors.text} />
+            ) : null}
           </View>
         ))}
       </ScrollView>
@@ -281,5 +336,27 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(14),
     lineHeight: scaleSpacing(20),
     marginBottom: scaleSpacing(2),
+  },
+  recordsList: {
+    gap: scaleSpacing(12),
+    marginTop: scaleSpacing(4),
+  },
+  recordRow: {
+    marginBottom: scaleSpacing(4),
+  },
+  recordEvent: {
+    fontSize: scaleFont(14),
+    fontWeight: "700",
+    marginBottom: scaleSpacing(2),
+  },
+  recordPoints: {
+    fontSize: scaleFont(16),
+    fontWeight: "700",
+    marginBottom: scaleSpacing(2),
+  },
+  recordDetail: {
+    fontSize: scaleFont(14),
+    lineHeight: scaleSpacing(20),
+    opacity: 0.9,
   },
 });
