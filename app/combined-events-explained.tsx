@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
   Platform,
+  Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -21,21 +22,27 @@ const PAGE_TITLE = "Combined Events explained";
 const MEN_EVENT_COLUMNS = [
   {
     title: "Decathlon",
-    events: [
-      "100m",
-      "Long jump",
-      "Shot put",
-      "High jump",
-      "400m",
-      "110m hurdles",
-      "Discus",
-      "Pole vault",
-      "Javelin",
-      "1500m",
+    subtitle: "Outdoor",
+    dayGroups: [
+      {
+        label: "Day 1",
+        events: ["100m", "Long jump", "Shot put", "High jump", "400m"],
+      },
+      {
+        label: "Day 2",
+        events: [
+          "110m hurdles",
+          "Discus",
+          "Pole vault",
+          "Javelin",
+          "1500m",
+        ],
+      },
     ],
   },
   {
     title: "Heptathlon",
+    subtitle: "Indoor",
     events: [
       "60m",
       "Long jump",
@@ -51,18 +58,21 @@ const MEN_EVENT_COLUMNS = [
 const WOMEN_EVENT_COLUMNS = [
   {
     title: "Heptathlon",
-    events: [
-      "100m hurdles",
-      "High jump",
-      "Shot put",
-      "200m",
-      "Long jump",
-      "Javelin",
-      "800m",
+    subtitle: "Outdoor",
+    dayGroups: [
+      {
+        label: "Day 1",
+        events: ["100m hurdles", "High jump", "Shot put", "200m"],
+      },
+      {
+        label: "Day 2",
+        events: ["Long jump", "Javelin", "800m"],
+      },
     ],
   },
   {
     title: "Pentathlon",
+    subtitle: "Indoor",
     events: [
       "60m hurdles",
       "High jump",
@@ -104,7 +114,12 @@ const TEXT_SECTIONS = [
   {
     id: "points",
     title: "How points are calculated",
-    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy, unfortunately. If an athlete no-heights in the pole vault, or has no valid throw in the shot put, that is zero points.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. The tables have been updated since then, but 1,000 points in a single event is still a world-class mark.",
+    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Unfortunately, skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. The tables have been updated since then, but 1,000 points in a single event is still a world-class mark.",
+  },
+  {
+    id: "formulas",
+    title: "The scoring formulas",
+    body: "World Athletics does not use one formula for every event. Each discipline has its own constants, but the idea is the same.\n\nFor track events, points depend on how fast you run. The formula has the shape: points = A × (B − time)^C. A lower time means more points.\n\nFor jumps and throws, points depend on how far or high you go. The formula has the shape: points = A × (result − B)^C. A bigger result means more points.\n\nA, B, and C are different for every event, which is why 10.50 in the 100m and 7.80 in the long jump live on different scales. Points are rounded down to a whole number. This app applies the official World Athletics formulas for you.",
   },
   {
     id: "winner",
@@ -119,37 +134,65 @@ const TEXT_SECTIONS = [
   {
     id: "rankings",
     title: "World Athletics rankings",
-    body: "In combined events, points from every event are added together to give each athlete a competition total. World Athletics rankings are a separate system. They help decide who qualifies for big championships.\n\nA ranking score has two parts. The result score is how good the performance was, based on the points total from that competition. The placing score is determined by which place you finish in the competition, and how big the competition was. Add them together and you get a performance score.\n\nYour ranking uses your two best performance scores and takes the average. For men, at least one of those has to be a decathlon. For women, at least one has to be a heptathlon. Everyone is then ranked by that average.",
+    body: "In combined events, points from every event are added together to give each athlete a competition total. World Athletics rankings are a separate system. They help decide who qualifies for big championships.\n\nA ranking score has two parts. The result score is how good the performance was, based on the points total from that competition. The placing score is determined by which place you finish in the competition, and how big the competition was. Add them together and you get a performance score.\n\nYour ranking uses your two best performance scores and takes the average. For men, at least one of those has to be a decathlon. For women, at least one has to be a heptathlon. Everyone is then ranked by that average.\n\nUse the Rankings tab in this app to estimate your ranking score.",
   },
 ] as const;
 
+type EventDayGroup = {
+  label: string;
+  events: readonly string[];
+};
+
 type EventColumn = {
   title: string;
-  events: readonly string[];
+  subtitle: string;
+  events?: readonly string[];
+  dayGroups?: readonly EventDayGroup[];
 };
 
 function EventColumns({
   columns,
   textColor,
+  mutedColor,
 }: {
   columns: readonly EventColumn[];
   textColor: string;
+  mutedColor: string;
 }) {
   return (
     <View style={styles.columnsRow}>
       {columns.map((column) => (
-        <View key={column.title} style={styles.column}>
+        <View key={`${column.title}-${column.subtitle}`} style={styles.column}>
           <Text style={[styles.columnTitle, { color: TRACK_COLOR }]}>
             {column.title}
           </Text>
-          {column.events.map((event) => (
-            <Text
-              key={event}
-              style={[styles.eventItem, { color: textColor }]}
-            >
-              {event}
-            </Text>
-          ))}
+          <Text style={[styles.columnSubtitle, { color: mutedColor }]}>
+            {column.subtitle}
+          </Text>
+          {column.dayGroups
+            ? column.dayGroups.map((group) => (
+                <View key={group.label} style={styles.dayGroup}>
+                  <Text style={[styles.dayLabel, { color: mutedColor }]}>
+                    {group.label}
+                  </Text>
+                  {group.events.map((event) => (
+                    <Text
+                      key={event}
+                      style={[styles.eventItem, { color: textColor }]}
+                    >
+                      {event}
+                    </Text>
+                  ))}
+                </View>
+              ))
+            : column.events?.map((event) => (
+                <Text
+                  key={event}
+                  style={[styles.eventItem, { color: textColor }]}
+                >
+                  {event}
+                </Text>
+              ))}
         </View>
       ))}
     </View>
@@ -177,6 +220,16 @@ function WorldRecordsList({ textColor }: { textColor: string }) {
         </View>
       ))}
     </View>
+  );
+}
+
+function RankingsAppLink({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={styles.rankingsLink}>
+      <Text style={[styles.rankingsLinkText, { color: TRACK_COLOR }]}>
+        Open Rankings calculator →
+      </Text>
+    </Pressable>
   );
 }
 
@@ -239,12 +292,20 @@ export default function CombinedEventsExplainedScreen() {
           <Text style={[styles.groupLabel, sectionHeaderStyle, { color: colors.textMuted }]}>
             Men's events
           </Text>
-          <EventColumns columns={MEN_EVENT_COLUMNS} textColor={colors.text} />
+          <EventColumns
+            columns={MEN_EVENT_COLUMNS}
+            textColor={colors.text}
+            mutedColor={colors.textMuted}
+          />
 
           <Text style={[styles.groupLabel, sectionHeaderStyle, { color: colors.textMuted }]}>
             Women's events
           </Text>
-          <EventColumns columns={WOMEN_EVENT_COLUMNS} textColor={colors.text} />
+          <EventColumns
+            columns={WOMEN_EVENT_COLUMNS}
+            textColor={colors.text}
+            mutedColor={colors.textMuted}
+          />
 
           <BodyText color={colors.text}>
             The winner of the combined events competition at the Olympics or the
@@ -254,8 +315,7 @@ export default function CombinedEventsExplainedScreen() {
           </BodyText>
           <BodyText color={colors.text}>
             It is a hard title to earn. The same athlete has to sprint, jump,
-            and throw, then come back the next day and do it again. For the
-            decathlon, day two starts with hurdles. The legs do not get a vote.
+            and throw, then come back the next day and do it again.
           </BodyText>
         </View>
 
@@ -275,6 +335,9 @@ export default function CombinedEventsExplainedScreen() {
             <BodyText color={colors.text}>{item.body}</BodyText>
             {item.id === "history" ? (
               <WorldRecordsList textColor={colors.text} />
+            ) : null}
+            {item.id === "rankings" ? (
+              <RankingsAppLink onPress={() => router.push("/ranking")} />
             ) : null}
           </View>
         ))}
@@ -330,7 +393,24 @@ const styles = StyleSheet.create({
   columnTitle: {
     fontSize: scaleFont(14),
     fontWeight: "700",
+    marginBottom: scaleSpacing(2),
+  },
+  columnSubtitle: {
+    fontSize: scaleFont(12),
+    fontWeight: "600",
     marginBottom: scaleSpacing(6),
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  dayGroup: {
+    marginBottom: scaleSpacing(8),
+  },
+  dayLabel: {
+    fontSize: scaleFont(11),
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+    marginBottom: scaleSpacing(4),
   },
   eventItem: {
     fontSize: scaleFont(14),
@@ -358,5 +438,13 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(14),
     lineHeight: scaleSpacing(20),
     opacity: 0.9,
+  },
+  rankingsLink: {
+    marginTop: scaleSpacing(4),
+    paddingVertical: scaleSpacing(4),
+  },
+  rankingsLinkText: {
+    fontSize: scaleFont(16),
+    fontWeight: "600",
   },
 });
