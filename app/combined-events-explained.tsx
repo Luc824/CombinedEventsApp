@@ -10,11 +10,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CalculatorTitleRow from "../components/calculators/CalculatorTitleRow";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { ScreenLayout, TRACK_COLOR, sectionHeaderStyle } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
+import { useWebHistoryFallback } from "../utils/useWebHistoryFallback";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
 const PAGE_TITLE = "Combined Events explained";
@@ -43,14 +43,15 @@ const MEN_EVENT_COLUMNS = [
   {
     title: "Heptathlon",
     subtitle: "Indoor",
-    events: [
-      "60m",
-      "Long jump",
-      "Shot put",
-      "High jump",
-      "60m hurdles",
-      "Pole vault",
-      "1000m",
+    dayGroups: [
+      {
+        label: "Day 1",
+        events: ["60m", "Long jump", "Shot put", "High jump"],
+      },
+      {
+        label: "Day 2",
+        events: ["60m hurdles", "Pole vault", "1000m"],
+      },
     ],
   },
 ] as const;
@@ -114,7 +115,7 @@ const TEXT_SECTIONS = [
   {
     id: "points",
     title: "How points are calculated",
-    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Unfortunately, skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. The tables have been updated since then, but 1,000 points in a single event is still a world-class mark.",
+    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Unfortunately, skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were designed so that a world-record performance at the time was worth about 1,000 points in each event. The tables have been updated several times since, so 1,000 points today is not the same as a world record — but it is still an excellent result in any event.",
   },
   {
     id: "formulas",
@@ -241,6 +242,8 @@ export default function CombinedEventsExplainedScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const rankingsY = useRef(0);
 
+  useWebHistoryFallback();
+
   useEffect(() => {
     if (section !== "rankings") {
       return;
@@ -263,16 +266,11 @@ export default function CombinedEventsExplainedScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {!USE_NATIVE_HEADER && (
-          <CalculatorTitleRow
-            title={PAGE_TITLE}
-            onBack={() => router.back()}
-            showBack
-            textColor={colors.text}
-            buttonBackground={colors.surfaceSolid}
-            buttonBorder={colors.border}
-          />
-        )}
+        {Platform.OS === "web" ? (
+          <Text style={[styles.webPageTitle, { color: colors.text }]}>
+            {PAGE_TITLE}
+          </Text>
+        ) : null}
 
         <View style={styles.section}>
           <Text style={[styles.heading, { color: TRACK_COLOR }]}>
@@ -371,6 +369,13 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(18),
     fontWeight: "700",
     marginBottom: scaleSpacing(8),
+  },
+  webPageTitle: {
+    fontSize: scaleFont(28),
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: scaleSpacing(16),
+    marginTop: scaleSpacing(4),
   },
   body: {
     fontSize: scaleFont(16),
