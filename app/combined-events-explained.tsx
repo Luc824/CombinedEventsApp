@@ -77,7 +77,7 @@ const TEXT_SECTIONS = [
   {
     id: "points",
     title: "How points are calculated",
-    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy, unfortunately. If an athlete no-heights in the pole vault, or has no valid throw in the shot put, that is zero points.\n\nThis app makes it easy for you to see how many points each performance gives you, as well as your total points.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. The tables have been updated since then, but 1,000 points in a single event is still a world-class mark.",
+    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy, unfortunately. If an athlete no-heights in the pole vault, or has no valid throw in the shot put, that is zero points.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were built so that the world record at the time was worth 1,000 points. The tables have been updated since then, but 1,000 points in a single event is still a world-class mark.",
   },
   {
     id: "winner",
@@ -87,7 +87,7 @@ const TEXT_SECTIONS = [
   {
     id: "rankings",
     title: "World Athletics rankings",
-    body: "That total decides who wins a combined events competition. World rankings are a separate system. They help decide who qualifies for big championships.\n\nA ranking score has two parts. The result score is how good the performance was, based on the points total. The placing score is determined by which place you finish in the competition, and how big the competition was. Add them together and you get a performance score.\n\nYour ranking uses your two best performance scores and takes the average. For men, at least one of those has to be a decathlon. For women, at least one has to be a heptathlon. Everyone is then ranked by that average.",
+    body: "In combined events, points from every event are added together to give each athlete a competition total. World Athletics rankings are a separate system. They help decide who qualifies for big championships.\n\nA ranking score has two parts. The result score is how good the performance was, based on the points total from that competition. The placing score is determined by which place you finish in the competition, and how big the competition was. Add them together and you get a performance score.\n\nYour ranking uses your two best performance scores and takes the average. For men, at least one of those has to be a decathlon. For women, at least one has to be a heptathlon. Everyone is then ranked by that average.",
   },
 ] as const;
 
