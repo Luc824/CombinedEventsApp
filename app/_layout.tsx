@@ -72,6 +72,12 @@ function AppStack() {
           title: "Saved Score",
         }}
       />
+      <Stack.Screen
+        name="edit-saved-score"
+        options={{
+          title: "Edit Score",
+        }}
+      />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

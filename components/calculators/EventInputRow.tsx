@@ -13,9 +13,11 @@ type EventInputRowProps = {
   eventName: string;
   value: string;
   onChangeText: (text: string) => void;
+  pointsValue: string;
+  onPointsChange: (text: string) => void;
+  onPointsBlur: () => void;
   placeholder: string;
   maxLength: number;
-  points: number;
   textColor: string;
   inputBackground: string;
   inputText: string;
@@ -36,9 +38,11 @@ export default function EventInputRow({
   eventName,
   value,
   onChangeText,
+  pointsValue,
+  onPointsChange,
+  onPointsBlur,
   placeholder,
   maxLength,
-  points,
   textColor,
   inputBackground,
   inputText,
@@ -47,7 +51,7 @@ export default function EventInputRow({
   containerBorder,
   placeholderColor,
 }: EventInputRowProps) {
-  const displayPoints = Number.isFinite(points) ? points : 0;
+  const displayPoints = pointsValue ? parseInt(pointsValue, 10) : 0;
   const isWeb = Platform.OS === "web";
 
   return (
@@ -85,22 +89,32 @@ export default function EventInputRow({
         spellCheck={false}
       />
       <View style={styles.pointsWrap}>
-        <Text
+        <TextInput
           style={[
-            styles.pointsValue,
-            { color: textColor, fontSize: pointsFontSize(displayPoints) },
-            isWeb && styles.pointsValueWeb,
+            styles.pointsInput,
+            {
+              color: textColor,
+              fontSize: pointsFontSize(displayPoints),
+              borderColor: inputBorder,
+            },
+            isWeb && styles.pointsInputWeb,
           ]}
-          {...(isWeb
-            ? {}
-            : {
-                numberOfLines: 1,
-                adjustsFontSizeToFit: true,
-                minimumFontScale: 0.75,
-              })}
-        >
-          {displayPoints}
-        </Text>
+          value={pointsValue}
+          onChangeText={onPointsChange}
+          onBlur={onPointsBlur}
+          onEndEditing={onPointsBlur}
+          keyboardType="number-pad"
+          inputMode="numeric"
+          placeholder="0"
+          placeholderTextColor={placeholderColor}
+          maxLength={4}
+          selectTextOnFocus
+          textContentType="none"
+          autoComplete="off"
+          importantForAutofill="no"
+          autoCorrect={false}
+          spellCheck={false}
+        />
         <Text style={[styles.pointsSuffix, { color: textColor }]}>pts</Text>
       </View>
     </View>
@@ -145,11 +159,20 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     gap: scaleSpacing(2),
   },
-  pointsValue: {
+  pointsInput: {
     fontWeight: "700",
     textAlign: "right",
+    minWidth: scaleSpacing(34),
+    maxWidth: scaleSpacing(42),
+    paddingVertical: 0,
+    paddingHorizontal: scaleSpacing(2),
+    ...Platform.select({
+      web: {
+        outlineStyle: "none" as any,
+      },
+    }),
   },
-  pointsValueWeb: {
+  pointsInputWeb: {
     flexShrink: 1,
     ...Platform.select({
       web: {

@@ -24,16 +24,22 @@ import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
 import { saveScore } from "../utils/scoreStorage";
+import { getDecathlonInverseConfig } from "../utils/calculatorInverseConfig";
 import {
-  extractDigits,
-  getMaxDigitsForEvent,
-} from "../utils/performanceInput";
+  createCommitPointsChange,
+  createEmptyPointsInputs,
+  createHandleInputChange,
+  createHandlePointsTextChange,
+} from "../utils/calculatorRowHandlers";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
   safeFloorPoints,
   shouldCalculatePoints,
   validateScoreForSave,
 } from "../utils/pointsUtils";
+
+const TRACK_EVENTS = ["100m", "400m", "110m Hurdles", "1500m"];
+const LONG_TRACK_EVENTS = ["1500m"];
 
 const TRACK_COLOR = "#D35400";
 
@@ -113,6 +119,9 @@ export default function DecathlonScreen() {
   const colors = ThemeColors[theme];
   const [results, setResults] = useState<string[]>(Array(10).fill(""));
   const [points, setPoints] = useState<number[]>(Array(10).fill(0));
+  const [pointsInputs, setPointsInputs] = useState<string[]>(
+    createEmptyPointsInputs(10)
+  );
   const [showChart, setShowChart] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
@@ -120,8 +129,8 @@ export default function DecathlonScreen() {
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
     const event = DECATHLON_EVENTS[index];
-    const isTrack = ["100m", "400m", "110m Hurdles", "1500m"].includes(event.name);
-    const isLongTrack = event.name === "1500m";
+    const isTrack = TRACK_EVENTS.includes(event.name);
+    const isLongTrack = LONG_TRACK_EVENTS.includes(event.name);
     if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
     try {
       const inputValue =
@@ -132,47 +141,35 @@ export default function DecathlonScreen() {
     }
   };
 
-  const handleInputChange = (text: string, index: number) => {
-    let formattedText = text.replace(",", ".");
-    const eventName = DECATHLON_EVENTS[index].name;
-    const maxDigits = getMaxDigitsForEvent(eventName, ["1500m"]);
-    const maxLength = eventName === "1500m" ? 7 : 5;
+  const handleInputChange = createHandleInputChange({
+    results,
+    points,
+    setResults,
+    setPoints,
+    setPointsInputs,
+    getEventName: (index) => DECATHLON_EVENTS[index].name,
+    trackEvents: TRACK_EVENTS,
+    longTrackEvents: LONG_TRACK_EVENTS,
+    calculatePoints,
+  });
 
-    if (["100m", "400m", "110m Hurdles", "1500m"].includes(eventName)) {
-      formattedText = extractDigits(formattedText, maxDigits);
-      if (formattedText.length > 0) {
-        if (eventName === "1500m") {
-          const minutes = formattedText.slice(0, -4);
-          const seconds = formattedText.slice(-4, -2);
-          const milliseconds = formattedText.slice(-2);
-          formattedText = `${minutes}:${seconds}.${milliseconds}`;
-        } else {
-          const seconds = formattedText.slice(0, -2);
-          const milliseconds = formattedText.slice(-2);
-          formattedText = `${seconds}.${milliseconds}`;
-        }
-      }
-    } else {
-      formattedText = extractDigits(formattedText, maxDigits);
-      if (formattedText.length > 0) {
-        const beforeDecimal = formattedText.slice(0, -2);
-        const afterDecimal = formattedText.slice(-2);
-        formattedText = beforeDecimal + "." + afterDecimal;
-      }
-    }
+  const handlePointsTextChange = createHandlePointsTextChange({
+    setPointsInputs,
+  });
 
-    if (formattedText.length > maxLength) {
-      formattedText = formattedText.slice(0, maxLength);
-    }
-
-    const newResults = [...results];
-    newResults[index] = formattedText;
-    setResults(newResults);
-
-    const newPoints = [...points];
-    newPoints[index] = calculatePoints(formattedText, index);
-    setPoints(newPoints);
-  };
+  const commitPointsChange = createCommitPointsChange({
+    results,
+    points,
+    pointsInputs,
+    setResults,
+    setPoints,
+    setPointsInputs,
+    getInverseConfig: (index) =>
+      getDecathlonInverseConfig(
+        DECATHLON_EVENTS[index].name,
+        DECATHLON_EVENTS[index].formula
+      ),
+  });
 
   const getDay1Total = () => {
     return points.slice(0, 5).reduce((sum, point) => sum + point, 0);
@@ -202,6 +199,7 @@ export default function DecathlonScreen() {
   const clearAll = () => {
     setResults(Array(10).fill(""));
     setPoints(Array(10).fill(0));
+    setPointsInputs(createEmptyPointsInputs(10));
   };
 
   const handleSaveScore = async () => {
@@ -247,9 +245,11 @@ export default function DecathlonScreen() {
         eventName={event.name}
         value={results[index]}
         onChangeText={(text) => handleInputChange(text, index)}
+        pointsValue={pointsInputs[index]}
+        onPointsChange={(text) => handlePointsTextChange(text, index)}
+        onPointsBlur={() => commitPointsChange(index)}
         placeholder={placeholderText}
         maxLength={maxLength}
-        points={points[index]}
         textColor={colors.text}
         inputBackground={colors.inputBackground}
         inputText={colors.inputText}

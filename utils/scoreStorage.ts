@@ -95,6 +95,37 @@ export const saveScore = async (score: Omit<SavedScore, 'id' | 'dateSaved'>): Pr
   return saveQueue;
 };
 
+export const updateScore = async (
+  id: string,
+  updates: Pick<SavedScore, "title" | "results" | "points" | "totalScore" | "resultScore">
+): Promise<void> => {
+  const task = async () => {
+    try {
+      const existingScores = await getSavedScores();
+      const index = existingScores.findIndex((score) => score.id === id);
+      if (index === -1) {
+        throw new SavedScoresStorageError("Saved score not found.");
+      }
+
+      const updatedScores = [...existingScores];
+      updatedScores[index] = {
+        ...updatedScores[index],
+        ...updates,
+      };
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScores));
+    } catch (error) {
+      if (error instanceof SavedScoresStorageError) {
+        throw error;
+      }
+      console.error("Error updating score:", error);
+      throw new SavedScoresStorageError("Failed to update score.");
+    }
+  };
+
+  saveQueue = saveQueue.then(task, task);
+  return saveQueue;
+};
+
 export const deleteScore = async (id: string): Promise<void> => {
   const task = async () => {
     try {

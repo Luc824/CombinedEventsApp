@@ -1,19 +1,19 @@
-import { Stack, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ActionButtonsRow from "../components/calculators/ActionButtonsRow";
 import ChartModal from "../components/calculators/ChartModal";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
-import { Radius } from "../constants/ui";
+import { Radius, actionButtonStyle, buttonElevation } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   EventType,
@@ -59,6 +59,7 @@ const CHART_CONFIG: Record<
 };
 
 export default function SavedScoreDetailScreen() {
+  const router = useRouter();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
   const [showChart, setShowChart] = useState(false);
@@ -67,40 +68,45 @@ export default function SavedScoreDetailScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const scoreId = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  useEffect(() => {
-    let cancelled = false;
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
 
-    async function loadScore() {
-      if (!scoreId) {
-        if (!cancelled) {
-          setScore(null);
-          setLoading(false);
+      async function loadScore() {
+        if (!scoreId) {
+          if (!cancelled) {
+            setScore(null);
+            setLoading(false);
+          }
+          return;
         }
-        return;
+
+        try {
+          if (!cancelled) {
+            setLoading(true);
+          }
+          const loadedScore = await getSavedScoreById(scoreId);
+          if (!cancelled) {
+            setScore(loadedScore);
+          }
+        } catch (error) {
+          console.error("Error loading score:", error);
+          if (!cancelled) {
+            setScore(null);
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        }
       }
 
-      try {
-        const loadedScore = await getSavedScoreById(scoreId);
-        if (!cancelled) {
-          setScore(loadedScore);
-        }
-      } catch (error) {
-        console.error("Error loading score:", error);
-        if (!cancelled) {
-          setScore(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadScore();
-    return () => {
-      cancelled = true;
-    };
-  }, [scoreId]);
+      loadScore();
+      return () => {
+        cancelled = true;
+      };
+    }, [scoreId])
+  );
 
   const screenTitle = score?.title ?? "Saved Score";
 
@@ -181,13 +187,39 @@ export default function SavedScoreDetailScreen() {
             </View>
 
             <View style={styles.chartButtonSpacer}>
-              <ActionButtonsRow
-                onViewChart={() => setShowChart(true)}
-                onSaveScore={() => {}}
-                showSaveButton={false}
-                buttonBackground={colors.buttonPrimary}
-                buttonTextColor={colors.buttonText}
-              />
+              <View style={styles.actionRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    actionButtonStyle,
+                    buttonElevation(),
+                    { backgroundColor: colors.buttonPrimary },
+                  ]}
+                  onPress={() => setShowChart(true)}
+                >
+                  <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
+                    View Chart
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    actionButtonStyle,
+                    buttonElevation(),
+                    { backgroundColor: colors.buttonPrimary },
+                  ]}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/edit-saved-score",
+                      params: { id: score.id },
+                    } as any)
+                  }
+                >
+                  <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
+                    Edit Score
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>
@@ -292,6 +324,19 @@ const styles = StyleSheet.create({
   },
   chartButtonSpacer: {
     marginBottom: scaleSpacing(16),
+  },
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: scaleSpacing(10),
+  },
+  actionButton: {
+    flex: 1,
+    minWidth: scaleSpacing(140),
+  },
+  actionButtonText: {
+    fontWeight: "600",
+    fontSize: scaleFont(15),
   },
   eventCard: {
     borderRadius: Radius.md,
