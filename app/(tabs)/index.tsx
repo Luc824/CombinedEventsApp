@@ -19,6 +19,7 @@ import {
   pillButtonStyle,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+import { openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 const SECTIONS = [
@@ -98,6 +99,22 @@ export default function EventsScreen() {
               </View>
             ))}
           </View>
+
+          {Platform.OS === "web" && (
+            <TouchableOpacity
+              style={[
+                styles.getAppButton,
+                pillButtonStyle,
+                buttonElevation(),
+                { backgroundColor: colors.buttonPrimary },
+              ]}
+              onPress={openAppStore}
+            >
+              <Text style={[styles.getAppButtonText, { color: colors.buttonText }]}>
+                📱 Get the App
+              </Text>
+            </TouchableOpacity>
+          )}
           </View>
         </View>
       </SafeAreaView>
@@ -180,6 +197,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonText: {
+    fontSize: scaleFont(16),
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  getAppButton: {
+    marginTop: scaleSpacing(28),
+    width: "100%",
+    maxWidth: 340,
+    alignSelf: "center",
+  },
+  getAppButtonText: {
     fontSize: scaleFont(16),
     fontWeight: "600",
     textAlign: "center",

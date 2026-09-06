@@ -115,7 +115,7 @@ const TEXT_SECTIONS = [
   {
     id: "points",
     title: "How points are calculated",
-    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Unfortunately, skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were designed so that a world-record performance at the time was worth about 1,000 points in each event. The tables have been updated several times since, so 1,000 points today is not the same as a world record — but it is still an excellent result in any event.",
+    body: "World Athletics has a scoring table for each event. Each time, distance, or height is worth a certain number of points. Faster, farther, or higher always means more points.\n\nYou score points in races, jumps, and throws. All of them count, and you need all of them. Unfortunately, skipping the 1500m in the decathlon or the 800m in the heptathlon is not a strategy.\n\nThis app makes it easy for you to calculate your points for each performance, as well as see your total points.\n\nThe first scoring tables were designed so that a world-record performance at the time was worth about 1,000 points in each event. The tables have been updated several times since, so 1,000 points today is not the same as a world record, but it is still an excellent result in any event.",
   },
   {
     id: "formulas",
@@ -228,7 +228,7 @@ function RankingsAppLink({ onPress }: { onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={styles.rankingsLink}>
       <Text style={[styles.rankingsLinkText, { color: TRACK_COLOR }]}>
-        Open Rankings calculator →
+        Open Rankings calculator
       </Text>
     </Pressable>
   );
@@ -277,9 +277,8 @@ export default function CombinedEventsExplainedScreen() {
             What are combined events?
           </Text>
           <BodyText color={colors.text}>
-            Combined events is a track and field event that consists of several
-            track and field events done by the same athlete, usually over one or
-            two days.
+            Combined events is the name given in track and field to competitions
+            where one athlete does several events, usually over one or two days.
           </BodyText>
           <BodyText color={colors.text}>
             Outdoors, men do the decathlon (10 events) and women do the
@@ -335,7 +334,16 @@ export default function CombinedEventsExplainedScreen() {
               <WorldRecordsList textColor={colors.text} />
             ) : null}
             {item.id === "rankings" ? (
-              <RankingsAppLink onPress={() => router.push("/ranking")} />
+              <RankingsAppLink
+                onPress={() => {
+                  if (router.canDismiss()) {
+                    router.dismiss();
+                    router.navigate("/ranking");
+                    return;
+                  }
+                  router.replace("/ranking");
+                }}
+              />
             ) : null}
           </View>
         ))}

@@ -60,7 +60,7 @@ const RANK_DESCRIPTIONS: Record<string, string> = {
   B: "National Championships / Silver Meetings",
   C: "Bronze Meetings",
   D: "National Indoor Championships",
-  E: "Other national events",
+  E: "Euh...",
   F: "Other",
 };
 
@@ -259,6 +259,7 @@ function PerformanceEntry({
             placeholder="Place"
             placeholderTextColor={colors.textMuted}
             maxLength={2}
+            selectTextOnFocus
           />
         </View>
         <View style={styles.inputHalf}>
@@ -271,6 +272,7 @@ function PerformanceEntry({
             placeholder="Points"
             placeholderTextColor={colors.textMuted}
             maxLength={5}
+            selectTextOnFocus
           />
         </View>
       </View>
