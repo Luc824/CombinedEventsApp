@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label, VectorIcon } from "expo-router/unstable-native-tabs";
 import React from "react";
-import { DynamicColorIOS, Platform, useColorScheme, View } from "react-native";
+import { DynamicColorIOS, Platform, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import WebNavBar from "../../components/WebNavBar";
 import { ThemeColors } from "../../constants/ThemeColors";
@@ -34,17 +34,24 @@ function WebTabsLayout() {
 }
 
 function NativeTabsLayout() {
-  // NativeTabs renders outside ThemeProvider — use system scheme for tab colors.
-  const colorScheme = useColorScheme();
-  const colors = ThemeColors[colorScheme === "light" ? "light" : "dark"];
+  const { theme } = useTheme();
+  const colors = ThemeColors[theme];
   const inactiveColor =
     Platform.OS === "ios"
       ? DynamicColorIOS({ dark: "#aaaaaa", light: "#888888" })
       : colors.textMuted;
+  const tabBackground =
+    Platform.OS === "ios"
+      ? DynamicColorIOS({
+          dark: ThemeColors.dark.background,
+          light: ThemeColors.light.background,
+        })
+      : colors.background;
 
   return (
     <NativeTabs
       tintColor={TRACK_COLOR}
+      backgroundColor={tabBackground}
       iconColor={{
         default: inactiveColor,
         selected: TRACK_COLOR,
