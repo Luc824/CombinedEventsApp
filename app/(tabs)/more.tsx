@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   Alert,
@@ -28,6 +28,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { loadDonationPackages } from "../../utils/purchases";
 import { openAppReview, openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
+import { useSafePush } from "../../utils/useSafePush";
 
 const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
 
@@ -64,7 +65,7 @@ function getPackagePrice(pkg: PurchasesPackage): string {
 }
 
 export default function MoreScreen() {
-  const router = useRouter();
+  const safePush = useSafePush();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
   const [loading, setLoading] = useState(false);
@@ -107,7 +108,7 @@ export default function MoreScreen() {
       Alert.alert("Not Available", "This feature is only available on iOS and Android.");
       return;
     }
-    router.push("/saved-scores" as any);
+    safePush("/saved-scores" as any);
   };
 
   const handleWebDonate = (tier: string) => {
@@ -271,7 +272,7 @@ export default function MoreScreen() {
               surfacePillButtonStyle,
               { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
             ]}
-            onPress={() => router.push("/combined-events-explained")}
+            onPress={() => safePush("/combined-events-explained")}
           >
             <Text style={[styles.buttonText, { color: colors.text }]}>
               Combined Events explained

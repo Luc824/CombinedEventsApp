@@ -2,21 +2,19 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EventInputRow from "../components/calculators/EventInputRow";
 import TotalScoreCard from "../components/calculators/TotalScoreCard";
+import KeyboardDismissScrollView from "../components/KeyboardDismissScrollView";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { actionButtonStyle, buttonElevation, formFieldStyle } from "../constants/ui";
@@ -256,11 +254,7 @@ export default function EditSavedScoreScreen() {
   }
 
   const scrollContent = (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
+    <KeyboardDismissScrollView contentContainerStyle={styles.scrollContent}>
       <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Score Title</Text>
       <TextInput
         style={[
@@ -351,7 +345,7 @@ export default function EditSavedScoreScreen() {
         </TouchableOpacity>
       </View>
       <View style={{ height: scaleSpacing(20) }} />
-    </ScrollView>
+    </KeyboardDismissScrollView>
   );
 
   return (
@@ -366,13 +360,7 @@ export default function EditSavedScoreScreen() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={[styles.container, { backgroundColor: colors.background }]}
         >
-          {Platform.OS === "web" ? (
-            scrollContent
-          ) : (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-              <View style={styles.dismissArea}>{scrollContent}</View>
-            </TouchableWithoutFeedback>
-          )}
+          {scrollContent}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </>
@@ -398,9 +386,6 @@ const styles = StyleSheet.create({
         width: "100%",
       },
     }),
-  },
-  dismissArea: {
-    flex: 1,
   },
   scrollContent: {
     paddingTop: scaleSpacing(10),

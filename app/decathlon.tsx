@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import {
     Alert,
-    Keyboard,
     KeyboardAvoidingView,
     Platform,
-    ScrollView,
     StatusBar,
     StyleSheet,
     Text,
-    TouchableWithoutFeedback,
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,6 +16,7 @@ import ClearButton from "../components/calculators/ClearButton";
 import EventInputRow from "../components/calculators/EventInputRow";
 import SaveScoreModal from "../components/calculators/SaveScoreModal";
 import TotalScoreCard from "../components/calculators/TotalScoreCard";
+import KeyboardDismissScrollView from "../components/KeyboardDismissScrollView";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { useTheme } from "../contexts/ThemeContext";
@@ -262,12 +260,7 @@ export default function DecathlonScreen() {
   };
 
   const scrollContent = (
-    <ScrollView
-      scrollEnabled={true}
-      contentContainerStyle={styles.contentContainer}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
+    <KeyboardDismissScrollView contentContainerStyle={styles.contentContainer}>
       {!USE_NATIVE_HEADER && (
         <CalculatorTitleRow
           title="Men's Decathlon"
@@ -322,7 +315,7 @@ export default function DecathlonScreen() {
         textColor={colors.buttonText}
       />
       <View style={{ height: 20 }} />
-    </ScrollView>
+    </KeyboardDismissScrollView>
   );
 
   return (
@@ -335,13 +328,7 @@ export default function DecathlonScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={[styles.container, { backgroundColor: colors.background }]}
       >
-        {Platform.OS === 'web' ? (
-          scrollContent
-        ) : (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.dismissArea}>{scrollContent}</View>
-          </TouchableWithoutFeedback>
-        )}
+        {scrollContent}
       </KeyboardAvoidingView>
       <ChartModal
         visible={showChart}
@@ -408,11 +395,8 @@ const styles = StyleSheet.create({
     }),
   },
   contentContainer: {
-    flex: 1,
     paddingTop: 10,
-  },
-  dismissArea: {
-    flex: 1,
+    paddingBottom: 20,
   },
   inlineDayTotalText: {
     fontSize: 13,

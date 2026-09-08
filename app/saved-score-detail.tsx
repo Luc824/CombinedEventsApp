@@ -1,4 +1,4 @@
-import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   Platform,
@@ -24,6 +24,7 @@ import {
   getSavedScoreById,
 } from "../utils/scoreStorage";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
+import { useSafePush } from "../utils/useSafePush";
 
 const TRACK_COLOR = "#D35400";
 
@@ -59,7 +60,7 @@ const CHART_CONFIG: Record<
 };
 
 export default function SavedScoreDetailScreen() {
-  const router = useRouter();
+  const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
   const [showChart, setShowChart] = useState(false);
@@ -209,7 +210,7 @@ export default function SavedScoreDetailScreen() {
                     { backgroundColor: colors.buttonPrimary },
                   ]}
                   onPress={() =>
-                    router.push({
+                    safePush({
                       pathname: "/edit-saved-score",
                       params: { id: score.id },
                     } as any)

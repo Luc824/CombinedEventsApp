@@ -126,6 +126,40 @@ export const updateScore = async (
   return saveQueue;
 };
 
+export const reorderSavedScores = async (orderedIds: string[]): Promise<void> => {
+  const task = async () => {
+    try {
+      const existingScores = await getSavedScores();
+      const byId = new Map(existingScores.map((score) => [score.id, score]));
+      const reordered: SavedScore[] = [];
+
+      for (const id of orderedIds) {
+        const score = byId.get(id);
+        if (score) {
+          reordered.push(score);
+          byId.delete(id);
+        }
+      }
+
+      // Keep any scores missing from orderedIds at the end (safety).
+      for (const score of byId.values()) {
+        reordered.push(score);
+      }
+
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(reordered));
+    } catch (error) {
+      if (error instanceof SavedScoresStorageError) {
+        throw error;
+      }
+      console.error("Error reordering scores:", error);
+      throw new SavedScoresStorageError("Failed to reorder scores.");
+    }
+  };
+
+  saveQueue = saveQueue.then(task, task);
+  return saveQueue;
+};
+
 export const deleteScore = async (id: string): Promise<void> => {
   const task = async () => {
     try {

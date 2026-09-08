@@ -5,7 +5,7 @@ import { DynamicColorIOS, Platform, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import WebNavBar from "../../components/WebNavBar";
 import { ThemeColors } from "../../constants/ThemeColors";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useAppTheme, useTheme } from "../../contexts/ThemeContext";
 
 const TRACK_COLOR = "#D35400";
 
@@ -34,7 +34,8 @@ function WebTabsLayout() {
 }
 
 function NativeTabsLayout() {
-  const { theme } = useTheme();
+  // NativeTabs can render outside ThemeProvider — read shared app theme store.
+  const theme = useAppTheme();
   const colors = ThemeColors[theme];
   const inactiveColor =
     Platform.OS === "ios"
@@ -47,7 +48,6 @@ function NativeTabsLayout() {
           light: ThemeColors.light.background,
         })
       : colors.background;
-  // Soft brand tint for Android's Material active-tab pill (avoids default pink/white).
   const indicatorColor =
     theme === "dark" ? "rgba(211, 84, 0, 0.35)" : "rgba(211, 84, 0, 0.18)";
 

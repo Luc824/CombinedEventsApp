@@ -1,4 +1,3 @@
-import { useRouter } from "expo-router";
 import React from "react";
 import {
   Platform,
@@ -21,6 +20,7 @@ import {
 import { useTheme } from "../../contexts/ThemeContext";
 import { openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
+import { useSafePush } from "../../utils/useSafePush";
 
 const SECTIONS = [
   {
@@ -40,7 +40,7 @@ const SECTIONS = [
 ];
 
 export default function EventsScreen() {
-  const router = useRouter();
+  const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
   const { width } = useWindowDimensions();
@@ -64,7 +64,7 @@ export default function EventsScreen() {
             </Text>
             {Platform.OS !== "web" && (
               <View style={styles.infoButton}>
-                <InfoButton onPress={() => router.push("/combined-events-explained")} />
+                <InfoButton onPress={() => safePush("/combined-events-explained")} />
               </View>
             )}
           </View>
@@ -88,7 +88,7 @@ export default function EventsScreen() {
                         buttonElevation(),
                         { backgroundColor: colors.buttonPrimary },
                       ]}
-                      onPress={() => router.push(item.route)}
+                      onPress={() => safePush(item.route)}
                     >
                       <Text style={[styles.buttonText, { color: colors.buttonText }]}>
                         {item.label}

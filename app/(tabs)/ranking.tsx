@@ -1,10 +1,7 @@
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Keyboard,
   Modal,
   Platform,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -13,8 +10,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import InfoButton from "../../components/InfoButton";
+import KeyboardDismissScrollView from "../../components/KeyboardDismissScrollView";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
@@ -22,6 +20,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
 import { openInNewTab } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
+import { useSafePush } from "../../utils/useSafePush";
 
 const WORLD_RANKINGS_URLS = {
   men: "https://worldathletics.org/world-rankings/decathlon/men",
@@ -295,9 +294,15 @@ function PerformanceEntry({
 }
 
 export default function RankingsScreen() {
-  const router = useRouter();
+  const safePush = useSafePush();
+  const insets = useSafeAreaInsets();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  // Native tab bar overlays content on Android; keep ranking score / clear fully visible.
+  const scrollBottomPadding =
+    Platform.OS === "android"
+      ? Math.max(insets.bottom, scaleSpacing(16)) + scaleSpacing(88)
+      : scaleSpacing(32);
   // State for both performances
   const [event1, setEvent1] = useState("");
   const [rank1, setRank1] = useState("");
@@ -360,11 +365,12 @@ export default function RankingsScreen() {
   };
 
   const scrollContent = (
-    <ScrollView
+    <KeyboardDismissScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: scrollBottomPadding },
+      ]}
     >
       <View style={styles.titleRow}>
         <Text style={[styles.title, { color: colors.text }]}>Rankings Calculator</Text>
@@ -372,7 +378,7 @@ export default function RankingsScreen() {
           <View style={styles.infoButton}>
             <InfoButton
               onPress={() =>
-                router.push({
+                safePush({
                   pathname: "/combined-events-explained",
                   params: { section: "rankings" },
                 })
@@ -453,20 +459,14 @@ export default function RankingsScreen() {
       >
         <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </KeyboardDismissScrollView>
   );
 
   return (
     <SwipeableTabWrapper tabIndex={1}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        {Platform.OS === 'web' ? (
-          scrollContent
-        ) : (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={styles.dismissArea}>{scrollContent}</View>
-          </TouchableWithoutFeedback>
-        )}
+        {scrollContent}
       </SafeAreaView>
     </SwipeableTabWrapper>
   );
@@ -481,10 +481,6 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  dismissArea: {
-    flex: 1,
-    width: "100%",
-  },
   container: {
     flex: 1,
     ...Platform.select({
@@ -497,7 +493,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: ScreenLayout.horizontalPadding,
-    paddingBottom: scaleSpacing(16),
     paddingTop: scaleSpacing(16),
   },
   titleRow: {

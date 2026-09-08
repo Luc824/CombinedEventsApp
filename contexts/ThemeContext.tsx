@@ -1,5 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useColorScheme } from "react-native";
 
 type Theme = "light" | "dark";
@@ -14,9 +20,45 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = "@app_theme";
 
+/** Module store so NativeTabs (outside ThemeProvider) can follow the in-app theme. */
+let appTheme: Theme = "dark";
+const themeListeners = new Set<() => void>();
+
+function emitAppTheme() {
+  themeListeners.forEach((listener) => listener());
+}
+
+function setAppTheme(theme: Theme) {
+  if (appTheme === theme) {
+    return;
+  }
+  appTheme = theme;
+  emitAppTheme();
+}
+
+export function subscribeAppTheme(listener: () => void) {
+  themeListeners.add(listener);
+  return () => {
+    themeListeners.delete(listener);
+  };
+}
+
+export function getAppTheme() {
+  return appTheme;
+}
+
+/** Safe outside ThemeProvider — used by NativeTabs. */
+export function useAppTheme() {
+  return useSyncExternalStore(subscribeAppTheme, getAppTheme, getAppTheme);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useColorScheme();
   const [theme, setTheme] = useState<Theme>("dark");
+
+  useEffect(() => {
+    setAppTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     // Load saved theme preference
