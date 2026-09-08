@@ -47,11 +47,20 @@ function NativeTabsLayout() {
           light: ThemeColors.light.background,
         })
       : colors.background;
+  // Soft brand tint for Android's Material active-tab pill (avoids default pink/white).
+  const indicatorColor =
+    theme === "dark" ? "rgba(211, 84, 0, 0.35)" : "rgba(211, 84, 0, 0.18)";
 
   return (
     <NativeTabs
       tintColor={TRACK_COLOR}
       backgroundColor={tabBackground}
+      {...(Platform.OS === "android"
+        ? {
+            indicatorColor,
+            rippleColor: "rgba(211, 84, 0, 0.2)",
+          }
+        : {})}
       iconColor={{
         default: inactiveColor,
         selected: TRACK_COLOR,
