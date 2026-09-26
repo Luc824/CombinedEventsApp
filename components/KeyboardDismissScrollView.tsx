@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Keyboard,
+  Platform,
   Pressable,
   ScrollView,
   ScrollViewProps,
@@ -17,6 +18,8 @@ type KeyboardDismissScrollViewProps = ScrollViewProps & {
 /**
  * ScrollView that keeps tap-outside-to-dismiss keyboard without blocking scroll.
  * (Wrapping ScrollView in TouchableWithoutFeedback steals vertical gestures on Android.)
+ * On web, skip the Pressable wrapper — it steals mouse focus from TextInputs
+ * so you have to click-and-hold to type.
  */
 export default function KeyboardDismissScrollView({
   children,
@@ -26,6 +29,8 @@ export default function KeyboardDismissScrollView({
   showsVerticalScrollIndicator = false,
   ...props
 }: KeyboardDismissScrollViewProps) {
+  const isWeb = Platform.OS === "web";
+
   return (
     <ScrollView
       {...props}
@@ -34,13 +39,17 @@ export default function KeyboardDismissScrollView({
       keyboardDismissMode={keyboardDismissMode}
       showsVerticalScrollIndicator={showsVerticalScrollIndicator}
     >
-      <Pressable
-        onPress={Keyboard.dismiss}
-        accessible={false}
-        style={styles.pressable}
-      >
-        {children}
-      </Pressable>
+      {isWeb ? (
+        children
+      ) : (
+        <Pressable
+          onPress={Keyboard.dismiss}
+          accessible={false}
+          style={styles.pressable}
+        >
+          {children}
+        </Pressable>
+      )}
     </ScrollView>
   );
 }

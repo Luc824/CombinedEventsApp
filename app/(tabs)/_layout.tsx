@@ -3,7 +3,6 @@ import { NativeTabs, Icon, Label, VectorIcon } from "expo-router/unstable-native
 import React from "react";
 import { DynamicColorIOS, Platform, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import WebNavBar from "../../components/WebNavBar";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { useAppTheme, useTheme } from "../../contexts/ThemeContext";
 
@@ -13,22 +12,20 @@ function WebTabsLayout() {
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
 
+  // WebNavBar lives in the root layout so calculator pages get it too.
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <WebNavBar />
-      <View style={{ flex: 1 }}>
-        <Tabs
-          tabBar={() => null}
-          screenOptions={{
-            headerShown: false,
-            sceneStyle: { backgroundColor: colors.background },
-          }}
-        >
-          <Tabs.Screen name="index" options={{ title: "Events" }} />
-          <Tabs.Screen name="ranking" options={{ title: "Rankings" }} />
-          <Tabs.Screen name="more" options={{ title: "More" }} />
-        </Tabs>
-      </View>
+      <Tabs
+        tabBar={() => null}
+        screenOptions={{
+          headerShown: false,
+          sceneStyle: { backgroundColor: colors.background },
+        }}
+      >
+        <Tabs.Screen name="index" options={{ title: "Events" }} />
+        <Tabs.Screen name="ranking" options={{ title: "Rankings" }} />
+        <Tabs.Screen name="more" options={{ title: "More" }} />
+      </Tabs>
     </View>
   );
 }

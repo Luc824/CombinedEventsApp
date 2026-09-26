@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import WebNavBar from "../components/WebNavBar";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
 import "../utils/purchases";
+
 const TRACK_COLOR = "#D35400";
 
 function AppStack() {
@@ -83,6 +85,21 @@ function AppStack() {
   );
 }
 
+function RootContent() {
+  if (Platform.OS === "web") {
+    return (
+      <View style={{ flex: 1 }}>
+        <WebNavBar />
+        <View style={{ flex: 1 }}>
+          <AppStack />
+        </View>
+      </View>
+    );
+  }
+
+  return <AppStack />;
+}
+
 export default function RootLayout() {
   useEffect(() => {
     if (Platform.OS === "web") {
@@ -99,7 +116,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AppStack />
+        <RootContent />
       </ThemeProvider>
     </SafeAreaProvider>
   );
