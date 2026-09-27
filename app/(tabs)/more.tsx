@@ -25,23 +25,24 @@ import {
   buttonElevation,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
-import { loadDonationPackages } from "../../utils/purchases";
+import { loadDonationCatalog } from "../../utils/purchases";
 import { openAppReview, openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 import { useSafePush } from "../../utils/useSafePush";
 
 const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
 
+/** Web / PayPal only — never shown for native IAP (misleading across regions). */
+const WEB_PACKAGE_PRICES: Record<string, string> = {
+  donation_tier1: "1.99",
+  donation_tier2: "9.99",
+  donation_tier3: "99.99",
+};
+
 const PACKAGE_LABELS: Record<string, string> = {
   donation_tier1: "Amateur",
   donation_tier2: "Pro",
   donation_tier3: "GOAT",
-};
-
-const PACKAGE_PRICES: Record<string, string> = {
-  donation_tier1: "1.99",
-  donation_tier2: "9.99",
-  donation_tier3: "99.99",
 };
 
 function getPackageLabel(pkg: PurchasesPackage): string {
@@ -54,20 +55,6 @@ function getPackageLabel(pkg: PurchasesPackage): string {
   return PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
 }
 
-function getPackagePrice(pkg: PurchasesPackage): string {
-  const sp = pkg.storeProduct ?? (pkg as any).product;
-  // Prefer localized StoreKit / Play Billing price when available.
-  if (typeof sp?.priceString === "string" && sp.priceString.trim()) {
-    return sp.priceString;
-  }
-  const pkgId =
-    pkg.storeProduct?.identifier ??
-    pkg.storeProduct?.productIdentifier ??
-    sp?.identifier ??
-    pkg.identifier;
-  return PACKAGE_PRICES[pkgId] ?? "";
-}
-
 export default function MoreScreen() {
   const safePush = useSafePush();
   const { theme, toggleTheme, isDark } = useTheme();
@@ -75,6 +62,9 @@ export default function MoreScreen() {
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
   const [donationPackages, setDonationPackages] = useState<PurchasesPackage[]>([]);
+  const [priceByProductId, setPriceByProductId] = useState<Record<string, string>>(
+    {}
+  );
   const scrollBottomPadding =
     Platform.OS === "android"
       ? Math.max(insets.bottom, scaleSpacing(16)) + scaleSpacing(88)
@@ -87,12 +77,15 @@ export default function MoreScreen() {
 
     try {
       setLoading(true);
-      const packages = await loadDonationPackages();
-      setDonationPackages(packages);
+      const catalog = await loadDonationCatalog();
+      setDonationPackages(catalog.packages);
+      setPriceByProductId(catalog.priceByProductId);
     } catch (e) {
       if (__DEV__) {
         console.warn("Failed to load RevenueCat offerings", e);
       }
+      setDonationPackages([]);
+      setPriceByProductId({});
     } finally {
       setLoading(false);
     }
@@ -152,7 +145,7 @@ export default function MoreScreen() {
       return (
         <View style={styles.donateRow}>
           {FALLBACK_TIERS.map((tier, index) => {
-            const price = PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
+            const price = WEB_PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
             return (
               <TouchableOpacity
                 key={tier}
@@ -173,7 +166,11 @@ export default function MoreScreen() {
         <View style={styles.donateRow}>
           {donationPackages.slice(0, 3).map((pkg) => {
             const label = getPackageLabel(pkg);
-            const price = getPackagePrice(pkg);
+            const productId =
+              pkg.storeProduct?.identifier ??
+              pkg.storeProduct?.productIdentifier ??
+              pkg.identifier;
+            const price = priceByProductId[productId] ?? "";
             return (
               <TouchableOpacity
                 key={pkg.identifier}
@@ -195,8 +192,7 @@ export default function MoreScreen() {
 
     return (
       <View style={styles.donateRow}>
-        {FALLBACK_TIERS.map((tier, index) => {
-          const price = PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
+        {FALLBACK_TIERS.map((tier) => {
           return (
             <TouchableOpacity
               key={tier}
@@ -209,7 +205,6 @@ export default function MoreScreen() {
               }
             >
               <Text style={styles.donateTier}>{tier}</Text>
-              {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
             </TouchableOpacity>
           );
         })}

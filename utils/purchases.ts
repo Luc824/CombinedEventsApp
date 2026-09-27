@@ -4,9 +4,14 @@ import Purchases, {
   PurchasesOffering,
   PurchasesOfferings,
   PurchasesPackage,
+  PurchasesStoreProduct,
 } from "react-native-purchases";
 
-const TIER_PRODUCT_IDS = ["donation_tier1", "donation_tier2", "donation_tier3"] as const;
+export const TIER_PRODUCT_IDS = [
+  "donation_tier1",
+  "donation_tier2",
+  "donation_tier3",
+] as const;
 
 let configured = false;
 
@@ -17,7 +22,6 @@ function getApiKey(): string | undefined {
       android: Constants.expoConfig?.extra?.revenueCatApiKeyAndroid as
         | string
         | undefined,
-      default: undefined,
     }) || undefined
   );
 }
@@ -119,14 +123,116 @@ export function getDonationPackages(
     .slice(0, 3);
 }
 
-export async function loadDonationPackages(): Promise<PurchasesPackage[]> {
+function formatStorePrice(product: {
+  priceString?: string | null;
+  price?: number | null;
+  currencyCode?: string | null;
+}): string {
+  const currencyCode =
+    typeof product.currencyCode === "string" && product.currencyCode.trim()
+      ? product.currencyCode.trim()
+      : "";
+  const price =
+    typeof product.price === "number" && Number.isFinite(product.price)
+      ? product.price
+      : null;
+
+  // Prefer numeric price + ISO currency so the label matches the storefront
+  // currency used by the system purchase sheet (priceString can lag / be wrong).
+  if (price != null && currencyCode) {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: currencyCode,
+      }).format(price);
+    } catch {
+      // Invalid currency code — fall through to priceString.
+    }
+  }
+
+  if (typeof product.priceString === "string" && product.priceString.trim()) {
+    return product.priceString.trim();
+  }
+
+  return "";
+}
+
+/** Localized price for UI — never uses hardcoded USD fallbacks. */
+export function getLocalizedPackagePrice(pkg: PurchasesPackage): string {
+  const sp =
+    pkg.storeProduct ??
+    (pkg as { product?: PurchasesStoreProduct }).product ??
+    null;
+  if (!sp) {
+    return "";
+  }
+  return formatStorePrice(sp);
+}
+
+export type DonationCatalog = {
+  packages: PurchasesPackage[];
+  /** Product id → localized price from a fresh StoreKit / Play Billing fetch */
+  priceByProductId: Record<string, string>;
+};
+
+export function getPackageProductId(pkg: PurchasesPackage): string {
+  return (
+    pkg.storeProduct?.identifier ??
+    pkg.storeProduct?.productIdentifier ??
+    (pkg as { product?: { identifier?: string } }).product?.identifier ??
+    pkg.identifier
+  );
+}
+
+export async function loadDonationCatalog(): Promise<DonationCatalog> {
   if (Platform.OS === "web" || !configurePurchases()) {
-    return [];
+    return { packages: [], priceByProductId: {} };
   }
 
   const data = await Purchases.getOfferings();
-  const offering = getTipsOffering(data);
-  return getDonationPackages(offering);
+  const packages = getDonationPackages(getTipsOffering(data));
+  const priceByProductId: Record<string, string> = {};
+
+  // Offerings can expose server-side / default prices. Fetch store products
+  // directly so button labels match the system purchase sheet currency.
+  try {
+    const productIds = [
+      ...new Set([
+        ...TIER_PRODUCT_IDS,
+        ...packages.map(getPackageProductId).filter(Boolean),
+      ]),
+    ];
+    const products = await Purchases.getProducts(productIds);
+    for (const product of products) {
+      const label = formatStorePrice(product);
+      if (label) {
+        priceByProductId[product.identifier] = label;
+      }
+    }
+  } catch (error) {
+    if (__DEV__) {
+      console.warn("Failed to refresh store product prices", error);
+    }
+  }
+
+  // Fall back to whatever the package already carries (still no hardcoded USD).
+  for (const pkg of packages) {
+    const id = getPackageProductId(pkg);
+    if (!priceByProductId[id]) {
+      const label = getLocalizedPackagePrice(pkg);
+      if (label) {
+        priceByProductId[id] = label;
+      }
+    }
+  }
+
+  return { packages, priceByProductId };
+}
+
+/** @deprecated Prefer loadDonationCatalog for correct localized prices */
+export async function loadDonationPackages(): Promise<PurchasesPackage[]> {
+  const catalog = await loadDonationCatalog();
+  return catalog.packages;
 }
 
 configurePurchases();
