@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Alert,
   Animated,
+  Easing,
   LayoutChangeEvent,
   PanResponder,
   Platform,
@@ -33,6 +34,9 @@ import { useSafePush } from "../utils/useSafePush";
 
 const TRACK_COLOR = "#D35400";
 const FALLBACK_STRIDE = scaleSpacing(148);
+const SNAP_MS = 120;
+const SHIFT_MS = 90;
+const snapEasing = Easing.out(Easing.cubic);
 
 function moveItem<T>(list: T[], from: number, to: number): T[] {
   if (to < 0 || to >= list.length || from === to) {
@@ -54,9 +58,11 @@ type ScoreCardProps = {
   colors: (typeof ThemeColors)["dark"];
   dragging: boolean;
   shiftY: number;
+  getStride: () => number;
+  getListLength: () => number;
   onHandleGrant: (index: number, id: string) => void;
   onHandleMove: (translationY: number) => void;
-  onHandleRelease: (translationY: number) => void;
+  onHandleRelease: (from: number, to: number) => void;
   onOpen: () => void;
   onDelete: () => void;
   onLayoutHeight: (height: number) => void;
@@ -69,6 +75,8 @@ function ScoreCard({
   colors,
   dragging,
   shiftY,
+  getStride,
+  getListLength,
   onHandleGrant,
   onHandleMove,
   onHandleRelease,
@@ -80,47 +88,57 @@ function ScoreCard({
   const translateY = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
   const draggingLocalRef = useRef(false);
+  const settlingRef = useRef(false);
   const indexRef = useRef(index);
   const idRef = useRef(item.id);
   const onHandleGrantRef = useRef(onHandleGrant);
   const onHandleMoveRef = useRef(onHandleMove);
   const onHandleReleaseRef = useRef(onHandleRelease);
+  const getStrideRef = useRef(getStride);
+  const getListLengthRef = useRef(getListLength);
   indexRef.current = index;
   idRef.current = item.id;
   onHandleGrantRef.current = onHandleGrant;
   onHandleMoveRef.current = onHandleMove;
   onHandleReleaseRef.current = onHandleRelease;
+  getStrideRef.current = getStride;
+  getListLengthRef.current = getListLength;
 
-  // Keep the same native view mounted — only nudge non-dragged cards aside.
+  // Sibling cards: snappy slide into the open slot while dragging.
   useEffect(() => {
-    if (draggingLocalRef.current) {
+    if (draggingLocalRef.current || settlingRef.current) {
       return;
     }
-    Animated.spring(translateY, {
+    translateY.stopAnimation();
+    Animated.timing(translateY, {
       toValue: shiftY,
+      duration: SHIFT_MS,
+      easing: snapEasing,
       useNativeDriver: true,
-      friction: 8,
-      tension: 120,
     }).start();
   }, [shiftY, translateY]);
 
+  // When drag ends elsewhere, drop any leftover shift instantly (layout owns position now).
   useEffect(() => {
-    if (!dragging && draggingLocalRef.current) {
-      draggingLocalRef.current = false;
-      Animated.parallel([
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-          friction: 8,
-        }),
-        Animated.spring(scale, {
-          toValue: 1,
-          useNativeDriver: true,
-          friction: 8,
-        }),
-      ]).start();
+    if (dragging || draggingLocalRef.current || settlingRef.current) {
+      return;
     }
-  }, [dragging, scale, translateY]);
+    if (shiftY === 0) {
+      translateY.stopAnimation();
+      translateY.setValue(0);
+    }
+  }, [dragging, shiftY, translateY]);
+
+  // After reorder, zero the settle transform in the same frame as the new index
+  // so the card never flashes back to its old slot.
+  useLayoutEffect(() => {
+    if (!settlingRef.current) {
+      return;
+    }
+    translateY.setValue(0);
+    scale.setValue(1);
+    settlingRef.current = false;
+  }, [index, translateY, scale]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -131,25 +149,86 @@ function ScoreCard({
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: () => {
+        settlingRef.current = false;
         draggingLocalRef.current = true;
         translateY.stopAnimation();
         translateY.setValue(0);
         onHandleGrantRef.current(indexRef.current, idRef.current);
-        Animated.spring(scale, {
-          toValue: 1.03,
+        Animated.timing(scale, {
+          toValue: 1.04,
+          duration: 80,
+          easing: snapEasing,
           useNativeDriver: true,
-          friction: 7,
         }).start();
       },
       onPanResponderMove: (_event, gestureState) => {
+        if (!draggingLocalRef.current) {
+          return;
+        }
         translateY.setValue(gestureState.dy);
         onHandleMoveRef.current(gestureState.dy);
       },
       onPanResponderRelease: (_event, gestureState) => {
-        onHandleReleaseRef.current(gestureState.dy);
+        const from = indexRef.current;
+        const step = getStrideRef.current() || FALLBACK_STRIDE;
+        const to = clamp(
+          from + Math.round(gestureState.dy / step),
+          0,
+          Math.max(0, getListLengthRef.current() - 1)
+        );
+        const targetOffset = (to - from) * step;
+
+        settlingRef.current = true;
+        draggingLocalRef.current = false;
+
+        Animated.parallel([
+          Animated.timing(translateY, {
+            toValue: targetOffset,
+            duration: SNAP_MS,
+            easing: snapEasing,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scale, {
+            toValue: 1,
+            duration: SNAP_MS,
+            easing: snapEasing,
+            useNativeDriver: true,
+          }),
+        ]).start(({ finished }) => {
+          if (!finished || from === to) {
+            translateY.setValue(0);
+            scale.setValue(1);
+            settlingRef.current = false;
+            onHandleReleaseRef.current(from, from);
+            return;
+          }
+          // Keep translateY at targetOffset until the list reorders and
+          // useLayoutEffect clears it with the new index (avoids a flash).
+          onHandleReleaseRef.current(from, to);
+        });
       },
       onPanResponderTerminate: () => {
-        onHandleReleaseRef.current(0);
+        settlingRef.current = true;
+        draggingLocalRef.current = false;
+        Animated.parallel([
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: SNAP_MS,
+            easing: snapEasing,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scale, {
+            toValue: 1,
+            duration: SNAP_MS,
+            easing: snapEasing,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          translateY.setValue(0);
+          scale.setValue(1);
+          settlingRef.current = false;
+          onHandleReleaseRef.current(indexRef.current, indexRef.current);
+        });
       },
     })
   ).current;
@@ -177,7 +256,7 @@ function ScoreCard({
             backgroundColor: colors.surfaceSolid,
             borderWidth: 1,
             borderColor: colors.border,
-            opacity: dragging ? 0.96 : 1,
+            opacity: dragging ? 0.97 : 1,
           },
         ]}
       >
@@ -308,15 +387,8 @@ export default function SavedScoresScreen() {
     setHoverIndex((previous) => (previous === nextHover ? previous : nextHover));
   }, []);
 
-  const handleHandleRelease = useCallback(async (translationY: number) => {
-    const from = dragFromRef.current;
+  const handleHandleRelease = useCallback((from: number, to: number) => {
     const list = scoresRef.current;
-    const step = strideRef.current || FALLBACK_STRIDE;
-    const to = clamp(
-      from + Math.round(translationY / step),
-      0,
-      Math.max(0, list.length - 1)
-    );
 
     setDraggingId(null);
     setDragFromIndex(-1);
@@ -331,12 +403,14 @@ export default function SavedScoresScreen() {
     const next = moveItem(list, from, to);
     setScores(next);
 
-    try {
-      await reorderSavedScores(next.map((score) => score.id));
-    } catch {
-      setScores(previous);
-      Alert.alert("Error", "Failed to save the new order.");
-    }
+    void (async () => {
+      try {
+        await reorderSavedScores(next.map((score) => score.id));
+      } catch {
+        setScores(previous);
+        Alert.alert("Error", "Failed to save the new order.");
+      }
+    })();
   }, []);
 
   const handleCardLayout = useCallback((height: number) => {
@@ -345,6 +419,9 @@ export default function SavedScoresScreen() {
       setStride((previous) => (Math.abs(previous - next) > 1 ? next : previous));
     }
   }, []);
+
+  const getStride = useCallback(() => strideRef.current || FALLBACK_STRIDE, []);
+  const getListLength = useCallback(() => scoresRef.current.length, []);
 
   const shiftForIndex = (index: number) => {
     if (draggingId == null || dragFromIndex < 0 || hoverIndex < 0) {
@@ -408,6 +485,8 @@ export default function SavedScoresScreen() {
           colors={colors}
           dragging={draggingId === item.id}
           shiftY={draggingId === item.id ? 0 : shiftForIndex(index)}
+          getStride={getStride}
+          getListLength={getListLength}
           onHandleGrant={handleHandleGrant}
           onHandleMove={handleHandleMove}
           onHandleRelease={handleHandleRelease}

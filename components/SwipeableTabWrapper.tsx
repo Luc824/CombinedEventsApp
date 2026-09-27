@@ -9,6 +9,10 @@ type SwipeableTabWrapperProps = {
   children: React.ReactNode;
 };
 
+/**
+ * Edge-biased horizontal swipe between tabs. Stricter thresholds so vertical
+ * scrolling in forms (especially Rankings) does not get stolen.
+ */
 export default function SwipeableTabWrapper({
   tabIndex,
   children,
@@ -20,15 +24,22 @@ export default function SwipeableTabWrapper({
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponder: (_, gestureState) =>
-          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.4 &&
-          Math.abs(gestureState.dx) > 18,
+        onMoveShouldSetPanResponder: (_, gestureState) => {
+          const { dx, dy } = gestureState;
+          // Require a clear horizontal intent and enough travel.
+          return (
+            Math.abs(dx) > 40 &&
+            Math.abs(dx) > Math.abs(dy) * 2.4 &&
+            Math.abs(dy) < 28
+          );
+        },
+        onPanResponderTerminationRequest: () => true,
         onPanResponderRelease: (_, gestureState) => {
           const index = tabIndexRef.current;
           const swipedLeft =
-            gestureState.dx < -50 || gestureState.vx < -0.45;
+            gestureState.dx < -72 || gestureState.vx < -0.65;
           const swipedRight =
-            gestureState.dx > 50 || gestureState.vx > 0.45;
+            gestureState.dx > 72 || gestureState.vx > 0.65;
 
           if (swipedLeft && index < TAB_ROUTES.length - 1) {
             router.navigate(TAB_ROUTES[index + 1]);

@@ -1,8 +1,10 @@
 import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
+  Alert,
   Platform,
   ScrollView,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -155,6 +157,26 @@ export default function SavedScoreDetailScreen() {
   const chartTitle = getEventTypeDisplayName(score.eventType);
   const chartConfig = CHART_CONFIG[score.eventType];
 
+  const handleShare = async () => {
+    const lines = [
+      score.title,
+      chartTitle,
+      `Total: ${score.totalScore} points`,
+      `Result score: ${score.resultScore}`,
+      "",
+      ...eventNames.map((name, index) => {
+        const result = score.results[index] || "—";
+        const pts = score.points[index] ?? 0;
+        return `${name}: ${result} (${pts} pts)`;
+      }),
+    ];
+    try {
+      await Share.share({ message: lines.join("\n") });
+    } catch {
+      Alert.alert("Error", "Could not share this score.");
+    }
+  };
+
   return (
     <>
       <Stack.Screen options={{ title: screenTitle }} />
@@ -221,20 +243,71 @@ export default function SavedScoreDetailScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+              <TouchableOpacity
+                style={[
+                  styles.shareButton,
+                  actionButtonStyle,
+                  buttonElevation(),
+                  { backgroundColor: colors.buttonPrimary },
+                ]}
+                onPress={handleShare}
+              >
+                <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
+                  Share
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>
-            {eventNames.map((eventName, index) => (
-              <View key={index} style={[styles.eventCard, { backgroundColor: colors.surfaceSolid, borderWidth: 1, borderColor: colors.border }]}>
-                <View style={styles.eventHeader}>
-                  <Text style={[styles.eventName, { color: colors.text }]}>{eventName}</Text>
-                  <Text style={[styles.eventPoints, { color: TRACK_COLOR }]}>{score.points[index]} Points</Text>
-                </View>
-                <Text style={[styles.eventResult, { color: colors.textSecondary }]}>
-                  {score.results[index] || "No result"}
-                </Text>
-              </View>
-            ))}
+            <View
+              style={[
+                styles.eventsList,
+                {
+                  backgroundColor: colors.surfaceSolid,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              {eventNames.map((eventName, index) => {
+                const result = score.results[index]?.trim();
+                const points = score.points[index] ?? 0;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.eventRow,
+                      index < eventNames.length - 1 && {
+                        borderBottomWidth: StyleSheet.hairlineWidth,
+                        borderBottomColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.eventName, { color: colors.textSecondary }]}
+                      numberOfLines={2}
+                    >
+                      {eventName}
+                    </Text>
+                    <Text
+                      style={[styles.eventResult, { color: colors.text }]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      {result || "—"}
+                    </Text>
+                    <View style={styles.pointsWrap}>
+                      <Text style={[styles.eventPoints, { color: TRACK_COLOR }]}>
+                        {points}
+                      </Text>
+                      <Text style={[styles.pointsSuffix, { color: colors.textSecondary }]}>
+                        pts
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
           </ScrollView>
         </View>
         <ChartModal
@@ -319,9 +392,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   sectionTitle: {
-    fontSize: scaleFont(20),
-    fontWeight: "bold",
-    marginBottom: scaleSpacing(12),
+    fontSize: scaleFont(17),
+    fontWeight: "600",
+    marginBottom: scaleSpacing(10),
   },
   chartButtonSpacer: {
     marginBottom: scaleSpacing(16),
@@ -333,34 +406,56 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    minWidth: scaleSpacing(140),
+    minHeight: scaleSpacing(44),
+  },
+  shareButton: {
+    width: "100%",
+    minHeight: scaleSpacing(44),
+    marginTop: scaleSpacing(10),
   },
   actionButtonText: {
     fontWeight: "600",
     fontSize: scaleFont(15),
+    textAlign: "center",
   },
-  eventCard: {
+  eventsList: {
     borderRadius: Radius.md,
-    padding: scaleSpacing(16),
-    marginBottom: scaleSpacing(12),
+    borderWidth: 1,
+    overflow: "hidden",
   },
-  eventHeader: {
+  eventRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scaleSpacing(8),
+    paddingVertical: scaleSpacing(10),
+    paddingHorizontal: scaleSpacing(12),
+    gap: scaleSpacing(8),
   },
   eventName: {
-    fontSize: scaleFont(16),
-    fontWeight: "600",
+    flex: 1.1,
+    fontSize: scaleFont(13),
+    fontWeight: "500",
+    lineHeight: scaleFont(16),
+  },
+  eventResult: {
     flex: 1,
+    fontSize: scaleFont(17),
+    fontWeight: "700",
+    textAlign: "right",
+  },
+  pointsWrap: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "flex-end",
+    minWidth: scaleSpacing(58),
+    gap: scaleSpacing(3),
   },
   eventPoints: {
     fontSize: scaleFont(16),
-    fontWeight: "bold",
-    marginLeft: scaleSpacing(12),
+    fontWeight: "700",
+    textAlign: "right",
   },
-  eventResult: {
-    fontSize: scaleFont(14),
+  pointsSuffix: {
+    fontSize: scaleFont(11),
+    fontWeight: "600",
   },
 });

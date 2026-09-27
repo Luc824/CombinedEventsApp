@@ -80,30 +80,54 @@ export function createCommitPointsChange(options: {
   getInverseConfig: (index: number) => InverseEventConfig;
 }) {
   return (index: number) => {
-    const digits = options.pointsInputs[index];
+    const flushed = flushAllPointsInputs({
+      results: options.results,
+      points: options.points,
+      pointsInputs: options.pointsInputs,
+      getInverseConfig: options.getInverseConfig,
+      onlyIndex: index,
+    });
+    options.setResults(flushed.results);
+    options.setPoints(flushed.points);
+    options.setPointsInputs(() => flushed.pointsInputs);
+  };
+}
+
+/** Apply pending points→performance for one or all rows before chart/save/clear. */
+export function flushAllPointsInputs(options: {
+  results: string[];
+  points: number[];
+  pointsInputs: string[];
+  getInverseConfig: (index: number) => InverseEventConfig;
+  onlyIndex?: number;
+}): { results: string[]; points: number[]; pointsInputs: string[] } {
+  const results = [...options.results];
+  const points = [...options.points];
+  const pointsInputs = [...options.pointsInputs];
+  const start =
+    typeof options.onlyIndex === "number" ? options.onlyIndex : 0;
+  const end =
+    typeof options.onlyIndex === "number"
+      ? options.onlyIndex + 1
+      : pointsInputs.length;
+
+  for (let index = start; index < end; index++) {
+    const digits = pointsInputs[index];
 
     if (!digits) {
-      const newResults = [...options.results];
-      newResults[index] = "";
-      options.setResults(newResults);
-
-      const newPoints = [...options.points];
-      newPoints[index] = 0;
-      options.setPoints(newPoints);
-      return;
+      if (typeof options.onlyIndex === "number") {
+        results[index] = "";
+        points[index] = 0;
+      }
+      continue;
     }
 
     const targetPoints = parseInt(digits, 10);
     if (!targetPoints) {
-      const newResults = [...options.results];
-      newResults[index] = "";
-      options.setResults(newResults);
-
-      const newPoints = [...options.points];
-      newPoints[index] = 0;
-      options.setPoints(newPoints);
-      syncPointsInput(options.setPointsInputs, index, 0);
-      return;
+      results[index] = "";
+      points[index] = 0;
+      pointsInputs[index] = "";
+      continue;
     }
 
     const match = closestPerformanceFromPoints(
@@ -112,19 +136,16 @@ export function createCommitPointsChange(options: {
     );
 
     if (!match) {
-      syncPointsInput(options.setPointsInputs, index, 0);
-      return;
+      pointsInputs[index] = "";
+      continue;
     }
 
-    const newResults = [...options.results];
-    newResults[index] = match.performance;
-    options.setResults(newResults);
+    results[index] = match.performance;
+    points[index] = match.actualPoints;
+    pointsInputs[index] = String(match.actualPoints);
+  }
 
-    const newPoints = [...options.points];
-    newPoints[index] = match.actualPoints;
-    options.setPoints(newPoints);
-    syncPointsInput(options.setPointsInputs, index, match.actualPoints);
-  };
+  return { results, points, pointsInputs };
 }
 
 export function createEmptyPointsInputs(count: number): string[] {

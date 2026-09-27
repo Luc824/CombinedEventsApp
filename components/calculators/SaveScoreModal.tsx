@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { Radius, actionButtonStyle, buttonElevation } from "../../constants/ui";
@@ -48,18 +49,36 @@ export default function SaveScoreModal({
   secondaryButtonColor,
   buttonTextColor,
 }: SaveScoreModalProps) {
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+  // Sit in the upper band so the card clears the keyboard without animating up.
+  const topInset = Math.max(
+    scaleSpacing(56),
+    Math.min(windowHeight * 0.14, scaleSpacing(120))
+  );
+  const modalWidth = Math.min(windowWidth * 0.88, scaleSpacing(400));
+
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="none"
       onRequestClose={onClose}
     >
       <View style={[styles.modalOverlay, { backgroundColor: overlayColor }]}>
         <TouchableWithoutFeedback onPress={onClose}>
           <View style={StyleSheet.absoluteFill} />
         </TouchableWithoutFeedback>
-        <View style={[styles.saveModalContent, { backgroundColor }]}>
+        <View
+          style={[
+            styles.saveModalContent,
+            {
+              backgroundColor,
+              marginTop: topInset,
+              width: modalWidth,
+            },
+          ]}
+        >
           <Text style={[styles.saveModalTitle, { color: textColor }]}>
             Save Score
           </Text>
@@ -69,7 +88,11 @@ export default function SaveScoreModal({
           <TextInput
             style={[
               styles.saveModalInput,
-              { backgroundColor: inputBackground, color: inputText, borderColor: inputBorder },
+              {
+                backgroundColor: inputBackground,
+                color: inputText,
+                borderColor: inputBorder,
+              },
             ]}
             value={title}
             onChangeText={setTitle}
@@ -80,7 +103,12 @@ export default function SaveScoreModal({
           />
           <View style={styles.saveModalButtons}>
             <TouchableOpacity
-              style={[styles.saveModalButton, actionButtonStyle, buttonElevation(), { backgroundColor: secondaryButtonColor }]}
+              style={[
+                styles.saveModalButton,
+                actionButtonStyle,
+                buttonElevation(),
+                { backgroundColor: secondaryButtonColor },
+              ]}
               onPress={onClose}
             >
               <Text style={[styles.saveModalButtonText, { color: buttonTextColor }]}>
@@ -88,7 +116,12 @@ export default function SaveScoreModal({
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.saveModalButton, actionButtonStyle, buttonElevation(), { backgroundColor: primaryButtonColor }]}
+              style={[
+                styles.saveModalButton,
+                actionButtonStyle,
+                buttonElevation(),
+                { backgroundColor: primaryButtonColor },
+              ]}
               onPress={onSave}
             >
               <Text style={[styles.saveModalButtonText, { color: buttonTextColor }]}>
@@ -105,14 +138,12 @@ export default function SaveScoreModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   saveModalContent: {
     borderRadius: Radius.lg,
     padding: scaleSpacing(20),
-    width: "85%",
-    maxWidth: scaleSpacing(400),
     alignSelf: "center",
   },
   saveModalTitle: {
@@ -143,6 +174,6 @@ const styles = StyleSheet.create({
   },
   saveModalButtonText: {
     fontWeight: "600",
-    fontSize: scaleFont(16),
+    fontSize: scaleFont(15),
   },
 });

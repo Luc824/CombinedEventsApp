@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label, VectorIcon } from "expo-router/unstable-native-tabs";
 import React from "react";
-import { DynamicColorIOS, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { useAppTheme, useTheme } from "../../contexts/ThemeContext";
@@ -34,17 +34,8 @@ function NativeTabsLayout() {
   // NativeTabs can render outside ThemeProvider — read shared app theme store.
   const theme = useAppTheme();
   const colors = ThemeColors[theme];
-  const inactiveColor =
-    Platform.OS === "ios"
-      ? DynamicColorIOS({ dark: "#aaaaaa", light: "#888888" })
-      : colors.textMuted;
-  const tabBackground =
-    Platform.OS === "ios"
-      ? DynamicColorIOS({
-          dark: ThemeColors.dark.background,
-          light: ThemeColors.light.background,
-        })
-      : colors.background;
+  const inactiveColor = colors.textMuted;
+  const tabBackground = colors.background;
   const indicatorColor =
     theme === "dark" ? "rgba(211, 84, 0, 0.35)" : "rgba(211, 84, 0, 0.18)";
 

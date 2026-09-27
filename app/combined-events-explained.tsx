@@ -120,7 +120,7 @@ const TEXT_SECTIONS = [
   {
     id: "formulas",
     title: "The scoring formulas",
-    body: "World Athletics does not use one formula for every event. Each discipline has its own constants, but the idea is the same.\n\nFor track events, points depend on how fast you run. The formula has the shape: points = A × (B − time)^C. A lower time means more points.\n\nFor jumps and throws, points depend on how far or high you go. The formula has the shape: points = A × (result − B)^C. A bigger result means more points.\n\nA, B, and C are different for every event, which is why 10.50 in the 100m and 7.80 in the long jump live on different scales. Points are rounded down to a whole number. This app applies the official World Athletics formulas for you.",
+    body: "World Athletics does not use one formula for every event. Each discipline has its own constants, but the idea is the same.\n\nFor track events, points depend on how fast you run.\n\nThe formula has the shape:\n\npoints = A x (B - time)^C\n\nA lower time means more points.\n\nFor jumps and throws, points depend on how far or high you go.\n\nThe formula has the shape:\n\npoints = A x (result - B)^C\n\nA bigger result means more points.\n\nA, B, and C are different for every event, which is why 10.50 in the 100m and 7.80 in the long jump live on different scales. Points are rounded down to a whole number.\n\nThis app applies the official World Athletics formulas for you.",
   },
   {
     id: "winner",
@@ -201,7 +201,11 @@ function EventColumns({
 }
 
 function BodyText({ children, color }: { children: string; color: string }) {
-  return <Text style={[styles.body, { color }]}>{children}</Text>;
+  return (
+    <View style={styles.bodyWrap}>
+      <Text style={[styles.body, { color }]}>{children}</Text>
+    </View>
+  );
 }
 
 function WorldRecordsList({ textColor }: { textColor: string }) {
@@ -329,7 +333,11 @@ export default function CombinedEventsExplainedScreen() {
             }
           >
             <Text style={[styles.heading, { color: TRACK_COLOR }]}>{item.title}</Text>
-            <BodyText color={colors.text}>{item.body}</BodyText>
+            {item.body.split("\n\n").map((paragraph, index) => (
+              <BodyText key={`${item.id}-${index}`} color={colors.text}>
+                {paragraph}
+              </BodyText>
+            ))}
             {item.id === "history" ? (
               <WorldRecordsList textColor={colors.text} />
             ) : null}
@@ -385,9 +393,13 @@ const styles = StyleSheet.create({
     marginBottom: scaleSpacing(16),
     marginTop: scaleSpacing(4),
   },
+  bodyWrap: {
+    alignSelf: "stretch",
+    width: "100%",
+  },
   body: {
     fontSize: scaleFont(16),
-    lineHeight: scaleSpacing(24),
+    lineHeight: scaleFont(22),
     marginBottom: scaleSpacing(12),
   },
   groupLabel: {

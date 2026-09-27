@@ -6,7 +6,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from "react";
-import { useColorScheme } from "react-native";
+import { Appearance, useColorScheme } from "react-native";
 
 type Theme = "light" | "dark";
 
@@ -20,8 +20,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = "@app_theme";
 
+function themeFromSystem(scheme: string | null | undefined): Theme {
+  return scheme === "light" ? "light" : "dark";
+}
+
 /** Module store so NativeTabs (outside ThemeProvider) can follow the in-app theme. */
-let appTheme: Theme = "dark";
+let appTheme: Theme = themeFromSystem(Appearance.getColorScheme());
 const themeListeners = new Set<() => void>();
 
 function emitAppTheme() {
@@ -54,26 +58,41 @@ export function useAppTheme() {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useColorScheme();
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>(() =>
+    themeFromSystem(Appearance.getColorScheme())
+  );
+  // null = still loading storage; true = user picked; false = follow system
+  const [hasUserPreference, setHasUserPreference] = useState<boolean | null>(
+    null
+  );
 
   useEffect(() => {
     setAppTheme(theme);
   }, [theme]);
 
   useEffect(() => {
-    // Load saved theme preference
     AsyncStorage.getItem(THEME_STORAGE_KEY).then((savedTheme) => {
       if (savedTheme === "light" || savedTheme === "dark") {
+        setHasUserPreference(true);
         setTheme(savedTheme);
       } else {
-        // Default to system preference or dark
-        setTheme(systemColorScheme === "light" ? "light" : "dark");
+        setHasUserPreference(false);
+        setTheme(themeFromSystem(systemColorScheme));
       }
     });
-  }, [systemColorScheme]);
+    // Only run on mount — system changes are handled below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (hasUserPreference === false) {
+      setTheme(themeFromSystem(systemColorScheme));
+    }
+  }, [systemColorScheme, hasUserPreference]);
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
+    setHasUserPreference(true);
     setTheme(newTheme);
     AsyncStorage.setItem(THEME_STORAGE_KEY, newTheme);
   };

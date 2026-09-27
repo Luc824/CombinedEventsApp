@@ -27,6 +27,7 @@ import {
   createEmptyPointsInputs,
   createHandleInputChange,
   createHandlePointsTextChange,
+  flushAllPointsInputs,
 } from "../utils/calculatorRowHandlers";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
@@ -144,9 +145,30 @@ export default function WomenPentathlonScreen() {
       ),
   });
 
-  const getTotalPoints = () => points.reduce((sum, point) => sum + point, 0);
-  const getResultScore = () => {
-    const totalPoints = getTotalPoints();
+  const flushPendingPoints = () => {
+    const flushed = flushAllPointsInputs({
+      results,
+      points,
+      pointsInputs,
+      getInverseConfig: (index) =>
+        getStandardInverseConfig(
+          WOMEN_PENTATHLON_EVENTS[index].name,
+          WOMEN_PENTATHLON_EVENTS[index].formula,
+          TRACK_EVENTS,
+          LONG_TRACK_EVENTS,
+          true
+        ),
+    });
+    setResults(flushed.results);
+    setPoints(flushed.points);
+    setPointsInputs(flushed.pointsInputs);
+    return flushed;
+  };
+
+  const getTotalPoints = (scorePoints: number[] = points) =>
+    scorePoints.reduce((sum, point) => sum + point, 0);
+  const getResultScore = (scorePoints: number[] = points) => {
+    const totalPoints = getTotalPoints(scorePoints);
     const scores = Object.keys(worldAthleticsScores.womenPentathlon).map(
       Number
     );
@@ -172,8 +194,13 @@ export default function WomenPentathlonScreen() {
       return;
     }
 
-    const totalPoints = getTotalPoints();
-    const validationError = validateScoreForSave(results, points, totalPoints);
+    const flushed = flushPendingPoints();
+    const totalPoints = getTotalPoints(flushed.points);
+    const validationError = validateScoreForSave(
+      flushed.results,
+      flushed.points,
+      totalPoints
+    );
     if (validationError) {
       Alert.alert("Error", validationError);
       return;
@@ -183,10 +210,10 @@ export default function WomenPentathlonScreen() {
       await saveScore({
         title: saveTitle.trim(),
         eventType: 'womenPentathlon',
-        results: [...results],
-        points: [...points],
+        results: [...flushed.results],
+        points: [...flushed.points],
         totalScore: totalPoints,
-        resultScore: getResultScore(),
+        resultScore: getResultScore(flushed.points),
       });
       Alert.alert("Success", "Score saved successfully!");
       setShowSaveModal(false);
@@ -249,8 +276,14 @@ export default function WomenPentathlonScreen() {
         borderColor={colors.border}
       />
       <ActionButtonsRow
-        onViewChart={() => setShowChart(true)}
-        onSaveScore={() => setShowSaveModal(true)}
+        onViewChart={() => {
+          flushPendingPoints();
+          setShowChart(true);
+        }}
+        onSaveScore={() => {
+          flushPendingPoints();
+          setShowSaveModal(true);
+        }}
         buttonBackground={colors.buttonPrimary}
         buttonTextColor={colors.buttonText}
       />

@@ -28,6 +28,7 @@ import {
   createEmptyPointsInputs,
   createHandleInputChange,
   createHandlePointsTextChange,
+  flushAllPointsInputs,
 } from "../utils/calculatorRowHandlers";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
@@ -169,6 +170,23 @@ export default function DecathlonScreen() {
       ),
   });
 
+  const flushPendingPoints = () => {
+    const flushed = flushAllPointsInputs({
+      results,
+      points,
+      pointsInputs,
+      getInverseConfig: (index) =>
+        getDecathlonInverseConfig(
+          DECATHLON_EVENTS[index].name,
+          DECATHLON_EVENTS[index].formula
+        ),
+    });
+    setResults(flushed.results);
+    setPoints(flushed.points);
+    setPointsInputs(flushed.pointsInputs);
+    return flushed;
+  };
+
   const getDay1Total = () => {
     return points.slice(0, 5).reduce((sum, point) => sum + point, 0);
   };
@@ -177,12 +195,12 @@ export default function DecathlonScreen() {
     return points.slice(5, 10).reduce((sum, point) => sum + point, 0);
   };
 
-  const getTotalPoints = () => {
-    return points.reduce((sum, point) => sum + point, 0);
+  const getTotalPoints = (scorePoints: number[] = points) => {
+    return scorePoints.reduce((sum, point) => sum + point, 0);
   };
 
-  const getResultScore = () => {
-    const totalPoints = getTotalPoints();
+  const getResultScore = (scorePoints: number[] = points) => {
+    const totalPoints = getTotalPoints(scorePoints);
     const scores = Object.keys(worldAthleticsScores.decathlon).map(Number);
     const closestLowerScore = scores
       .filter((score) => score <= totalPoints)
@@ -206,8 +224,13 @@ export default function DecathlonScreen() {
       return;
     }
 
-    const totalPoints = getTotalPoints();
-    const validationError = validateScoreForSave(results, points, totalPoints);
+    const flushed = flushPendingPoints();
+    const totalPoints = getTotalPoints(flushed.points);
+    const validationError = validateScoreForSave(
+      flushed.results,
+      flushed.points,
+      totalPoints
+    );
     if (validationError) {
       Alert.alert("Error", validationError);
       return;
@@ -217,10 +240,10 @@ export default function DecathlonScreen() {
       await saveScore({
         title: saveTitle.trim(),
         eventType: 'decathlon',
-        results: [...results],
-        points: [...points],
+        results: [...flushed.results],
+        points: [...flushed.points],
         totalScore: totalPoints,
-        resultScore: getResultScore(),
+        resultScore: getResultScore(flushed.points),
       });
       Alert.alert("Success", "Score saved successfully!");
       setShowSaveModal(false);
@@ -304,8 +327,14 @@ export default function DecathlonScreen() {
         borderColor={colors.border}
       />
       <ActionButtonsRow
-        onViewChart={() => setShowChart(true)}
-        onSaveScore={() => setShowSaveModal(true)}
+        onViewChart={() => {
+          flushPendingPoints();
+          setShowChart(true);
+        }}
+        onSaveScore={() => {
+          flushPendingPoints();
+          setShowSaveModal(true);
+        }}
         buttonBackground={colors.buttonPrimary}
         buttonTextColor={colors.buttonText}
       />

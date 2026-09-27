@@ -6,6 +6,7 @@ import WebNavBar from "../components/WebNavBar";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
+import { useStackHeaderBackButton } from "../utils/useStackHeaderBackButton";
 import "../utils/purchases";
 
 const TRACK_COLOR = "#D35400";
@@ -13,6 +14,11 @@ const TRACK_COLOR = "#D35400";
 function AppStack() {
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  const headerLeft = useStackHeaderBackButton({
+    tintColor: colors.text,
+    textColor: colors.border,
+    surfaceColor: colors.surfaceSolid,
+  });
 
   return (
     <Stack
@@ -24,6 +30,7 @@ function AppStack() {
         headerShadowVisible: false,
         headerBackTitle: "",
         headerBackButtonDisplayMode: "minimal",
+        headerLeft,
         contentStyle: { backgroundColor: colors.background },
       }}
     >

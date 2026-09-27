@@ -5,7 +5,6 @@ import {
   Alert,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Purchases, { PurchasesPackage } from "react-native-purchases";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
@@ -56,20 +56,29 @@ function getPackageLabel(pkg: PurchasesPackage): string {
 
 function getPackagePrice(pkg: PurchasesPackage): string {
   const sp = pkg.storeProduct ?? (pkg as any).product;
+  // Prefer localized StoreKit / Play Billing price when available.
+  if (typeof sp?.priceString === "string" && sp.priceString.trim()) {
+    return sp.priceString;
+  }
   const pkgId =
     pkg.storeProduct?.identifier ??
     pkg.storeProduct?.productIdentifier ??
     sp?.identifier ??
     pkg.identifier;
-  return PACKAGE_PRICES[pkgId] ?? sp?.priceString ?? "";
+  return PACKAGE_PRICES[pkgId] ?? "";
 }
 
 export default function MoreScreen() {
   const safePush = useSafePush();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
   const [donationPackages, setDonationPackages] = useState<PurchasesPackage[]>([]);
+  const scrollBottomPadding =
+    Platform.OS === "android"
+      ? Math.max(insets.bottom, scaleSpacing(16)) + scaleSpacing(88)
+      : scaleSpacing(32);
 
   const refreshDonationPackages = useCallback(async () => {
     if (Platform.OS === "web") {
@@ -214,7 +223,13 @@ export default function MoreScreen() {
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              backgroundColor: colors.background,
+              paddingBottom: scrollBottomPadding,
+            },
+          ]}
           showsVerticalScrollIndicator={false}
         >
         <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
@@ -323,7 +338,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: ScreenLayout.horizontalPadding,
-    paddingVertical: scaleSpacing(32),
+    paddingTop: scaleSpacing(32),
     alignItems: "stretch",
     ...Platform.select({
       web: { alignSelf: "center", width: "100%" },

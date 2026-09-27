@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Modal,
   Platform,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -114,8 +118,11 @@ interface DropdownProps {
 function Dropdown({ label, value, options, onSelect }: DropdownProps) {
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [modalVisible, setModalVisible] = useState(false);
   const selectedLabel = options.find((o) => o.value === value)?.label || label;
+  const modalMaxHeight = Math.min(windowHeight * 0.7, 520);
+  const modalWidth = Math.min(windowWidth * 0.9, 360);
   return (
     <>
       <TouchableOpacity
@@ -135,10 +142,25 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <View style={[label === "Rank" ? styles.modalContentRefined : styles.modalContentEvent, { backgroundColor: colors.cardBackground }]}>
+              <View
+                style={[
+                  label === "Rank" ? styles.modalContentRefined : styles.modalContentEvent,
+                  {
+                    backgroundColor: colors.cardBackground,
+                    width: modalWidth,
+                    maxHeight: modalMaxHeight,
+                  },
+                ]}
+              >
                 <Text style={[styles.modalPromptRefined, { color: colors.textSecondary }]}>
                   {label === "Rank" ? "Tap to select a rank" : "Tap to select an event"}
                 </Text>
+                <ScrollView
+                  style={{ maxHeight: modalMaxHeight - scaleSpacing(40) }}
+                  contentContainerStyle={styles.modalScrollContent}
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                >
                 {options.map((item) => {
                 // For rank options, split the letter from the description for alignment
                 const isRankOption = label === "Rank";
@@ -175,6 +197,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                   </TouchableOpacity>
                 );
               })}
+                </ScrollView>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -293,6 +316,30 @@ function PerformanceEntry({
   );
 }
 
+const RANKINGS_STORAGE_KEY = "@rankings_inputs";
+
+type RankingsDraft = {
+  event1: string;
+  rank1: string;
+  place1: string;
+  points1: string;
+  event2: string;
+  rank2: string;
+  place2: string;
+  points2: string;
+};
+
+const EMPTY_RANKINGS_DRAFT: RankingsDraft = {
+  event1: "",
+  rank1: "",
+  place1: "",
+  points1: "",
+  event2: "",
+  rank2: "",
+  place2: "",
+  points2: "",
+};
+
 export default function RankingsScreen() {
   const safePush = useSafePush();
   const insets = useSafeAreaInsets();
@@ -303,7 +350,6 @@ export default function RankingsScreen() {
     Platform.OS === "android"
       ? Math.max(insets.bottom, scaleSpacing(16)) + scaleSpacing(88)
       : scaleSpacing(32);
-  // State for both performances
   const [event1, setEvent1] = useState("");
   const [rank1, setRank1] = useState("");
   const [place1, setPlace1] = useState("");
@@ -313,6 +359,71 @@ export default function RankingsScreen() {
   const [rank2, setRank2] = useState("");
   const [place2, setPlace2] = useState("");
   const [points2, setPoints2] = useState("");
+  const [hydrated, setHydrated] = useState(false);
+  const skipNextPersist = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(RANKINGS_STORAGE_KEY)
+      .then((raw) => {
+        if (cancelled || !raw) {
+          return;
+        }
+        try {
+          const draft = JSON.parse(raw) as Partial<RankingsDraft>;
+          skipNextPersist.current = true;
+          if (typeof draft.event1 === "string") setEvent1(draft.event1);
+          if (typeof draft.rank1 === "string") setRank1(draft.rank1);
+          if (typeof draft.place1 === "string") setPlace1(draft.place1);
+          if (typeof draft.points1 === "string") setPoints1(draft.points1);
+          if (typeof draft.event2 === "string") setEvent2(draft.event2);
+          if (typeof draft.rank2 === "string") setRank2(draft.rank2);
+          if (typeof draft.place2 === "string") setPlace2(draft.place2);
+          if (typeof draft.points2 === "string") setPoints2(draft.points2);
+        } catch {
+          // Ignore corrupt drafts.
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setHydrated(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    if (skipNextPersist.current) {
+      skipNextPersist.current = false;
+      return;
+    }
+    const draft: RankingsDraft = {
+      event1,
+      rank1,
+      place1,
+      points1,
+      event2,
+      rank2,
+      place2,
+      points2,
+    };
+    void AsyncStorage.setItem(RANKINGS_STORAGE_KEY, JSON.stringify(draft));
+  }, [
+    hydrated,
+    event1,
+    rank1,
+    place1,
+    points1,
+    event2,
+    rank2,
+    place2,
+    points2,
+  ]);
 
   let event1Options = EVENTS;
   let event2Options = EVENTS;
@@ -362,6 +473,17 @@ export default function RankingsScreen() {
     setRank2("");
     setPlace2("");
     setPoints2("");
+    void AsyncStorage.setItem(
+      RANKINGS_STORAGE_KEY,
+      JSON.stringify(EMPTY_RANKINGS_DRAFT)
+    );
+  };
+
+  const confirmClearAll = () => {
+    Alert.alert("Clear all?", "This will clear both performances.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Clear", style: "destructive", onPress: clearAll },
+    ]);
   };
 
   const scrollContent = (
@@ -455,7 +577,7 @@ export default function RankingsScreen() {
       </View>
       <TouchableOpacity
         style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor: colors.buttonSecondary }]}
-        onPress={clearAll}
+        onPress={confirmClearAll}
       >
         <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
       </TouchableOpacity>
@@ -561,18 +683,17 @@ const styles = StyleSheet.create({
   modalContentRefined: {
     borderRadius: Radius.md,
     paddingVertical: 8,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     alignItems: "stretch",
-    minWidth: 340,
-    maxWidth: "90%",
   },
   modalContentEvent: {
     borderRadius: Radius.md,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    alignItems: "center",
-    minWidth: 200,
-    maxWidth: 320,
+    alignItems: "stretch",
+  },
+  modalScrollContent: {
+    paddingBottom: 8,
   },
   modalPromptRefined: {
     fontSize: scaleFont(12),
@@ -589,8 +710,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   modalOptionEventButton: {
-    width: 200,
-    alignSelf: "center",
+    width: "100%",
+    alignSelf: "stretch",
   },
   modalOptionText: {
     fontSize: scaleFont(14),
