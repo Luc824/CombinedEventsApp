@@ -25,6 +25,7 @@ type ChartModalProps = {
   backgroundColor: string;
   surfaceColor: string;
   overlayColor: string;
+  borderColor?: string;
   barLabelContainerHeight: number;
   barLabelFontSize: number;
   barLabelSmallFontSize?: number;
@@ -44,11 +45,16 @@ export default function ChartModal({
   backgroundColor,
   surfaceColor,
   overlayColor,
+  borderColor,
   barLabelContainerHeight,
   barLabelFontSize,
   barLabelSmallFontSize,
   longLabelLength,
 }: ChartModalProps) {
+  const insetBorder = borderColor
+    ? { borderWidth: StyleSheet.hairlineWidth, borderColor }
+    : null;
+
   return (
     <Modal
       visible={visible}
@@ -77,7 +83,13 @@ export default function ChartModal({
                   accessibilityLabel="Close chart"
                 />
               </View>
-              <View style={[styles.totalScoreCard, { backgroundColor: surfaceColor }]}>
+              <View
+                style={[
+                  styles.totalScoreCard,
+                  { backgroundColor: surfaceColor },
+                  insetBorder,
+                ]}
+              >
                 <Text style={[styles.totalScoreLabel, { color: secondaryTextColor }]}>
                   Total Score
                 </Text>
@@ -94,6 +106,7 @@ export default function ChartModal({
                 trackColor={trackColor}
                 textColor={textColor}
                 backgroundColor={surfaceColor}
+                borderColor={borderColor}
                 barLabelContainerHeight={barLabelContainerHeight}
                 barLabelFontSize={barLabelFontSize}
                 barLabelSmallFontSize={barLabelSmallFontSize}

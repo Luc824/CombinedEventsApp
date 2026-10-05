@@ -246,7 +246,7 @@ export default function WomenPentathlonScreen() {
         inputBorder={colors.inputBorder || colors.border}
         containerBackground={colors.surface}
         containerBorder={colors.border}
-        placeholderColor={colors.textMuted}
+        placeholderColor={colors.placeholder}
       />
     );
   };
@@ -319,8 +319,9 @@ export default function WomenPentathlonScreen() {
         textColor={colors.text}
         secondaryTextColor={colors.textSecondary}
         backgroundColor={colors.cardBackground}
-        surfaceColor={colors.surfaceSolid}
+        surfaceColor={colors.surfaceInset}
         overlayColor={colors.modalOverlay}
+        borderColor={colors.border}
         barLabelContainerHeight={20}
         barLabelFontSize={10}
       />
@@ -338,7 +339,7 @@ export default function WomenPentathlonScreen() {
         overlayColor={colors.modalOverlay}
         textColor={colors.text}
         secondaryTextColor={colors.textSecondary}
-        placeholderColor={colors.textMuted}
+        placeholderColor={colors.placeholder}
         inputBackground={colors.inputBackground}
         inputText={colors.inputText}
         inputBorder={colors.border}

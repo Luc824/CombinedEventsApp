@@ -256,7 +256,7 @@ export default function MenHeptathlonScreen() {
         inputBorder={colors.inputBorder || colors.border}
         containerBackground={colors.surface}
         containerBorder={colors.border}
-        placeholderColor={colors.textMuted}
+        placeholderColor={colors.placeholder}
       />
     );
   };
@@ -347,8 +347,9 @@ export default function MenHeptathlonScreen() {
         textColor={colors.text}
         secondaryTextColor={colors.textSecondary}
         backgroundColor={colors.cardBackground}
-        surfaceColor={colors.surfaceSolid}
+        surfaceColor={colors.surfaceInset}
         overlayColor={colors.modalOverlay}
+        borderColor={colors.border}
         barLabelContainerHeight={22}
         barLabelFontSize={9}
         barLabelSmallFontSize={8}
@@ -368,7 +369,7 @@ export default function MenHeptathlonScreen() {
         overlayColor={colors.modalOverlay}
         textColor={colors.text}
         secondaryTextColor={colors.textSecondary}
-        placeholderColor={colors.textMuted}
+        placeholderColor={colors.placeholder}
         inputBackground={colors.inputBackground}
         inputText={colors.inputText}
         inputBorder={colors.border}

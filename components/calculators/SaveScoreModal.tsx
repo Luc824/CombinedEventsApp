@@ -51,10 +51,10 @@ export default function SaveScoreModal({
 }: SaveScoreModalProps) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-  // Sit in the upper band so the card clears the keyboard without animating up.
+  // Sit above the keyboard, but closer to mid-screen than the top edge.
   const topInset = Math.max(
-    scaleSpacing(56),
-    Math.min(windowHeight * 0.14, scaleSpacing(120))
+    scaleSpacing(88),
+    Math.min(windowHeight * 0.2, scaleSpacing(168))
   );
   const modalWidth = Math.min(windowWidth * 0.88, scaleSpacing(400));
 

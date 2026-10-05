@@ -72,6 +72,7 @@ export default function EventInputRow({
             backgroundColor: inputBackground,
             color: inputText,
             borderColor: inputBorder,
+            fontWeight: "600",
           },
         ]}
         value={value}

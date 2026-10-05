@@ -321,8 +321,9 @@ export default function SavedScoreDetailScreen() {
           textColor={colors.text}
           secondaryTextColor={colors.textSecondary}
           backgroundColor={colors.cardBackground}
-          surfaceColor={colors.surfaceSolid}
+          surfaceColor={colors.surfaceInset}
           overlayColor={colors.modalOverlay}
+          borderColor={colors.border}
           barLabelContainerHeight={chartConfig.barLabelContainerHeight}
           barLabelFontSize={chartConfig.barLabelFontSize}
           barLabelSmallFontSize={chartConfig.barLabelSmallFontSize}

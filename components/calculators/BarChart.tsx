@@ -9,6 +9,7 @@ type BarChartProps = {
   trackColor: string;
   textColor: string;
   backgroundColor: string;
+  borderColor?: string;
   barLabelContainerHeight: number;
   barLabelFontSize: number;
   barLabelSmallFontSize?: number;
@@ -58,6 +59,7 @@ export default function BarChart({
   trackColor,
   textColor,
   backgroundColor,
+  borderColor,
   barLabelContainerHeight,
   barLabelFontSize,
   barLabelSmallFontSize,
@@ -74,7 +76,15 @@ export default function BarChart({
   );
 
   return (
-    <View style={[styles.chartContainer, { backgroundColor }]}>
+    <View
+      style={[
+        styles.chartContainer,
+        { backgroundColor },
+        borderColor
+          ? { borderWidth: StyleSheet.hairlineWidth, borderColor }
+          : null,
+      ]}
+    >
       <Text style={[styles.chartTitle, { color: textColor }]}>
         Performance Overview
       </Text>

@@ -269,7 +269,7 @@ export default function EditSavedScoreScreen() {
         value={title}
         onChangeText={setTitle}
         placeholder="e.g., My Personal Best"
-        placeholderTextColor={colors.textMuted}
+        placeholderTextColor={colors.placeholder}
         maxLength={50}
         selectTextOnFocus
         autoCorrect={false}
@@ -299,7 +299,7 @@ export default function EditSavedScoreScreen() {
             inputBorder={colors.inputBorder || colors.border}
             containerBackground={colors.surface}
             containerBorder={colors.border}
-            placeholderColor={colors.textMuted}
+            placeholderColor={colors.placeholder}
           />
         );
       })}
