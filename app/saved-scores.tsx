@@ -100,6 +100,11 @@ function ScoreCard({
   const pendingResidualRef = useRef(0);
   const lastGestureDyRef = useRef(0);
   const [elevated, setElevated] = useState(false);
+
+  const resetScale = () => {
+    scale.stopAnimation();
+    scale.setValue(1);
+  };
   const indexRef = useRef(index);
   const idRef = useRef(item.id);
   const onHandleGrantRef = useRef(onHandleGrant);
@@ -143,8 +148,9 @@ function ScoreCard({
       pendingResidualRef.current = 0;
       translateY.stopAnimation();
       translateY.setValue(residual);
-      scale.setValue(1);
+      resetScale();
       settlingRef.current = false;
+      setElevated(false);
 
       Animated.timing(translateY, {
         toValue: 0,
@@ -155,7 +161,7 @@ function ScoreCard({
         if (finished) {
           translateY.setValue(0);
         }
-        setElevated(false);
+        resetScale();
       });
       return;
     }
@@ -163,6 +169,7 @@ function ScoreCard({
     if (!dragging) {
       translateY.stopAnimation();
       translateY.setValue(shiftY);
+      resetScale();
     }
   }, [index, shiftY, dragging, translateY, scale]);
 
@@ -188,6 +195,8 @@ function ScoreCard({
         setElevated(true);
         translateY.stopAnimation();
         translateY.setValue(0);
+        scale.stopAnimation();
+        scale.setValue(1);
         onRegisterDragVisualRef.current((scrollDelta) => {
           if (!draggingLocalRef.current) {
             return;
@@ -227,6 +236,7 @@ function ScoreCard({
         draggingLocalRef.current = false;
 
         if (from === to) {
+          setElevated(false);
           Animated.parallel([
             Animated.timing(translateY, {
               toValue: 0,
@@ -242,23 +252,21 @@ function ScoreCard({
             }),
           ]).start(() => {
             translateY.setValue(0);
+            scale.stopAnimation();
             scale.setValue(1);
-            setElevated(false);
             onHandleReleaseRef.current(from, from);
           });
           return;
         }
 
+        // Snap scale back immediately so reorder settle can't leave it enlarged.
+        scale.stopAnimation();
+        scale.setValue(1);
+
         // FLIP: commit the new order now. Residual keeps the card visually
         // where the finger left it; useLayoutEffect then eases that to 0.
         pendingResidualRef.current = translationY - (to - from) * step;
         settlingRef.current = true;
-        Animated.timing(scale, {
-          toValue: 1,
-          duration: SNAP_MS,
-          easing: snapEasing,
-          useNativeDriver: true,
-        }).start();
         onHandleReleaseRef.current(from, to);
       },
       onPanResponderTerminate: () => {
@@ -266,23 +274,18 @@ function ScoreCard({
         settlingRef.current = false;
         pendingResidualRef.current = 0;
         draggingLocalRef.current = false;
-        Animated.parallel([
-          Animated.timing(translateY, {
-            toValue: 0,
-            duration: SNAP_MS,
-            easing: snapEasing,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scale, {
-            toValue: 1,
-            duration: SNAP_MS,
-            easing: snapEasing,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
+        setElevated(false);
+        scale.stopAnimation();
+        scale.setValue(1);
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: SNAP_MS,
+          easing: snapEasing,
+          useNativeDriver: true,
+        }).start(() => {
           translateY.setValue(0);
+          scale.stopAnimation();
           scale.setValue(1);
-          setElevated(false);
           onHandleReleaseRef.current(indexRef.current, indexRef.current);
         });
       },

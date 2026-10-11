@@ -20,6 +20,7 @@ import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
+import { useCalculatorDraft } from "../hooks/useCalculatorDraft";
 import { saveScore } from "../utils/scoreStorage";
 import { getStandardInverseConfig } from "../utils/calculatorInverseConfig";
 import {
@@ -92,6 +93,17 @@ export default function WomenPentathlonScreen() {
   const [showChart, setShowChart] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
+
+  const { clearDraftState } = useCalculatorDraft({
+    eventType: "womenPentathlon",
+    eventCount: 5,
+    results,
+    points,
+    pointsInputs,
+    setResults,
+    setPoints,
+    setPointsInputs,
+  });
 
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
@@ -183,9 +195,8 @@ export default function WomenPentathlonScreen() {
   };
 
   const clearAll = () => {
-    setResults(Array(5).fill(""));
-    setPoints(Array(5).fill(0));
-    setPointsInputs(createEmptyPointsInputs(5));
+    flushPendingPoints();
+    clearDraftState();
   };
 
   const handleSaveScore = async () => {

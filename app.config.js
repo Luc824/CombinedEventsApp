@@ -5,7 +5,7 @@ module.exports = {
   expo: {
     name: IS_DEV ? "CE Points Dev" : "CE Points",
     slug: "decathlon-calculator",
-    version: "1.3.2",
+    version: "1.3.3",
     orientation: "portrait",
     scheme: IS_DEV ? "decathloncalculator-dev" : "decathloncalculator",
     userInterfaceStyle: "automatic",
@@ -16,7 +16,6 @@ module.exports = {
         ? "com.luc.decathloncalculator.dev"
         : "com.luc.decathloncalculator",
       icon: "./assets/images/icon.png",
-      buildNumber: "5",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         NSCameraUsageDescription:

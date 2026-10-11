@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -50,6 +51,7 @@ export default function SaveScoreModal({
   buttonTextColor,
 }: SaveScoreModalProps) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const inputRef = useRef<TextInput>(null);
 
   // Sit above the keyboard, but closer to mid-screen than the top edge.
   const topInset = Math.max(
@@ -58,11 +60,23 @@ export default function SaveScoreModal({
   );
   const modalWidth = Math.min(windowWidth * 0.88, scaleSpacing(400));
 
+  // Focus after the modal is on screen so autofocus doesn't fight appearance.
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 40);
+    return () => clearTimeout(timer);
+  }, [visible]);
+
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="none"
+      animationType="fade"
+      presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
       onRequestClose={onClose}
     >
       <View style={[styles.modalOverlay, { backgroundColor: overlayColor }]}>
@@ -86,6 +100,7 @@ export default function SaveScoreModal({
             Enter a title for this score
           </Text>
           <TextInput
+            ref={inputRef}
             style={[
               styles.saveModalInput,
               {
@@ -98,7 +113,6 @@ export default function SaveScoreModal({
             onChangeText={setTitle}
             placeholder="e.g., My Personal Best"
             placeholderTextColor={placeholderColor}
-            autoFocus
             maxLength={50}
           />
           <View style={styles.saveModalButtons}>

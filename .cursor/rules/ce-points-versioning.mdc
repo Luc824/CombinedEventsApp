@@ -1,0 +1,44 @@
+---
+description: iOS/TestFlight versioning — when to bump marketing version vs build number
+alwaysApply: true
+---
+
+# CE Points — versioning & TestFlight builds
+
+## Two different numbers
+
+| Field | Where | Role |
+|-------|--------|------|
+| **Marketing version** (`expo.version` / `package.json` version, e.g. `1.3.3`) | What users see; App Store Connect “version” | One train of TestFlight builds; one App Store release |
+| **Build number** (EAS remote `ios.buildNumber`, e.g. `51`) | Internal; must always increase | Distinguishes each binary uploaded to Apple |
+
+`eas.json` production already has `"autoIncrement": true` and `"appVersionSource": "remote"` — **build number bumps itself** on every EAS iOS production build. Do not manually fight that.
+
+## How to avoid weird App Store version jumps (1.0 → 1.3 with gaps)
+
+Gaps appear when every TestFlight experiment bumps **marketing version**, then only some versions ever get **Released** on the App Store. End users only see Released versions; Connect still lists every created version.
+
+**Default for “build for TestFlight” / iterate polish:**
+
+1. **Keep the same marketing version** (`1.3.3`).
+2. Let EAS **autoIncrement the build number** only (`51` → `52` → …).
+3. Do **not** bump `app.config.js` / `package.json` version unless one of the cases below.
+
+**Bump marketing version (patch `1.3.3` → `1.3.4`, or minor/major when the change warrants it) when:**
+
+- Starting a **new release train** after the previous version was submitted for App Store review or Released.
+- Apple/ASC rejected or blocked uploads for that version string and a new version is required.
+- User explicitly asks for a new version / App Store release version.
+
+When bumping: update both `app.config.js` `expo.version` and `package.json` `version` to match. Do not set a local `ios.buildNumber` in app config (remote source owns it).
+
+## Before any EAS production / TestFlight build
+
+1. Confirm whether this is **same-train TestFlight** (default: no marketing bump) or a **new version train** (bump first).
+2. Run production iOS build with auto-submit when the user wants TestFlight.
+3. Tell the user the resulting **version + build number** and that Apple needs a few minutes to process.
+
+## Do not
+
+- Bump marketing version on every TestFlight build “just in case” — that creates the Connect clutter.
+- Confuse marketing version with build number when diagnosing ASC errors (duplicate **build** vs duplicate/invalid **version** are different).

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
+  Animated,
   Platform,
   StyleSheet,
   Text,
@@ -7,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { Radius, formFieldStyle } from "../../constants/ui";
+import { CRAFT_FEEDBACK_ENABLED } from "../../utils/craftFeedback";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type EventInputRowProps = {
@@ -53,6 +55,38 @@ export default function EventInputRow({
 }: EventInputRowProps) {
   const displayPoints = pointsValue ? parseInt(pointsValue, 10) : 0;
   const isWeb = Platform.OS === "web";
+  const pointsScale = useRef(new Animated.Value(1)).current;
+  const prevPoints = useRef(pointsValue);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      prevPoints.current = pointsValue;
+      return;
+    }
+    if (!CRAFT_FEEDBACK_ENABLED || pointsValue === prevPoints.current) {
+      prevPoints.current = pointsValue;
+      return;
+    }
+    prevPoints.current = pointsValue;
+
+    // Motion only here — haptic is paired with the total spring.
+    pointsScale.setValue(1);
+    Animated.sequence([
+      Animated.timing(pointsScale, {
+        toValue: 1.08,
+        duration: 90,
+        useNativeDriver: true,
+      }),
+      Animated.spring(pointsScale, {
+        toValue: 1,
+        friction: 6,
+        tension: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [pointsValue, pointsScale]);
 
   return (
     <View
@@ -89,7 +123,9 @@ export default function EventInputRow({
         autoCorrect={false}
         spellCheck={false}
       />
-      <View style={styles.pointsWrap}>
+      <Animated.View
+        style={[styles.pointsWrap, { transform: [{ scale: pointsScale }] }]}
+      >
         <TextInput
           style={[
             styles.pointsInput,
@@ -117,7 +153,7 @@ export default function EventInputRow({
           spellCheck={false}
         />
         <Text style={[styles.pointsSuffix, { color: textColor }]}>pts</Text>
-      </View>
+      </Animated.View>
     </View>
   );
 }

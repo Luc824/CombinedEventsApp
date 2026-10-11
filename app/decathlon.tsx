@@ -21,6 +21,7 @@ import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
+import { useCalculatorDraft } from "../hooks/useCalculatorDraft";
 import { saveScore } from "../utils/scoreStorage";
 import { getDecathlonInverseConfig } from "../utils/calculatorInverseConfig";
 import {
@@ -125,6 +126,17 @@ export default function DecathlonScreen() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
 
+  const { clearDraftState } = useCalculatorDraft({
+    eventType: "decathlon",
+    eventCount: 10,
+    results,
+    points,
+    pointsInputs,
+    setResults,
+    setPoints,
+    setPointsInputs,
+  });
+
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
     const event = DECATHLON_EVENTS[index];
@@ -213,9 +225,8 @@ export default function DecathlonScreen() {
   };
 
   const clearAll = () => {
-    setResults(Array(10).fill(""));
-    setPoints(Array(10).fill(0));
-    setPointsInputs(createEmptyPointsInputs(10));
+    flushPendingPoints();
+    clearDraftState();
   };
 
   const handleSaveScore = async () => {

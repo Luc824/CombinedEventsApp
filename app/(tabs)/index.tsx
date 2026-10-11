@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Platform,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -9,6 +8,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import InfoButton from "../../components/InfoButton";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
@@ -48,7 +48,10 @@ export default function EventsScreen() {
 
   return (
     <SwipeableTabWrapper tabIndex={0}>
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: colors.background }]}
+        edges={["top", "left", "right"]}
+      >
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
         <View
           style={[
@@ -145,6 +148,8 @@ const styles = StyleSheet.create({
   contentBlock: {
     width: "100%",
     alignItems: "center",
+    // Nudge up so the home title lines up with Support’s title (Support unchanged).
+    marginTop: -scaleSpacing(44),
   },
   titleRow: {
     width: "100%",

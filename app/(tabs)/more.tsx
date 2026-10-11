@@ -205,7 +205,10 @@ export default function MoreScreen() {
 
   return (
     <SwipeableTabWrapper tabIndex={2}>
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: colors.background }]}
+        edges={["top", "left", "right"]}
+      >
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
         <ScrollView
           style={styles.scrollView}

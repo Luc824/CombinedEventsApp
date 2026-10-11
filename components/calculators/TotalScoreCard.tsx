@@ -1,6 +1,7 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, StyleSheet, Text } from "react-native";
 import { Radius } from "../../constants/ui";
+import { CRAFT_FEEDBACK_ENABLED } from "../../utils/craftFeedback";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
 type TotalScoreCardProps = {
@@ -20,11 +21,43 @@ export default function TotalScoreCard({
   backgroundColor,
   borderColor,
 }: TotalScoreCardProps) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const prevScore = useRef(totalScore);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      prevScore.current = totalScore;
+      return;
+    }
+    if (!CRAFT_FEEDBACK_ENABLED || totalScore === prevScore.current) {
+      prevScore.current = totalScore;
+      return;
+    }
+    prevScore.current = totalScore;
+    scale.setValue(1);
+    Animated.sequence([
+      Animated.spring(scale, {
+        toValue: 1.03,
+        friction: 6,
+        tension: 220,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 7,
+        tension: 180,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [totalScore, scale]);
+
   return (
-    <View
+    <Animated.View
       style={[
         styles.totalContainer,
-        { backgroundColor, borderColor },
+        { backgroundColor, borderColor, transform: [{ scale }] },
       ]}
     >
       <Text style={[styles.totalText, { color: textColor }]}>
@@ -33,7 +66,7 @@ export default function TotalScoreCard({
       <Text style={[styles.resultScoreText, { color: trackColor }]}>
         Result Score: {resultScore}
       </Text>
-    </View>
+    </Animated.View>
   );
 }
 

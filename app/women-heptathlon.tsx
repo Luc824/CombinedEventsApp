@@ -21,6 +21,7 @@ import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { useTheme } from "../contexts/ThemeContext";
 import { worldAthleticsScores } from "../data/worldAthleticsScores";
+import { useCalculatorDraft } from "../hooks/useCalculatorDraft";
 import { saveScore } from "../utils/scoreStorage";
 import { getStandardInverseConfig } from "../utils/calculatorInverseConfig";
 import {
@@ -105,6 +106,17 @@ export default function WomenHeptathlonScreen() {
   const [showChart, setShowChart] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
+
+  const { clearDraftState } = useCalculatorDraft({
+    eventType: "womenHeptathlon",
+    eventCount: 7,
+    results,
+    points,
+    pointsInputs,
+    setResults,
+    setPoints,
+    setPointsInputs,
+  });
 
   const calculatePoints = (value: string, index: number) => {
     if (!value) return 0;
@@ -200,9 +212,8 @@ export default function WomenHeptathlonScreen() {
   };
 
   const clearAll = () => {
-    setResults(Array(7).fill(""));
-    setPoints(Array(7).fill(0));
-    setPointsInputs(createEmptyPointsInputs(7));
+    flushPendingPoints();
+    clearDraftState();
   };
 
   const handleSaveScore = async () => {

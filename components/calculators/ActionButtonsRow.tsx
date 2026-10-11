@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import PressableFeedback from "../PressableFeedback";
 import { actionButtonStyle, buttonElevation } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
@@ -20,23 +21,33 @@ export default function ActionButtonsRow({
 }: ActionButtonsRowProps) {
   return (
     <View style={styles.buttonRow}>
-      <TouchableOpacity
-        style={[styles.actionButton, actionButtonStyle, buttonElevation(), { backgroundColor: buttonBackground }]}
+      <PressableFeedback
+        style={[
+          styles.actionButton,
+          actionButtonStyle,
+          buttonElevation(),
+          { backgroundColor: buttonBackground },
+        ]}
         onPress={onViewChart}
       >
         <Text style={[styles.actionButtonText, { color: buttonTextColor }]}>
           View Chart
         </Text>
-      </TouchableOpacity>
+      </PressableFeedback>
       {showSaveButton && (
-        <TouchableOpacity
-          style={[styles.actionButton, actionButtonStyle, buttonElevation(), { backgroundColor: buttonBackground }]}
+        <PressableFeedback
+          style={[
+            styles.actionButton,
+            actionButtonStyle,
+            buttonElevation(),
+            { backgroundColor: buttonBackground },
+          ]}
           onPress={onSaveScore}
         >
           <Text style={[styles.actionButtonText, { color: buttonTextColor }]}>
             Save Score
           </Text>
-        </TouchableOpacity>
+        </PressableFeedback>
       )}
     </View>
   );

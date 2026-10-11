@@ -128,11 +128,6 @@ function formatStorePrice(product: {
   price?: number | null;
   currencyCode?: string | null;
 }): string {
-  // Prefer StoreKit/Play priceString — matches the purchase sheet the user sees.
-  if (typeof product.priceString === "string" && product.priceString.trim()) {
-    return product.priceString.trim();
-  }
-
   const currencyCode =
     typeof product.currencyCode === "string" && product.currencyCode.trim()
       ? product.currencyCode.trim()
@@ -142,6 +137,8 @@ function formatStorePrice(product: {
       ? product.price
       : null;
 
+  // Prefer price + currencyCode (storefront) over priceString. RC/getProducts
+  // sometimes returns a USD priceString while the purchase sheet uses EUR/etc.
   if (price != null && currencyCode) {
     try {
       return new Intl.NumberFormat(undefined, {
@@ -149,8 +146,12 @@ function formatStorePrice(product: {
         currency: currencyCode,
       }).format(price);
     } catch {
-      return "";
+      // Fall through to priceString.
     }
+  }
+
+  if (typeof product.priceString === "string" && product.priceString.trim()) {
+    return product.priceString.trim();
   }
 
   return "";
@@ -176,13 +177,19 @@ export function getPackagePriceLabel(
   pkg: PurchasesPackage,
   priceByProductId: Record<string, string>
 ): string {
+  // Offering package product is what purchasePackage uses — prefer it so the
+  // button matches the Apple Pay / Play sheet currency.
+  const fromPackage = getLocalizedPackagePrice(pkg);
+  if (fromPackage) {
+    return fromPackage;
+  }
   for (const id of packageIdentifiers(pkg)) {
     const label = priceByProductId[id];
     if (label) {
       return label;
     }
   }
-  return getLocalizedPackagePrice(pkg);
+  return "";
 }
 
 /** Localized price for UI — never uses hardcoded USD fallbacks. */
@@ -260,10 +267,13 @@ export async function loadDonationCatalog(): Promise<DonationCatalog> {
     }
   }
 
-  // Index offering package prices under every alias we might look up with.
+  // Index offering package prices under every alias (package wins over getProducts).
   for (const pkg of packages) {
-    const label =
-      getPackagePriceLabel(pkg, priceByProductId) || getLocalizedPackagePrice(pkg);
+    const fromPackage = getLocalizedPackagePrice(pkg);
+    const fromProducts = packageIdentifiers(pkg)
+      .map((id) => priceByProductId[id])
+      .find((label) => Boolean(label));
+    const label = fromPackage || fromProducts || "";
     setPriceForIds(priceByProductId, packageIdentifiers(pkg), label);
   }
 

@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 import { openAppReview } from "./openUrl";
 
 const STORAGE_KEYS = {
@@ -89,21 +89,9 @@ export function showReviewPrompt(): void {
     return;
   }
 
+  // Show Apple/Google's native star sheet directly (no intermediate alert).
   void markPromptShown();
-
-  Alert.alert(
-    "Enjoying CE Points?",
-    "If the app helps with your training, a quick App Store review would mean a lot.",
-    [
-      { text: "Not Now", style: "cancel" },
-      {
-        text: "Rate App",
-        onPress: () => {
-          void requestStoreReview();
-        },
-      },
-    ]
-  );
+  void requestStoreReview();
 }
 
 export async function resetReviewPromptState(): Promise<void> {

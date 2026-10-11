@@ -1,7 +1,10 @@
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from "react-native-safe-area-context";
 import AgentationMount from "../components/AgentationMount";
 import WebNavBar from "../components/WebNavBar";
 import { ThemeColors } from "../constants/ThemeColors";
@@ -123,7 +126,7 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ThemeProvider>
         <RootContent />
       </ThemeProvider>

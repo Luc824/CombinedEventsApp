@@ -1,5 +1,6 @@
 import React from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, Text } from "react-native";
+import PressableFeedback from "../PressableFeedback";
 import { actionButtonStyle, buttonElevation } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
@@ -22,12 +23,17 @@ export default function ClearButton({
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor }]}
+    <PressableFeedback
+      style={[
+        styles.clearButton,
+        actionButtonStyle,
+        buttonElevation(),
+        { backgroundColor },
+      ]}
       onPress={handlePress}
     >
       <Text style={[styles.clearButtonText, { color: textColor }]}>Clear</Text>
-    </TouchableOpacity>
+    </PressableFeedback>
   );
 }
 
