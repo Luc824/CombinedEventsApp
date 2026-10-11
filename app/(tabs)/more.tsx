@@ -35,12 +35,9 @@ import { useSafePush } from "../../utils/useSafePush";
 
 const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
 
-/** Web / PayPal only — never shown for native IAP (misleading across regions). */
-const WEB_PACKAGE_PRICES: Record<string, string> = {
-  donation_tier1: "1.99",
-  donation_tier2: "9.99",
-  donation_tier3: "99.99",
-};
+/** Open PayPal Donate button (any amount). */
+const WEB_PAYPAL_DONATE_URL =
+  "https://www.paypal.com/donate/?hosted_button_id=VZWTBDK6CNYQQ";
 
 const PACKAGE_LABELS: Record<string, string> = {
   donation_tier1: "Amateur",
@@ -116,14 +113,8 @@ export default function MoreScreen() {
     safePush("/saved-scores" as any);
   };
 
-  const handleWebDonate = (tier: string) => {
-    const paypalLinks: Record<string, string> = {
-      Amateur:
-        "https://www.paypal.com/donate/?hosted_button_id=T8MY5NVGKJGHE",
-      Pro: "https://www.paypal.com/donate/?hosted_button_id=QXR3XBPLZ3YBN",
-      GOAT: "https://www.paypal.com/donate/?hosted_button_id=VZWTBDK6CNYQQ",
-    };
-    Linking.openURL(paypalLinks[tier] ?? paypalLinks.Amateur);
+  const handleWebDonate = () => {
+    Linking.openURL(WEB_PAYPAL_DONATE_URL);
   };
 
   const handleDonate = async (pkg?: DonationPackage) => {
@@ -146,21 +137,21 @@ export default function MoreScreen() {
   const renderTipButtons = () => {
     if (Platform.OS === "web") {
       return (
-        <View style={styles.donateRow}>
-          {FALLBACK_TIERS.map((tier, index) => {
-            const price = WEB_PACKAGE_PRICES[`donation_tier${index + 1}`] ?? "";
-            return (
-              <TouchableOpacity
-                key={tier}
-                style={[styles.donateButton, { backgroundColor: TRACK_COLOR }]}
-                onPress={() => handleWebDonate(tier)}
-              >
-                <Text style={styles.donateTier}>{tier}</Text>
-                {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <TouchableOpacity
+          style={[
+            styles.webDonateButton,
+            pillButtonStyle,
+            buttonElevation(),
+            { backgroundColor: TRACK_COLOR },
+          ]}
+          onPress={handleWebDonate}
+          accessibilityRole="link"
+          accessibilityLabel="Leave a tip"
+        >
+          <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+            Leave a tip
+          </Text>
+        </TouchableOpacity>
       );
     }
 
@@ -371,6 +362,9 @@ const styles = StyleSheet.create({
     marginTop: scaleSpacing(28),
     marginBottom: scaleSpacing(12),
     textAlign: "center",
+  },
+  webDonateButton: {
+    width: "100%",
   },
   donateRow: {
     flexDirection: "row",
