@@ -1,0 +1,33 @@
+---
+description: CE Points UI/UX conventions — theme, calculators, motion restraint
+globs: app/**/*.tsx,components/**/*.tsx,constants/ThemeColors.ts,constants/ui.ts
+alwaysApply: false
+---
+
+# CE Points — UI
+
+## Theme & surfaces
+
+- Use `ThemeColors` tokens; don’t hardcode one-off grays.
+- Light and dark should **read the same structure** (e.g. chart total + overview insets via `surfaceInset` + hairline border — not white-on-white in light).
+- Brand accent: track orange `#D35400` / `TRACK_COLOR`. Avoid purple/glow/AI-default aesthetics.
+
+## Calculators
+
+- Placeholders = world-record hints → use `colors.placeholder` (more faded than muted text).
+- Typed performance values should read clearly (slightly bolder than placeholders).
+- Save Score modal: clear of keyboard, not stuck to it, not shoved to the top edge.
+- Prefer shared calculator components over per-event one-offs when behavior matches.
+
+## Motion & interaction
+
+- Prefer springs / Reanimated over linear fades for meaningful transitions.
+- Motion serves hierarchy and feedback (reorder, press, open/close) — not decoration.
+- Match existing patterns (FLIP reorder, edge auto-scroll, flush-before-chart) before inventing new ones.
+- Haptics only where they clarify an action; don’t spam.
+
+## Anti-patterns
+
+- Extra cards, pill clusters, stat strips, or “marketing” chrome inside the app.
+- Light-mode-only or dark-mode-only fixes that break the other theme.
+- Large refactors when a token or spacing tweak would do.

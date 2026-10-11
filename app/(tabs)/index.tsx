@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   getAppButton: {
-    marginTop: scaleSpacing(28),
+    marginTop: scaleSpacing(48),
     width: "100%",
     maxWidth: 340,
     alignSelf: "center",

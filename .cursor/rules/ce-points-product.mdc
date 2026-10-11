@@ -1,0 +1,22 @@
+---
+description: CE Points product north star — why the app exists and what “best” means
+alwaysApply: true
+---
+
+# CE Points — product
+
+## Why this exists
+
+Build the **default** combined-events points app for athletes and fans — not “another calculator.” Competitors (sites, one older App Store app, new AI clones) make craft the moat. Prefer fewer features done excellently over more features done okay.
+
+## Non-negotiables
+
+- **Trust scoring first.** Points, inverse points, rankings, and World Athletics alignment must feel correct and fast. UI polish never ships over a scoring bug.
+- **Calculators stay clear.** Performance ↔ points, world-record placeholders (faded), light/dark parity on nested surfaces (chart insets, cards).
+- **Rankings are a pillar**, not an afterthought — same care as calculators.
+- **Expo is fine.** Prefer Reanimated / Gesture Handler / existing native tabs & glass over a Swift rewrite unless a platform feature truly requires it.
+- **Ship the detail users feel**, not dashboard chrome. No clutter for its own sake.
+
+## When changing the app
+
+Ask: does this make CE Points more inevitable as the default tool? If not, skip or simplify.

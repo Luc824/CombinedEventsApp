@@ -1,7 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, usePathname, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
+  Easing,
+  Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -15,11 +19,85 @@ import { TRACK_COLOR } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
 import { scaleFont, scaleSpacing } from "../utils/uiScale";
 
+const LOGO = require("../assets/images/icon.png");
+
 function isActivePath(pathname: string, href: string) {
   if (href === "/") {
     return pathname === "/" || pathname === "" || pathname === "/index";
   }
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function MenuIcon({ open, color }: { open: boolean; color: string }) {
+  const progress = useRef(new Animated.Value(open ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: open ? 1 : 0,
+      duration: 320,
+      easing: Easing.bezier(0.22, 1, 0.36, 1),
+      useNativeDriver: true,
+    }).start();
+  }, [open, progress]);
+
+  const topStyle = {
+    transform: [
+      {
+        translateY: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-7, 0],
+        }),
+      },
+      {
+        rotate: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["0deg", "45deg"],
+        }),
+      },
+    ],
+  };
+
+  const midStyle = {
+    opacity: progress.interpolate({
+      inputRange: [0, 0.4, 1],
+      outputRange: [1, 0, 0],
+    }),
+    transform: [
+      {
+        scaleX: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0.4],
+        }),
+      },
+    ],
+  };
+
+  const bottomStyle = {
+    transform: [
+      {
+        translateY: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [7, 0],
+        }),
+      },
+      {
+        rotate: progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["0deg", "-45deg"],
+        }),
+      },
+    ],
+  };
+
+  return (
+    <View style={styles.menuIcon}>
+      <Animated.View style={[styles.menuBar, { backgroundColor: color }, topStyle]} />
+      <Animated.View style={[styles.menuBar, { backgroundColor: color }, midStyle]} />
+      <Animated.View
+        style={[styles.menuBar, { backgroundColor: color }, bottomStyle]}
+      />
+    </View>
+  );
 }
 
 export default function WebNavBar() {
@@ -28,16 +106,52 @@ export default function WebNavBar() {
   const pathname = usePathname();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const isDesktop = width >= WEB_NAV_BREAKPOINT;
-  const showFullBrand = width >= 560;
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname, isDesktop]);
 
+  useEffect(() => {
+    Animated.timing(menuProgress, {
+      toValue: menuOpen ? 1 : 0,
+      duration: 380,
+      easing: Easing.bezier(0.22, 1, 0.36, 1),
+      useNativeDriver: true,
+    }).start();
+  }, [menuOpen, menuProgress]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof document === "undefined") {
+      return;
+    }
+    const previous = document.body.style.overflow;
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
+
   const closeMenu = () => setMenuOpen(false);
+  const topPad = Math.max(insets.top, 8);
+  const barHeight = topPad + 48 + 8;
+
+  const overlayStyle = {
+    opacity: menuProgress,
+    transform: [
+      {
+        translateY: menuProgress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-12, 0],
+        }),
+      },
+    ],
+  };
 
   return (
     <View
@@ -50,24 +164,38 @@ export default function WebNavBar() {
         },
       ]}
     >
-      <View style={[styles.bar, { paddingTop: Math.max(insets.top, 8) }]}>
+      <View
+        style={[
+          styles.bar,
+          {
+            paddingTop: topPad,
+            zIndex: 30,
+            backgroundColor: colors.background,
+          },
+        ]}
+      >
         <View style={styles.barInner}>
           <Pressable
-            onPress={() => router.navigate("/")}
+            onPress={() => {
+              closeMenu();
+              router.navigate("/");
+            }}
             accessibilityRole="link"
-            accessibilityLabel="Combined Events Points home"
-            style={({ hovered, pressed }) => [
+            accessibilityLabel="CE Points home"
+            style={({ hovered, pressed }: any) => [
               styles.brandButton,
               (hovered || pressed) && { opacity: 0.8 },
             ]}
           >
-            <Text style={styles.brand}>
-              {showFullBrand ? "Combined Events Points" : "CE Points"}
-            </Text>
+            <Image
+              source={LOGO}
+              style={styles.brandLogo}
+              accessibilityIgnoresInvertColors
+            />
           </Pressable>
 
           {isDesktop ? (
-            <View style={styles.desktopLinks}>
+            <View style={styles.desktopLinks} pointerEvents="box-none">
               {WEB_NAV_ITEMS.map((item) => {
                 const active = isActivePath(pathname, String(item.href));
                 return (
@@ -76,7 +204,7 @@ export default function WebNavBar() {
                       <Pressable
                         accessibilityRole="link"
                         accessibilityState={{ selected: active }}
-                        style={({ hovered, pressed }) => [
+                        style={({ hovered, pressed }: any) => [
                           styles.desktopLink,
                           (hovered || pressed) && { opacity: 0.75 },
                           active && { borderBottomColor: TRACK_COLOR },
@@ -110,25 +238,34 @@ export default function WebNavBar() {
               accessibilityRole="button"
               accessibilityLabel={menuOpen ? "Close menu" : "Open menu"}
               hitSlop={8}
-              style={({ hovered, pressed }) => [
+              style={({ hovered, pressed }: any) => [
                 styles.menuButton,
-                { borderColor: colors.border, backgroundColor: colors.surfaceSolid },
-                (hovered || pressed) && { opacity: 0.8 },
+                (hovered || pressed) && { opacity: 0.75 },
               ]}
             >
-              <Ionicons
-                name={menuOpen ? "close" : "menu"}
-                size={22}
-                color={TRACK_COLOR}
-              />
+              <MenuIcon open={menuOpen} color={TRACK_COLOR} />
             </Pressable>
           )}
+
+          {/* Balances the logo so desktop tabs sit truly centered */}
+          {isDesktop ? <View style={styles.brandSpacer} /> : null}
         </View>
       </View>
 
-      {!isDesktop && menuOpen ? (
-        <>
-          <View style={[styles.menuPanel, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      {!isDesktop ? (
+        <Animated.View
+          pointerEvents={menuOpen ? "auto" : "none"}
+          style={[
+            styles.fullMenu,
+            {
+              backgroundColor: colors.background,
+              paddingTop: barHeight + scaleSpacing(24),
+              paddingBottom: Math.max(insets.bottom, scaleSpacing(32)),
+            },
+            overlayStyle,
+          ]}
+        >
+          <View style={styles.fullMenuLinks}>
             {WEB_NAV_ITEMS.map((item) => {
               const active = isActivePath(pathname, String(item.href));
               return (
@@ -137,22 +274,25 @@ export default function WebNavBar() {
                     onPress={closeMenu}
                     accessibilityRole="link"
                     accessibilityState={{ selected: active }}
-                    style={({ hovered, pressed }) => [
-                      styles.menuItem,
-                      active && { backgroundColor: colors.surfaceSolid },
-                      (hovered || pressed) && { backgroundColor: colors.surfaceSolid },
+                    style={({ hovered, pressed }: any) => [
+                      styles.fullMenuItem,
+                      { borderBottomColor: colors.border },
+                      (hovered || pressed) && { opacity: 0.7 },
                     ]}
                   >
                     <View style={styles.linkRow}>
                       <Ionicons
                         name={item.icon}
-                        size={20}
+                        size={26}
                         color={active ? TRACK_COLOR : colors.textMuted}
                       />
                       <Text
                         style={[
-                          styles.menuItemText,
-                          { color: active ? TRACK_COLOR : colors.text },
+                          styles.fullMenuItemText,
+                          {
+                            color: active ? TRACK_COLOR : colors.text,
+                            opacity: menuOpen ? 1 : 0,
+                          },
                           active && styles.desktopLinkTextActive,
                         ]}
                       >
@@ -164,18 +304,7 @@ export default function WebNavBar() {
               );
             })}
           </View>
-          <Pressable
-            onPress={closeMenu}
-            accessibilityLabel="Dismiss menu"
-            style={[
-              styles.backdrop,
-              {
-                backgroundColor: colors.modalOverlay,
-                height,
-              },
-            ]}
-          />
-        </>
+        </Animated.View>
       ) : null}
     </View>
   );
@@ -183,12 +312,13 @@ export default function WebNavBar() {
 
 const styles = StyleSheet.create({
   wrapper: {
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     position: "relative",
     overflow: "visible",
   },
   bar: {
     paddingBottom: 8,
+    position: "relative",
   },
   barInner: {
     flexDirection: "row",
@@ -199,24 +329,38 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     paddingHorizontal: scaleSpacing(20),
     minHeight: 48,
+    position: "relative",
   },
   brandButton: {
-    paddingVertical: 6,
-    paddingRight: 12,
+    width: 52,
+    height: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
     cursor: "pointer",
   },
-  brand: {
-    color: TRACK_COLOR,
-    fontSize: scaleFont(18),
-    fontWeight: "700",
-    letterSpacing: 0.2,
+  brandLogo: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+  },
+  brandSpacer: {
+    width: 52,
+    height: 52,
   },
   desktopLinks: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 40,
   },
   desktopLinkWrap: {
-    marginLeft: 40,
+    marginLeft: 0,
   },
   desktopLink: {
     paddingVertical: 8,
@@ -237,42 +381,59 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   menuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    borderWidth: 1,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
-    cursor: "pointer",
-  },
-  menuPanel: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    right: 0,
     zIndex: 2,
-    borderBottomWidth: 1,
-    paddingVertical: scaleSpacing(12),
-    paddingHorizontal: scaleSpacing(16),
-    gap: scaleSpacing(10),
-  },
-  menuItem: {
-    paddingHorizontal: scaleSpacing(14),
-    paddingVertical: scaleSpacing(16),
-    borderRadius: 10,
-    minHeight: 52,
-    justifyContent: "center",
     cursor: "pointer",
   },
-  menuItemText: {
-    fontSize: scaleFont(16),
-    fontWeight: "600",
+  menuIcon: {
+    width: 22,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  backdrop: {
+  menuBar: {
     position: "absolute",
+    width: 22,
+    height: 2,
+    borderRadius: 1,
+  },
+  fullMenu: {
+    ...Platform.select({
+      web: {
+        position: "fixed" as any,
+      },
+      default: {
+        position: "absolute",
+      },
+    }),
+    top: 0,
     left: 0,
     right: 0,
-    top: "100%",
-    zIndex: 1,
+    bottom: 0,
+    zIndex: 25,
+    paddingHorizontal: scaleSpacing(28),
+    justifyContent: "center",
+  },
+  fullMenuLinks: {
+    gap: scaleSpacing(8),
+    maxWidth: 420,
+    width: "100%",
+    alignSelf: "center",
+    marginBottom: scaleSpacing(48),
+  },
+  fullMenuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: scaleSpacing(18),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    cursor: "pointer",
+  },
+  fullMenuItemText: {
+    fontSize: scaleFont(32),
+    fontWeight: "700",
+    letterSpacing: -0.4,
   },
 });

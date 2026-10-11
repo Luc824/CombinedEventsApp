@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 import { Platform, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import AgentationMount from "../components/AgentationMount";
 import WebNavBar from "../components/WebNavBar";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
@@ -100,6 +101,7 @@ function RootContent() {
         <View style={{ flex: 1 }}>
           <AppStack />
         </View>
+        <AgentationMount />
       </View>
     );
   }
