@@ -25,6 +25,7 @@ import {
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
 import {
+  getPackagePriceLabel,
   loadDonationCatalog,
   purchaseDonationPackage,
   type DonationPackage,
@@ -160,11 +161,7 @@ export default function MoreScreen() {
         <View style={styles.donateRow}>
           {donationPackages.slice(0, 3).map((pkg) => {
             const label = getPackageLabel(pkg);
-            const productId =
-              pkg.storeProduct?.identifier ??
-              pkg.storeProduct?.productIdentifier ??
-              pkg.identifier;
-            const price = priceByProductId[productId] ?? "";
+            const price = getPackagePriceLabel(pkg, priceByProductId);
             return (
               <TouchableOpacity
                 key={pkg.identifier}

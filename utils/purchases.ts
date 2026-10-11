@@ -128,6 +128,11 @@ function formatStorePrice(product: {
   price?: number | null;
   currencyCode?: string | null;
 }): string {
+  // Prefer StoreKit/Play priceString — matches the purchase sheet the user sees.
+  if (typeof product.priceString === "string" && product.priceString.trim()) {
+    return product.priceString.trim();
+  }
+
   const currencyCode =
     typeof product.currencyCode === "string" && product.currencyCode.trim()
       ? product.currencyCode.trim()
@@ -137,8 +142,6 @@ function formatStorePrice(product: {
       ? product.price
       : null;
 
-  // Prefer numeric price + ISO currency so the label matches the storefront
-  // currency used by the system purchase sheet (priceString can lag / be wrong).
   if (price != null && currencyCode) {
     try {
       return new Intl.NumberFormat(undefined, {
@@ -146,15 +149,40 @@ function formatStorePrice(product: {
         currency: currencyCode,
       }).format(price);
     } catch {
-      // Invalid currency code — fall through to priceString.
+      return "";
     }
   }
 
-  if (typeof product.priceString === "string" && product.priceString.trim()) {
-    return product.priceString.trim();
-  }
-
   return "";
+}
+
+function setPriceForIds(
+  map: Record<string, string>,
+  ids: Array<string | undefined | null>,
+  label: string
+) {
+  if (!label) {
+    return;
+  }
+  for (const id of ids) {
+    if (id) {
+      map[id] = label;
+    }
+  }
+}
+
+/** Resolve a tip button price using any known package / product id alias. */
+export function getPackagePriceLabel(
+  pkg: PurchasesPackage,
+  priceByProductId: Record<string, string>
+): string {
+  for (const id of packageIdentifiers(pkg)) {
+    const label = priceByProductId[id];
+    if (label) {
+      return label;
+    }
+  }
+  return getLocalizedPackagePrice(pkg);
 }
 
 /** Localized price for UI — never uses hardcoded USD fallbacks. */
@@ -204,8 +232,9 @@ export async function loadDonationCatalog(): Promise<DonationCatalog> {
   const packages = getDonationPackages(getTipsOffering(data));
   const priceByProductId: Record<string, string> = {};
 
-  // Offerings can expose server-side / default prices. Fetch store products
-  // directly so button labels match the system purchase sheet currency.
+  // Tips are consumables. getProducts defaults to SUBSCRIPTION and returns []
+  // for these SKUs unless NON_SUBSCRIPTION is passed — which left buttons
+  // without amounts even though purchasePackage still worked.
   try {
     const productIds = [
       ...new Set([
@@ -213,12 +242,17 @@ export async function loadDonationCatalog(): Promise<DonationCatalog> {
         ...packages.map(getPackageProductId).filter(Boolean),
       ]),
     ];
-    const products = await Purchases.getProducts(productIds);
+    const products = await Purchases.getProducts(
+      productIds,
+      Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION
+    );
     for (const product of products) {
       const label = formatStorePrice(product);
-      if (label) {
-        priceByProductId[product.identifier] = label;
-      }
+      setPriceForIds(
+        priceByProductId,
+        [product.identifier, (product as { productIdentifier?: string }).productIdentifier],
+        label
+      );
     }
   } catch (error) {
     if (__DEV__) {
@@ -226,15 +260,11 @@ export async function loadDonationCatalog(): Promise<DonationCatalog> {
     }
   }
 
-  // Fall back to whatever the package already carries (still no hardcoded USD).
+  // Index offering package prices under every alias we might look up with.
   for (const pkg of packages) {
-    const id = getPackageProductId(pkg);
-    if (!priceByProductId[id]) {
-      const label = getLocalizedPackagePrice(pkg);
-      if (label) {
-        priceByProductId[id] = label;
-      }
-    }
+    const label =
+      getPackagePriceLabel(pkg, priceByProductId) || getLocalizedPackagePrice(pkg);
+    setPriceForIds(priceByProductId, packageIdentifiers(pkg), label);
   }
 
   return { packages, priceByProductId };

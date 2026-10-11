@@ -39,6 +39,13 @@ export function getLocalizedPackagePrice(_pkg: DonationPackage): string {
   return "";
 }
 
+export function getPackagePriceLabel(
+  _pkg: DonationPackage,
+  _priceByProductId: Record<string, string>
+): string {
+  return "";
+}
+
 export function getPackageProductId(pkg: DonationPackage): string {
   return (
     pkg.storeProduct?.identifier ??
