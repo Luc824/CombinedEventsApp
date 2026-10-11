@@ -13,7 +13,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import Purchases, { PurchasesPackage } from "react-native-purchases";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
@@ -25,7 +24,11 @@ import {
   buttonElevation,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
-import { loadDonationCatalog } from "../../utils/purchases";
+import {
+  loadDonationCatalog,
+  purchaseDonationPackage,
+  type DonationPackage,
+} from "../../utils/purchases";
 import { openAppReview, openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 import { useSafePush } from "../../utils/useSafePush";
@@ -45,8 +48,8 @@ const PACKAGE_LABELS: Record<string, string> = {
   donation_tier3: "GOAT",
 };
 
-function getPackageLabel(pkg: PurchasesPackage): string {
-  const sp = pkg.storeProduct ?? (pkg as any).product;
+function getPackageLabel(pkg: DonationPackage): string {
+  const sp = pkg.storeProduct ?? (pkg as { product?: { identifier?: string; title?: string } }).product;
   const pkgId =
     pkg.storeProduct?.identifier ??
     pkg.storeProduct?.productIdentifier ??
@@ -61,7 +64,7 @@ export default function MoreScreen() {
   const colors = ThemeColors[theme];
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
-  const [donationPackages, setDonationPackages] = useState<PurchasesPackage[]>([]);
+  const [donationPackages, setDonationPackages] = useState<DonationPackage[]>([]);
   const [priceByProductId, setPriceByProductId] = useState<Record<string, string>>(
     {}
   );
@@ -123,14 +126,14 @@ export default function MoreScreen() {
     Linking.openURL(paypalLinks[tier] ?? paypalLinks.Amateur);
   };
 
-  const handleDonate = async (pkg?: PurchasesPackage) => {
+  const handleDonate = async (pkg?: DonationPackage) => {
     try {
       if (!pkg) {
         Alert.alert("Unavailable", "No donation package is available right now.");
         return;
       }
       setLoading(true);
-      await Purchases.purchasePackage(pkg);
+      await purchaseDonationPackage(pkg);
       Alert.alert("Thank you!", "Your donation was successful.");
     } catch (e: any) {
       if (e?.userCancelled) return;

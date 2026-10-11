@@ -169,8 +169,10 @@ export function getLocalizedPackagePrice(pkg: PurchasesPackage): string {
   return formatStorePrice(sp);
 }
 
+export type DonationPackage = PurchasesPackage;
+
 export type DonationCatalog = {
-  packages: PurchasesPackage[];
+  packages: DonationPackage[];
   /** Product id → localized price from a fresh StoreKit / Play Billing fetch */
   priceByProductId: Record<string, string>;
 };
@@ -182,6 +184,15 @@ export function getPackageProductId(pkg: PurchasesPackage): string {
     (pkg as { product?: { identifier?: string } }).product?.identifier ??
     pkg.identifier
   );
+}
+
+export async function purchaseDonationPackage(
+  pkg: DonationPackage
+): Promise<void> {
+  if (!configurePurchases()) {
+    throw new Error("In-app purchases are not available");
+  }
+  await Purchases.purchasePackage(pkg);
 }
 
 export async function loadDonationCatalog(): Promise<DonationCatalog> {

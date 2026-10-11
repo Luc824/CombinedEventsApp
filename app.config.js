@@ -47,7 +47,20 @@ module.exports = {
       backgroundColor: "#000000",
       bundler: "metro",
     },
-    plugins: ["expo-router", "expo-web-browser", "expo-font"],
+    plugins: [
+      [
+        "expo-router",
+        {
+          // Split route JS on web so calculators/rankings load on demand.
+          asyncRoutes: {
+            web: true,
+            default: false,
+          },
+        },
+      ],
+      "expo-web-browser",
+      "expo-font",
+    ],
     experiments: {
       typedRoutes: true,
       reactNativeNewArchitecture: true,
