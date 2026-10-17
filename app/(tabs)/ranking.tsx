@@ -9,13 +9,13 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from "react-native";
 import InfoButton from "../../components/InfoButton";
 import KeyboardDismissScrollView from "../../components/KeyboardDismissScrollView";
+import PressableFeedback from "../../components/PressableFeedback";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
@@ -126,14 +126,14 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
   const modalWidth = Math.min(windowWidth * 0.9, 360);
   return (
     <>
-      <TouchableOpacity
+      <PressableFeedback
         style={[styles.dropdown, formDropdownStyle, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder || colors.border }]}
         onPress={() => setModalVisible(true)}
       >
         <Text style={[value ? styles.dropdownText : styles.dropdownPlaceholder, { color: value ? colors.text : colors.textMuted }]}>
           {selectedLabel}
         </Text>
-      </TouchableOpacity>
+      </PressableFeedback>
       <Modal
         visible={modalVisible}
         transparent
@@ -168,34 +168,32 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                 if (isRankOption && item.label.includes(" - ")) {
                   const [rankLetter, description] = item.label.split(" - ");
                   return (
-                    <TouchableOpacity
+                    <PressableFeedback
                       key={item.value}
                       style={[styles.modalOptionRank, { backgroundColor: colors.surfaceSolid, borderColor: colors.border, borderWidth: 1 }]}
                       onPress={() => {
                         onSelect(item.value);
                         setModalVisible(false);
                       }}
-                      activeOpacity={0.7}
                     >
                       <View style={styles.rankOptionRow}>
                         <Text style={[styles.rankLetter, { color: colors.text }]}>{rankLetter}</Text>
                         <Text style={[styles.rankDescription, { color: colors.text }]} numberOfLines={undefined}>{description}</Text>
                       </View>
-                    </TouchableOpacity>
+                    </PressableFeedback>
                   );
                 }
                 return (
-                  <TouchableOpacity
+                  <PressableFeedback
                     key={item.value}
                     style={[styles.modalOptionRank, styles.modalOptionEventButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border, borderWidth: 1 }]}
                     onPress={() => {
                       onSelect(item.value);
                       setModalVisible(false);
                     }}
-                    activeOpacity={0.7}
                   >
                     <Text style={[styles.modalOptionText, { color: colors.text }]}>{item.label}</Text>
-                  </TouchableOpacity>
+                  </PressableFeedback>
                 );
               })}
                 </ScrollView>
@@ -589,12 +587,12 @@ export default function RankingsScreen() {
           </Text>
         )}
       </View>
-      <TouchableOpacity
+      <PressableFeedback
         style={[styles.clearButton, actionButtonStyle, buttonElevation(), { backgroundColor: colors.buttonSecondary }]}
         onPress={confirmClearAll}
       >
         <Text style={[styles.clearButtonText, { color: colors.buttonText }]}>Clear</Text>
-      </TouchableOpacity>
+      </PressableFeedback>
     </KeyboardDismissScrollView>
   );
 

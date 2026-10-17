@@ -5,11 +5,11 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from "react-native";
+import PressableFeedback from "../PressableFeedback";
 import { Radius, actionButtonStyle, buttonElevation } from "../../constants/ui";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 
@@ -116,7 +116,7 @@ export default function SaveScoreModal({
             maxLength={50}
           />
           <View style={styles.saveModalButtons}>
-            <TouchableOpacity
+            <PressableFeedback
               style={[
                 styles.saveModalButton,
                 actionButtonStyle,
@@ -128,8 +128,8 @@ export default function SaveScoreModal({
               <Text style={[styles.saveModalButtonText, { color: buttonTextColor }]}>
                 Cancel
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </PressableFeedback>
+            <PressableFeedback
               style={[
                 styles.saveModalButton,
                 actionButtonStyle,
@@ -141,7 +141,7 @@ export default function SaveScoreModal({
               <Text style={[styles.saveModalButtonText, { color: buttonTextColor }]}>
                 Save
               </Text>
-            </TouchableOpacity>
+            </PressableFeedback>
           </View>
         </View>
       </View>

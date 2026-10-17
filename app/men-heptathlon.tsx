@@ -31,6 +31,7 @@ import {
   createHandlePointsTextChange,
   flushAllPointsInputs,
 } from "../utils/calculatorRowHandlers";
+import { getPerformanceMaxLength } from "../utils/formatPerformanceText";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
   safeFloorPoints,
@@ -124,7 +125,8 @@ export default function MenHeptathlonScreen() {
     const event = HEPTATHLON_EVENTS[index];
     const isTrack = TRACK_EVENTS.includes(event.name);
     const isLongTrack = LONG_TRACK_EVENTS.includes(event.name);
-    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack, event.name))
+      return 0;
     try {
       const inputValue =
         index === 6 ? convertTimeToSeconds(value) : parseFloat(value);
@@ -249,7 +251,7 @@ export default function MenHeptathlonScreen() {
     index: number
   ) => {
     const placeholderText = HEPTATHLON_PLACEHOLDERS[index];
-    const maxLength = event.name === "1000m" ? 7 : 5;
+    const maxLength = getPerformanceMaxLength(event.name, LONG_TRACK_EVENTS);
     return (
       <EventInputRow
         key={index}

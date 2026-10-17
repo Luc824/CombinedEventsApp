@@ -8,13 +8,13 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EventInputRow from "../components/calculators/EventInputRow";
 import TotalScoreCard from "../components/calculators/TotalScoreCard";
 import KeyboardDismissScrollView from "../components/KeyboardDismissScrollView";
+import PressableFeedback from "../components/PressableFeedback";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { actionButtonStyle, buttonElevation, formFieldStyle } from "../constants/ui";
@@ -314,7 +314,7 @@ export default function EditSavedScoreScreen() {
       />
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity
+        <PressableFeedback
           style={[
             styles.actionButton,
             actionButtonStyle,
@@ -327,8 +327,8 @@ export default function EditSavedScoreScreen() {
           <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
             Cancel
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </PressableFeedback>
+        <PressableFeedback
           style={[
             styles.actionButton,
             actionButtonStyle,
@@ -342,7 +342,7 @@ export default function EditSavedScoreScreen() {
           <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
             {saving ? "Saving..." : "Save Changes"}
           </Text>
-        </TouchableOpacity>
+        </PressableFeedback>
       </View>
       <View style={{ height: scaleSpacing(20) }} />
     </KeyboardDismissScrollView>

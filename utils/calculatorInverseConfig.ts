@@ -26,7 +26,6 @@ const FIELD_BOUNDS: Record<string, { min: number; max: number }> = {
   "Shot Put": { min: 1, max: 25 },
   Discus: { min: 1, max: 80 },
   Javelin: { min: 1, max: 100 },
-  "Javelin Throw": { min: 1, max: 100 },
 };
 
 const WOMEN_JUMP_FORMULA_BOUNDS = { min: 120, max: 900 };

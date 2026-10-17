@@ -126,7 +126,7 @@ const WOMEN_HEPTATHLON_CONFIG: CalculatorConfig = {
       formula: (distance) => 0.188807 * Math.pow(distance - 210, 1.41),
     },
     {
-      name: "Javelin Throw",
+      name: "Javelin",
       formula: (distance) => 15.9803 * Math.pow(distance - 3.8, 1.04),
     },
     { name: "800m", formula: (time) => 0.11193 * Math.pow(254 - time, 1.88) },
@@ -192,7 +192,7 @@ export function calculateEventPoints(
   const event = config.events[index];
   const isTrack = config.trackEvents.includes(event.name);
   const isLongTrack = config.longTrackEvents.includes(event.name);
-  if (!shouldCalculatePoints(value, isTrack, isLongTrack)) {
+  if (!shouldCalculatePoints(value, isTrack, isLongTrack, event.name)) {
     return 0;
   }
 

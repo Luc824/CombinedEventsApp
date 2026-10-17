@@ -9,10 +9,10 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import PressableFeedback from "../../components/PressableFeedback";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
@@ -43,6 +43,10 @@ const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
 const WEB_PAYPAL_DONATE_URL =
   "https://www.paypal.com/donate/?hosted_button_id=VZWTBDK6CNYQQ";
 
+/** Feedback → Featurebase. Contact → Tally (emails you; collect their email to reply). */
+const FEEDBACK_URL = "https://combinedeventscalculator.featurebase.app";
+const CONTACT_URL = "https://tally.so/r/8No29l";
+
 const PACKAGE_LABELS: Record<string, string> = {
   donation_tier1: "Amateur",
   donation_tier2: "Pro",
@@ -57,6 +61,19 @@ function getPackageLabel(pkg: DonationPackage): string {
     sp?.identifier ??
     pkg.identifier;
   return PACKAGE_LABELS[pkgId] ?? sp?.title ?? "Tip";
+}
+
+async function openExternalUrl(url: string, label: string) {
+  try {
+    const supported = await Linking.canOpenURL(url);
+    if (!supported) {
+      Alert.alert("Unavailable", `Could not open ${label}.`);
+      return;
+    }
+    await Linking.openURL(url);
+  } catch {
+    Alert.alert("Unavailable", `Could not open ${label}.`);
+  }
 }
 
 export default function MoreScreen() {
@@ -78,6 +95,7 @@ export default function MoreScreen() {
     Platform.OS === "android"
       ? Math.max(FROZEN_INSETS.bottom, scaleSpacing(16)) + scaleSpacing(88)
       : scaleSpacing(32);
+  const showFeedbackLinks = Boolean(FEEDBACK_URL || CONTACT_URL);
 
   const refreshDonationPackages = useCallback(async () => {
     if (Platform.OS === "web") {
@@ -146,7 +164,7 @@ export default function MoreScreen() {
   const renderTipButtons = () => {
     if (Platform.OS === "web") {
       return (
-        <TouchableOpacity
+        <PressableFeedback
           style={[
             styles.webDonateButton,
             pillButtonStyle,
@@ -160,7 +178,7 @@ export default function MoreScreen() {
           <Text style={[styles.buttonText, { color: colors.buttonText }]}>
             Leave a tip
           </Text>
-        </TouchableOpacity>
+        </PressableFeedback>
       );
     }
 
@@ -171,7 +189,7 @@ export default function MoreScreen() {
             const label = getPackageLabel(pkg);
             const price = getPackagePriceLabel(pkg, priceByProductId);
             return (
-              <TouchableOpacity
+              <PressableFeedback
                 key={pkg.identifier}
                 style={[
                   styles.donateButton,
@@ -182,7 +200,7 @@ export default function MoreScreen() {
               >
                 <Text style={styles.donateTier}>{label}</Text>
                 <Text style={styles.donateAmount}>{price || " "}</Text>
-              </TouchableOpacity>
+              </PressableFeedback>
             );
           })}
         </View>
@@ -193,7 +211,7 @@ export default function MoreScreen() {
       <View style={styles.donateRow}>
         {FALLBACK_TIERS.map((tier) => {
           return (
-            <TouchableOpacity
+            <PressableFeedback
               key={tier}
               style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
               onPress={() =>
@@ -204,7 +222,7 @@ export default function MoreScreen() {
               }
             >
               <Text style={styles.donateTier}>{tier}</Text>
-            </TouchableOpacity>
+            </PressableFeedback>
           );
         })}
       </View>
@@ -230,31 +248,32 @@ export default function MoreScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-        <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            surfacePillButtonStyle,
-            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
-          ]}
-          onPress={toggleTheme}
-        >
-          <View style={styles.themeToggleRow}>
+        <View style={styles.titleRow}>
+          <View style={styles.titleSideSpacer} />
+          <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
+          <PressableFeedback
+            onPress={toggleTheme}
+            accessibilityRole="button"
+            accessibilityLabel={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            style={[
+              styles.themeIconButton,
+              {
+                backgroundColor: colors.surfaceSolid,
+                borderColor: colors.border,
+              },
+            ]}
+            hitSlop={8}
+          >
             <Ionicons
               name={isDark ? "sunny" : "moon"}
-              size={20}
+              size={18}
               color={colors.text}
-              style={styles.themeIcon}
             />
-            <Text style={[styles.buttonText, { color: colors.text }]}>
-              {isDark ? "Light Mode" : "Dark Mode"}
-            </Text>
-          </View>
-        </TouchableOpacity>
+          </PressableFeedback>
+        </View>
 
         {Platform.OS !== "web" && (
-          <TouchableOpacity
+          <PressableFeedback
             style={[
               styles.button,
               surfacePillButtonStyle,
@@ -263,10 +282,10 @@ export default function MoreScreen() {
             onPress={handleSavedScores}
           >
             <Text style={[styles.buttonText, { color: colors.text }]}>Saved Scores</Text>
-          </TouchableOpacity>
+          </PressableFeedback>
         )}
         {Platform.OS !== "web" && (
-          <TouchableOpacity
+          <PressableFeedback
             style={[
               styles.button,
               surfacePillButtonStyle,
@@ -275,11 +294,48 @@ export default function MoreScreen() {
             onPress={handleReview}
           >
             <Text style={[styles.buttonText, { color: colors.text }]}>Leave a Review</Text>
-          </TouchableOpacity>
+          </PressableFeedback>
+        )}
+
+        {showFeedbackLinks && (
+          <View style={styles.linkRow}>
+            {FEEDBACK_URL ? (
+              <PressableFeedback
+                style={[
+                  styles.linkButton,
+                  surfacePillButtonStyle,
+                  { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+                ]}
+                onPress={() => openExternalUrl(FEEDBACK_URL, "Feedback")}
+                accessibilityRole="link"
+                accessibilityLabel="Feature requests and feedback"
+              >
+                <Text style={[styles.linkButtonText, { color: colors.text }]}>
+                  Feedback
+                </Text>
+              </PressableFeedback>
+            ) : null}
+            {CONTACT_URL ? (
+              <PressableFeedback
+                style={[
+                  styles.linkButton,
+                  surfacePillButtonStyle,
+                  { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+                ]}
+                onPress={() => openExternalUrl(CONTACT_URL, "Contact")}
+                accessibilityRole="link"
+                accessibilityLabel="Contact"
+              >
+                <Text style={[styles.linkButtonText, { color: colors.text }]}>
+                  Contact
+                </Text>
+              </PressableFeedback>
+            ) : null}
+          </View>
         )}
 
         {Platform.OS === "web" && (
-          <TouchableOpacity
+          <PressableFeedback
             style={[
               styles.button,
               surfacePillButtonStyle,
@@ -290,11 +346,11 @@ export default function MoreScreen() {
             <Text style={[styles.buttonText, { color: colors.text }]}>
               Combined Events explained
             </Text>
-          </TouchableOpacity>
+          </PressableFeedback>
         )}
 
         {Platform.OS === "web" && (
-          <TouchableOpacity
+          <PressableFeedback
             style={[
               styles.button,
               pillButtonStyle,
@@ -304,7 +360,7 @@ export default function MoreScreen() {
             onPress={handleGetApp}
           >
             <Text style={[styles.buttonText, { color: colors.buttonText }]}>📱 Get the App</Text>
-          </TouchableOpacity>
+          </PressableFeedback>
         )}
 
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Tips</Text>
@@ -341,12 +397,29 @@ const styles = StyleSheet.create({
       web: { alignSelf: "center", width: "100%" },
     }),
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: ScreenLayout.sectionGap,
+    minHeight: scaleSpacing(40),
+  },
+  titleSideSpacer: {
+    width: scaleSpacing(40),
+  },
   title: {
+    flex: 1,
     fontSize: scaleFont(28),
     fontWeight: "bold",
-    marginBottom: ScreenLayout.sectionGap,
     textAlign: "center",
     lineHeight: scaleSpacing(34),
+  },
+  themeIconButton: {
+    width: scaleSpacing(40),
+    height: scaleSpacing(40),
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   button: {
     marginBottom: ScreenLayout.buttonGap,
@@ -356,13 +429,21 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(16),
     fontWeight: "600",
   },
-  themeToggleRow: {
+  linkRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    width: "100%",
+    gap: scaleSpacing(10),
+    marginBottom: ScreenLayout.buttonGap,
   },
-  themeIcon: {
-    marginRight: scaleSpacing(8),
+  linkButton: {
+    flex: 1,
+    minHeight: scaleSpacing(44),
+    paddingVertical: scaleSpacing(10),
+  },
+  linkButtonText: {
+    fontSize: scaleFont(15),
+    fontWeight: "600",
+    textAlign: "center",
   },
   sectionTitle: {
     fontSize: scaleFont(20),

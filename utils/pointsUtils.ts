@@ -1,3 +1,6 @@
+import { isDecimalPerformanceComplete } from "./performanceEntry";
+import { parseLongTrackSecondsPart } from "./timeUtils";
+
 /** Clamp formula output to a valid non-negative integer points value. */
 export function safeFloorPoints(raw: number): number {
   if (!Number.isFinite(raw) || raw < 0) {
@@ -10,18 +13,21 @@ export function safeFloorPoints(raw: number): number {
 export function shouldCalculatePoints(
   value: string,
   isTrackEvent: boolean,
-  isLongTrack = false
+  isLongTrack = false,
+  eventName = ""
 ): boolean {
   if (!value) {
     return false;
   }
-  if (isTrackEvent) {
-    if (isLongTrack) {
-      return /^\d+:\d{2}\.\d{2}$/.test(value);
+  if (isTrackEvent && isLongTrack) {
+    // M:SS is enough (e.g. 4:30); decimals optional (4:30.5 / 4:30.50).
+    if (!/^\d+:\d{2}(\.\d{1,2})?$/.test(value)) {
+      return false;
     }
-    return /^\d+\.\d{2}$/.test(value);
+    const secondsPart = parseLongTrackSecondsPart(value);
+    return secondsPart !== null && secondsPart <= 59;
   }
-  return /^\d+\.\d{2}$/.test(value);
+  return isDecimalPerformanceComplete(value, eventName);
 }
 
 export function validateScoreForSave(

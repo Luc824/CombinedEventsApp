@@ -8,11 +8,11 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ChartModal from "../components/calculators/ChartModal";
+import PressableFeedback from "../components/PressableFeedback";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
 import { Radius, actionButtonStyle, buttonElevation } from "../constants/ui";
@@ -211,7 +211,7 @@ export default function SavedScoreDetailScreen() {
 
             <View style={styles.chartButtonSpacer}>
               <View style={styles.actionRow}>
-                <TouchableOpacity
+                <PressableFeedback
                   style={[
                     styles.actionButton,
                     actionButtonStyle,
@@ -223,8 +223,8 @@ export default function SavedScoreDetailScreen() {
                   <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
                     View Chart
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                </PressableFeedback>
+                <PressableFeedback
                   style={[
                     styles.actionButton,
                     actionButtonStyle,
@@ -241,9 +241,9 @@ export default function SavedScoreDetailScreen() {
                   <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
                     Edit Score
                   </Text>
-                </TouchableOpacity>
+                </PressableFeedback>
               </View>
-              <TouchableOpacity
+              <PressableFeedback
                 style={[
                   styles.shareButton,
                   actionButtonStyle,
@@ -255,7 +255,7 @@ export default function SavedScoreDetailScreen() {
                 <Text style={[styles.actionButtonText, { color: colors.buttonText }]}>
                   Share
                 </Text>
-              </TouchableOpacity>
+              </PressableFeedback>
             </View>
 
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Performances</Text>

@@ -223,7 +223,7 @@ export const getEventNames = (eventType: EventType): string[] => {
         "Shot Put",
         "200m",
         "Long Jump",
-        "Javelin Throw",
+        "Javelin",
         "800m",
       ];
     case 'womenPentathlon':

@@ -30,6 +30,7 @@ import {
   createHandlePointsTextChange,
   flushAllPointsInputs,
 } from "../utils/calculatorRowHandlers";
+import { getPerformanceMaxLength } from "../utils/formatPerformanceText";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
   safeFloorPoints,
@@ -110,7 +111,8 @@ export default function WomenPentathlonScreen() {
     const event = WOMEN_PENTATHLON_EVENTS[index];
     const isTrack = TRACK_EVENTS.includes(event.name);
     const isLongTrack = LONG_TRACK_EVENTS.includes(event.name);
-    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack, event.name))
+      return 0;
     let inputValue = parseFloat(value);
     try {
       if (event.name === "800m") {
@@ -239,7 +241,7 @@ export default function WomenPentathlonScreen() {
     index: number
   ) => {
     const placeholderText = PENTATHLON_PLACEHOLDERS[index];
-    const maxLength = event.name === "800m" ? 7 : 5;
+    const maxLength = getPerformanceMaxLength(event.name, LONG_TRACK_EVENTS);
     return (
       <EventInputRow
         key={index}

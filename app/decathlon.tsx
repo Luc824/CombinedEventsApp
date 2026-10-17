@@ -31,6 +31,7 @@ import {
   createHandlePointsTextChange,
   flushAllPointsInputs,
 } from "../utils/calculatorRowHandlers";
+import { getPerformanceMaxLength } from "../utils/formatPerformanceText";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
   safeFloorPoints,
@@ -142,7 +143,8 @@ export default function DecathlonScreen() {
     const event = DECATHLON_EVENTS[index];
     const isTrack = TRACK_EVENTS.includes(event.name);
     const isLongTrack = LONG_TRACK_EVENTS.includes(event.name);
-    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack, event.name))
+      return 0;
     try {
       const inputValue =
         index === 9 ? convertTimeToSeconds(value) : parseFloat(value);
@@ -269,7 +271,7 @@ export default function DecathlonScreen() {
     index: number
   ) => {
     const placeholderText = PLACEHOLDERS[index];
-    const maxLength = event.name === "1500m" ? 7 : 5;
+    const maxLength = getPerformanceMaxLength(event.name, LONG_TRACK_EVENTS);
 
     return (
       <EventInputRow

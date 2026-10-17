@@ -11,19 +11,18 @@ type PressableFeedbackProps = Omit<PressableProps, "style"> & {
   style?: StyleProp<ViewStyle>;
   /** Scale while pressed. Default 0.97. */
   pressedScale?: number;
-  /** Opacity while pressed. Default 0.88. */
+  /** Opacity while pressed. Default 0.72. */
   pressedOpacity?: number;
   children: React.ReactNode;
 };
 
 /**
- * Light press scale/opacity — confirms the tap without adding chrome.
- * Layout styles stay on the outer Pressable so flex children keep their size.
+ * Shared primary-button press language: light scale + opacity.
  */
 export default function PressableFeedback({
   style,
   pressedScale = 0.97,
-  pressedOpacity = 0.88,
+  pressedOpacity = 0.72,
   children,
   onPressIn,
   onPressOut,
@@ -43,7 +42,7 @@ export default function PressableFeedback({
       }),
       Animated.timing(opacity, {
         toValue: nextOpacity,
-        duration: 80,
+        duration: 90,
         useNativeDriver: true,
       }),
     ]).start();
@@ -67,8 +66,7 @@ export default function PressableFeedback({
     >
       <Animated.View
         style={{
-          flex: 1,
-          alignSelf: "stretch",
+          width: "100%",
           alignItems: "center",
           justifyContent: "center",
           transform: [{ scale }],

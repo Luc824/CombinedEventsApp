@@ -31,6 +31,7 @@ import {
   createHandlePointsTextChange,
   flushAllPointsInputs,
 } from "../utils/calculatorRowHandlers";
+import { getPerformanceMaxLength } from "../utils/formatPerformanceText";
 import { convertTimeToSeconds } from "../utils/timeUtils";
 import {
   safeFloorPoints,
@@ -62,7 +63,7 @@ const WOMEN_HEPTATHLON_EVENTS = [
     formula: (distance: number) => 0.188807 * Math.pow(distance - 210, 1.41),
   },
   {
-    name: "Javelin Throw",
+    name: "Javelin",
     formula: (distance: number) => 15.9803 * Math.pow(distance - 3.8, 1.04),
   },
   {
@@ -77,7 +78,7 @@ const HEPTATHLON_PLACEHOLDERS = [
   "15.80", // Shot Put (meters)
   "22.56", // 200m
   "7.27", // Long Jump (meters)
-  "45.66", // Javelin Throw (meters)
+  "45.66", // Javelin (meters)
   "2:08.51", // 800m
 ];
 
@@ -123,7 +124,8 @@ export default function WomenHeptathlonScreen() {
     const event = WOMEN_HEPTATHLON_EVENTS[index];
     const isTrack = TRACK_EVENTS.includes(event.name);
     const isLongTrack = LONG_TRACK_EVENTS.includes(event.name);
-    if (!shouldCalculatePoints(value, isTrack, isLongTrack)) return 0;
+    if (!shouldCalculatePoints(value, isTrack, isLongTrack, event.name))
+      return 0;
     let inputValue = parseFloat(value);
     try {
       if (event.name === "800m") {
@@ -256,7 +258,7 @@ export default function WomenHeptathlonScreen() {
     index: number
   ) => {
     const placeholderText = HEPTATHLON_PLACEHOLDERS[index];
-    const maxLength = event.name === "800m" ? 7 : 5;
+    const maxLength = getPerformanceMaxLength(event.name, LONG_TRACK_EVENTS);
     return (
       <EventInputRow
         key={index}

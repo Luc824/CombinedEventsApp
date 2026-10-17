@@ -4,11 +4,11 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
 import InfoButton from "../../components/InfoButton";
+import PressableFeedback from "../../components/PressableFeedback";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
@@ -90,7 +90,7 @@ export default function EventsScreen() {
                 </Text>
                 <View style={styles.buttonRow}>
                   {section.items.map((item) => (
-                    <TouchableOpacity
+                    <PressableFeedback
                       key={item.route}
                       style={[
                         styles.eventButton,
@@ -103,7 +103,7 @@ export default function EventsScreen() {
                       <Text style={[styles.buttonText, { color: colors.buttonText }]}>
                         {item.label}
                       </Text>
-                    </TouchableOpacity>
+                    </PressableFeedback>
                   ))}
                 </View>
               </View>
@@ -111,7 +111,7 @@ export default function EventsScreen() {
           </View>
 
           {Platform.OS === "web" && (
-            <TouchableOpacity
+            <PressableFeedback
               style={[
                 styles.getAppButton,
                 pillButtonStyle,
@@ -123,7 +123,7 @@ export default function EventsScreen() {
               <Text style={[styles.getAppButtonText, { color: colors.buttonText }]}>
                 📱 Get the App
               </Text>
-            </TouchableOpacity>
+            </PressableFeedback>
           )}
           </View>
         </View>
