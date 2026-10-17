@@ -128,6 +128,13 @@ function formatStorePrice(product: {
   price?: number | null;
   currencyCode?: string | null;
 }): string {
+  // Prefer StoreKit/Play priceString — that's what the purchase sheet uses.
+  // RevenueCat sometimes reports currencyCode as USD even for EU storefronts;
+  // formatting price+currencyCode then yields "1,99 US$" on a FR device.
+  if (typeof product.priceString === "string" && product.priceString.trim()) {
+    return product.priceString.trim();
+  }
+
   const currencyCode =
     typeof product.currencyCode === "string" && product.currencyCode.trim()
       ? product.currencyCode.trim()
@@ -137,8 +144,6 @@ function formatStorePrice(product: {
       ? product.price
       : null;
 
-  // Prefer price + currencyCode (storefront) over priceString. RC/getProducts
-  // sometimes returns a USD priceString while the purchase sheet uses EUR/etc.
   if (price != null && currencyCode) {
     try {
       return new Intl.NumberFormat(undefined, {
@@ -146,12 +151,8 @@ function formatStorePrice(product: {
         currency: currencyCode,
       }).format(price);
     } catch {
-      // Fall through to priceString.
+      return "";
     }
-  }
-
-  if (typeof product.priceString === "string" && product.priceString.trim()) {
-    return product.priceString.trim();
   }
 
   return "";
@@ -177,19 +178,16 @@ export function getPackagePriceLabel(
   pkg: PurchasesPackage,
   priceByProductId: Record<string, string>
 ): string {
-  // Offering package product is what purchasePackage uses — prefer it so the
-  // button matches the Apple Pay / Play sheet currency.
-  const fromPackage = getLocalizedPackagePrice(pkg);
-  if (fromPackage) {
-    return fromPackage;
-  }
+  // Prefer labels from the fresh getProducts() fetch (priceByProductId). Offering
+  // package.storeProduct sometimes carries a USD currencyCode that made buttons
+  // show "1,99 US$" while the purchase sheet correctly showed euros.
   for (const id of packageIdentifiers(pkg)) {
     const label = priceByProductId[id];
     if (label) {
       return label;
     }
   }
-  return "";
+  return getLocalizedPackagePrice(pkg);
 }
 
 /** Localized price for UI — never uses hardcoded USD fallbacks. */
@@ -267,14 +265,16 @@ export async function loadDonationCatalog(): Promise<DonationCatalog> {
     }
   }
 
-  // Index offering package prices under every alias (package wins over getProducts).
+  // Fill aliases for package ids. Do not overwrite a getProducts() price with
+  // offering metadata — that metadata is what showed USD on EU devices.
   for (const pkg of packages) {
-    const fromPackage = getLocalizedPackagePrice(pkg);
     const fromProducts = packageIdentifiers(pkg)
       .map((id) => priceByProductId[id])
       .find((label) => Boolean(label));
-    const label = fromPackage || fromProducts || "";
-    setPriceForIds(priceByProductId, packageIdentifiers(pkg), label);
+    const label = fromProducts || getLocalizedPackagePrice(pkg);
+    if (label) {
+      setPriceForIds(priceByProductId, packageIdentifiers(pkg), label);
+    }
   }
 
   return { packages, priceByProductId };

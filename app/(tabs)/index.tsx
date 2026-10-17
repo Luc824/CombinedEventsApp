@@ -8,7 +8,6 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import InfoButton from "../../components/InfoButton";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
@@ -16,8 +15,11 @@ import {
   ScreenLayout,
   buttonElevation,
   pillButtonStyle,
+  tabHubContentOffset,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useStableTabPaint } from "../../hooks/useStableTabPaint";
+import { FROZEN_INSETS } from "../../utils/frozenSafeArea";
 import { openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 import { useSafePush } from "../../utils/useSafePush";
@@ -43,21 +45,26 @@ export default function EventsScreen() {
   const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const paintReady = useStableTabPaint();
   const titleOnOneLine = Platform.OS === "web" && width >= 520;
+  const contentOffset =
+    Platform.OS === "web"
+      ? 96
+      : FROZEN_INSETS.top + tabHubContentOffset(height);
 
   return (
     <SwipeableTabWrapper tabIndex={0}>
-      <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: colors.background }]}
-        edges={["top", "left", "right"]}
-      >
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
         <View
           style={[
             styles.container,
-            { backgroundColor: colors.background },
-            Platform.OS === "web" && styles.containerWeb,
+            {
+              backgroundColor: colors.background,
+              paddingTop: contentOffset,
+              opacity: Platform.OS === "web" || paintReady ? 1 : 0,
+            },
           ]}
         >
           <View style={styles.contentBlock}>
@@ -120,7 +127,7 @@ export default function EventsScreen() {
           )}
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     </SwipeableTabWrapper>
   );
 }
@@ -134,22 +141,16 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingBottom: scaleSpacing(52),
     paddingHorizontal: ScreenLayout.horizontalPadding,
     ...Platform.select({
       web: { maxWidth: ScreenLayout.contentMaxWidth, width: "100%", paddingBottom: 0 },
     }),
   },
-  containerWeb: {
-    justifyContent: "flex-start",
-    paddingTop: 96,
-  },
   contentBlock: {
     width: "100%",
     alignItems: "center",
-    // Nudge up so the home title lines up with Support’s title (Support unchanged).
-    marginTop: -scaleSpacing(44),
   },
   titleRow: {
     width: "100%",

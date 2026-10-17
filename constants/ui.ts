@@ -19,6 +19,15 @@ export const ScreenLayout = {
   buttonGap: scaleSpacing(12),
 } as const;
 
+/**
+ * Stable top inset for centered-looking tab hubs (Events / More).
+ * Uses window height — not flexbox center in the tab scene — so NativeTabs /
+ * safe-area settle can't reflow the title + buttons on first paint.
+ */
+export function tabHubContentOffset(windowHeight: number): number {
+  return Math.round(windowHeight * 0.16);
+}
+
 /** iOS-style section header (Men, Women, etc.) */
 export const sectionHeaderStyle: TextStyle = {
   fontSize: scaleFont(13),

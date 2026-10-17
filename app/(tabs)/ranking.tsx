@@ -14,14 +14,15 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import InfoButton from "../../components/InfoButton";
 import KeyboardDismissScrollView from "../../components/KeyboardDismissScrollView";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useStableTabPaint } from "../../hooks/useStableTabPaint";
 import { worldAthleticsScores } from "../../data/worldAthleticsScores";
+import { FROZEN_INSETS } from "../../utils/frozenSafeArea";
 import { openInNewTab } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 import { useSafePush } from "../../utils/useSafePush";
@@ -342,14 +343,18 @@ const EMPTY_RANKINGS_DRAFT: RankingsDraft = {
 
 export default function RankingsScreen() {
   const safePush = useSafePush();
-  const insets = useSafeAreaInsets();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
+  const paintReady = useStableTabPaint();
   // Native tab bar overlays content on Android; keep ranking score / clear fully visible.
   const scrollBottomPadding =
     Platform.OS === "android"
-      ? Math.max(insets.bottom, scaleSpacing(16)) + scaleSpacing(88)
+      ? Math.max(FROZEN_INSETS.bottom, scaleSpacing(16)) + scaleSpacing(88)
       : scaleSpacing(32);
+  const scrollTopPadding =
+    Platform.OS === "web"
+      ? scaleSpacing(16)
+      : FROZEN_INSETS.top + scaleSpacing(16);
   const [event1, setEvent1] = useState("");
   const [rank1, setRank1] = useState("");
   const [place1, setPlace1] = useState("");
@@ -488,10 +493,19 @@ export default function RankingsScreen() {
 
   const scrollContent = (
     <KeyboardDismissScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background,
+          opacity: Platform.OS === "web" || paintReady ? 1 : 0,
+        },
+      ]}
       contentContainerStyle={[
         styles.scrollContent,
-        { paddingBottom: scrollBottomPadding },
+        {
+          paddingTop: scrollTopPadding,
+          paddingBottom: scrollBottomPadding,
+        },
       ]}
     >
       <View style={styles.titleRow}>
@@ -586,10 +600,10 @@ export default function RankingsScreen() {
 
   return (
     <SwipeableTabWrapper tabIndex={1}>
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
         {scrollContent}
-      </SafeAreaView>
+      </View>
     </SwipeableTabWrapper>
   );
 }
@@ -615,7 +629,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: ScreenLayout.horizontalPadding,
-    paddingTop: scaleSpacing(16),
   },
   titleRow: {
     width: "100%",

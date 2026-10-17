@@ -10,9 +10,9 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
@@ -22,8 +22,11 @@ import {
   pillButtonStyle,
   surfacePillButtonStyle,
   buttonElevation,
+  tabHubContentOffset,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useStableTabPaint } from "../../hooks/useStableTabPaint";
+import { FROZEN_INSETS } from "../../utils/frozenSafeArea";
 import {
   getPackagePriceLabel,
   loadDonationCatalog,
@@ -60,15 +63,20 @@ export default function MoreScreen() {
   const safePush = useSafePush();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
-  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  const paintReady = useStableTabPaint();
   const [loading, setLoading] = useState(false);
   const [donationPackages, setDonationPackages] = useState<DonationPackage[]>([]);
   const [priceByProductId, setPriceByProductId] = useState<Record<string, string>>(
     {}
   );
+  const contentOffset =
+    Platform.OS === "web"
+      ? scaleSpacing(32)
+      : FROZEN_INSETS.top + tabHubContentOffset(height);
   const scrollBottomPadding =
     Platform.OS === "android"
-      ? Math.max(insets.bottom, scaleSpacing(16)) + scaleSpacing(88)
+      ? Math.max(FROZEN_INSETS.bottom, scaleSpacing(16)) + scaleSpacing(88)
       : scaleSpacing(32);
 
   const refreshDonationPackages = useCallback(async () => {
@@ -173,7 +181,7 @@ export default function MoreScreen() {
                 disabled={loading}
               >
                 <Text style={styles.donateTier}>{label}</Text>
-                {price ? <Text style={styles.donateAmount}>{price}</Text> : null}
+                <Text style={styles.donateAmount}>{price || " "}</Text>
               </TouchableOpacity>
             );
           })}
@@ -205,17 +213,18 @@ export default function MoreScreen() {
 
   return (
     <SwipeableTabWrapper tabIndex={2}>
-      <SafeAreaView
-        style={[styles.safeArea, { backgroundColor: colors.background }]}
-        edges={["top", "left", "right"]}
-      >
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
         <ScrollView
-          style={styles.scrollView}
+          style={[
+            styles.scrollView,
+            { opacity: Platform.OS === "web" || paintReady ? 1 : 0 },
+          ]}
           contentContainerStyle={[
             styles.scrollContent,
             {
               backgroundColor: colors.background,
+              paddingTop: contentOffset,
               paddingBottom: scrollBottomPadding,
             },
           ]}
@@ -305,7 +314,7 @@ export default function MoreScreen() {
           Support this app (no pole vault required!)
         </Text>
       </ScrollView>
-      </SafeAreaView>
+      </View>
     </SwipeableTabWrapper>
   );
 }
@@ -325,9 +334,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: ScreenLayout.horizontalPadding,
-    paddingTop: scaleSpacing(32),
     alignItems: "stretch",
     ...Platform.select({
       web: { alignSelf: "center", width: "100%" },
