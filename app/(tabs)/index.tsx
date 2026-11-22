@@ -10,6 +10,7 @@ import {
 import InfoButton from "../../components/InfoButton";
 import PressableFeedback from "../../components/PressableFeedback";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
+import { registerTabScreen } from "../../components/tabs/tabScreenRegistry";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   ScreenLayout,
@@ -42,7 +43,7 @@ const SECTIONS = [
   },
 ];
 
-export default function EventsScreen() {
+function EventsTabBody() {
   const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
@@ -55,20 +56,19 @@ export default function EventsScreen() {
       : FROZEN_INSETS.top + tabHubContentOffset(height);
 
   return (
-    <SwipeableTabWrapper tabIndex={0}>
-      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        <View
-          style={[
-            styles.container,
-            {
-              backgroundColor: colors.background,
-              paddingTop: contentOffset,
-              opacity: Platform.OS === "web" || paintReady ? 1 : 0,
-            },
-          ]}
-        >
-          <View style={styles.contentBlock}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.background,
+            paddingTop: contentOffset,
+            opacity: Platform.OS === "web" || paintReady ? 1 : 0,
+          },
+        ]}
+      >
+        <View style={styles.contentBlock}>
           <View style={styles.titleRow}>
             <Text style={[styles.title, { color: colors.text }]}>
               Combined Events{titleOnOneLine ? " " : "\n"}Calculator
@@ -132,9 +132,18 @@ export default function EventsScreen() {
               </Text>
             </PressableFeedback>
           )}
-          </View>
         </View>
       </View>
+    </View>
+  );
+}
+
+registerTabScreen(0, EventsTabBody);
+
+export default function EventsScreen() {
+  return (
+    <SwipeableTabWrapper tabIndex={0}>
+      <EventsTabBody />
     </SwipeableTabWrapper>
   );
 }

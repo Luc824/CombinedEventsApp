@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import PressableFeedback from "../../components/PressableFeedback";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
+import { registerTabScreen } from "../../components/tabs/tabScreenRegistry";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   TRACK_COLOR,
@@ -74,7 +75,7 @@ async function openExternalUrl(url: string, label: string) {
   }
 }
 
-export default function MoreScreen() {
+function MoreTabBody() {
   const safePush = useSafePush();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
@@ -225,24 +226,23 @@ export default function MoreScreen() {
   };
 
   return (
-    <SwipeableTabWrapper tabIndex={2}>
-      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        <ScrollView
-          style={[
-            styles.scrollView,
-            { opacity: Platform.OS === "web" || paintReady ? 1 : 0 },
-          ]}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              backgroundColor: colors.background,
-              paddingTop: contentOffset,
-              paddingBottom: scrollBottomPadding,
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      <ScrollView
+        style={[
+          styles.scrollView,
+          { opacity: Platform.OS === "web" || paintReady ? 1 : 0 },
+        ]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            backgroundColor: colors.background,
+            paddingTop: contentOffset,
+            paddingBottom: scrollBottomPadding,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.titleRow}>
           <View style={styles.titleSideSpacer} />
           <Text style={[styles.title, { color: colors.text }]}>Support & More</Text>
@@ -365,7 +365,16 @@ export default function MoreScreen() {
           Support this app (no pole vault required!)
         </Text>
       </ScrollView>
-      </View>
+    </View>
+  );
+}
+
+registerTabScreen(2, MoreTabBody);
+
+export default function MoreScreen() {
+  return (
+    <SwipeableTabWrapper tabIndex={2}>
+      <MoreTabBody />
     </SwipeableTabWrapper>
   );
 }

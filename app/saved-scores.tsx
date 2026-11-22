@@ -19,7 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import GlassCloseButton from "../components/GlassCloseButton";
 import { ThemeColors } from "../constants/ThemeColors";
 import { USE_NATIVE_HEADER } from "../constants/navigation";
-import { Radius, ScreenLayout } from "../constants/ui";
+import { Radius, ScreenLayout, cardElevation } from "../constants/ui";
 import { useTheme } from "../contexts/ThemeContext";
 import {
   SavedScoresStorageError,
@@ -58,6 +58,7 @@ type ScoreCardProps = {
   item: SavedScore;
   index: number;
   colors: (typeof ThemeColors)["dark"];
+  theme: "light" | "dark";
   dragging: boolean;
   shiftY: number;
   getStride: () => number;
@@ -79,6 +80,7 @@ function ScoreCard({
   item,
   index,
   colors,
+  theme,
   dragging,
   shiftY,
   getStride,
@@ -314,9 +316,12 @@ function ScoreCard({
       <View
         style={[
           styles.scoreCard,
+          cardElevation(theme, {
+            raised: dragging || elevated,
+          }),
           {
-            backgroundColor: colors.surfaceSolid,
-            borderWidth: 1,
+            backgroundColor: colors.cardBackground,
+            borderWidth: StyleSheet.hairlineWidth,
             borderColor: colors.border,
             opacity: dragging || elevated ? 0.98 : 1,
           },
@@ -677,6 +682,7 @@ export default function SavedScoresScreen() {
           item={item}
           index={index}
           colors={colors}
+          theme={theme}
           dragging={draggingId === item.id}
           shiftY={draggingId === item.id ? 0 : shiftForIndex(index)}
           getStride={getStride}
@@ -775,7 +781,7 @@ const styles = StyleSheet.create({
     marginBottom: scaleSpacing(12),
   },
   scoreCard: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     padding: scaleSpacing(16),
     paddingRight: scaleSpacing(50),
     flexDirection: "row",

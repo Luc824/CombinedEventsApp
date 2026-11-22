@@ -98,3 +98,25 @@ export function buttonElevation(): ViewStyle {
     }) ?? {}
   );
 }
+
+/** Soft card lift for list surfaces (saved scores). Stronger while dragging. */
+export function cardElevation(
+  theme: "light" | "dark",
+  opts?: { raised?: boolean }
+): ViewStyle {
+  const raised = opts?.raised ?? false;
+  return (
+    Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: raised ? 10 : 4 },
+        shadowOpacity: theme === "dark" ? (raised ? 0.55 : 0.35) : raised ? 0.2 : 0.1,
+        shadowRadius: raised ? 18 : 10,
+      },
+      android: {
+        elevation: raised ? 10 : 3,
+      },
+      default: {},
+    }) ?? {}
+  );
+}

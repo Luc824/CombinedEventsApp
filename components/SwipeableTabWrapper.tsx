@@ -1,5 +1,5 @@
 import { Href, useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -7,18 +7,15 @@ import {
   PanResponder,
   Platform,
   StyleSheet,
+  View,
 } from "react-native";
 import { ThemeColors } from "../constants/ThemeColors";
 import { useAppTheme } from "../contexts/ThemeContext";
-import { armTabEnterFrom, takeTabEnterFrom } from "../utils/tabSwipeSignal";
+import { getTabScreen } from "./tabs/tabScreenRegistry";
 
 const TAB_ROUTES: Href[] = ["/", "/ranking", "/more"];
-/** Never drag far enough to empty the scene into blank NativeTabs chrome. */
-const MAX_PEEK = 0.34;
-/** Destination enters from this fraction of width, then settles. */
-const ENTER_FROM = 0.22;
-const ENTER_MS = 170;
-const SNAP_BACK_MS = 150;
+const COMMIT_MS = 220;
+const SNAP_BACK_MS = 180;
 const settleEasing = Easing.out(Easing.cubic);
 
 type SwipeableTabWrapperProps = {
@@ -27,9 +24,9 @@ type SwipeableTabWrapperProps = {
 };
 
 /**
- * Directional tab swipe without a blank flash: peek with the finger, navigate
- * immediately on commit, destination settles in from the swipe side (<200ms).
- * NativeTabs keep scenes mounted — never slide a tab fully off-screen.
+ * Dual-panel tab swipe on a fixed 3-page strip (prev | current | next).
+ * Mid-gesture always shows real adjacent content beside the current tab —
+ * never empty NativeTabs chrome.
  */
 export default function SwipeableTabWrapper({
   tabIndex,
@@ -43,49 +40,36 @@ export default function SwipeableTabWrapper({
   const translateX = useRef(new Animated.Value(0)).current;
   const navigatingRef = useRef(false);
   const widthRef = useRef(Dimensions.get("window").width);
+  const [pageWidth, setPageWidth] = useState(widthRef.current);
+  const [showPrev, setShowPrev] = useState(false);
+  const [showNext, setShowNext] = useState(false);
+  const baseOffset = useRef(new Animated.Value(-widthRef.current)).current;
 
-  const resetPosition = useCallback(() => {
+  const resetStrip = useCallback(() => {
     navigatingRef.current = false;
     translateX.stopAnimation();
     translateX.setValue(0);
-  }, [translateX]);
-
-  const playEnterIfArmed = useCallback(() => {
-    const from = takeTabEnterFrom();
-    if (!from) {
-      resetPosition();
-      return;
-    }
-    const width = widthRef.current;
-    const startX = from === "right" ? width * ENTER_FROM : -width * ENTER_FROM;
-    navigatingRef.current = false;
-    translateX.stopAnimation();
-    translateX.setValue(startX);
-    Animated.timing(translateX, {
-      toValue: 0,
-      duration: ENTER_MS,
-      easing: settleEasing,
-      useNativeDriver: true,
-    }).start();
-  }, [resetPosition, translateX]);
+    baseOffset.setValue(-widthRef.current);
+    setShowPrev(false);
+    setShowNext(false);
+  }, [baseOffset, translateX]);
 
   useEffect(() => {
     const sub = Dimensions.addEventListener("change", ({ window }) => {
       widthRef.current = window.width;
+      setPageWidth(window.width);
+      baseOffset.setValue(-window.width);
     });
     return () => sub.remove();
-  }, []);
+  }, [baseOffset]);
 
   useFocusEffect(
     useCallback(() => {
-      playEnterIfArmed();
+      resetStrip();
       return () => {
-        // Leaving: park at rest so a remounted/refocused scene is never blank.
-        translateX.stopAnimation();
-        translateX.setValue(0);
-        navigatingRef.current = false;
+        resetStrip();
       };
-    }, [playEnterIfArmed, translateX])
+    }, [resetStrip])
   );
 
   const panResponder = useMemo(
@@ -97,9 +81,9 @@ export default function SwipeableTabWrapper({
           }
           const { dx, dy } = gestureState;
           return (
-            Math.abs(dx) > 28 &&
+            Math.abs(dx) > 24 &&
             Math.abs(dx) > Math.abs(dy) * 2.2 &&
-            Math.abs(dy) < 30
+            Math.abs(dy) < 28
           );
         },
         onPanResponderTerminationRequest: () => !navigatingRef.current,
@@ -112,15 +96,20 @@ export default function SwipeableTabWrapper({
           }
           const index = tabIndexRef.current;
           const width = widthRef.current;
-          const max = width * MAX_PEEK;
           let dx = gestureState.dx;
+
+          if (dx < -8 && index < TAB_ROUTES.length - 1) {
+            setShowNext(true);
+          } else if (dx > 8 && index > 0) {
+            setShowPrev(true);
+          }
+
           if ((index === 0 && dx > 0) || (index === TAB_ROUTES.length - 1 && dx < 0)) {
             dx *= 0.28;
-          }
-          if (dx > max) {
-            dx = max + (dx - max) * 0.18;
-          } else if (dx < -max) {
-            dx = -max + (dx + max) * 0.18;
+          } else if (dx < -width) {
+            dx = -width;
+          } else if (dx > width) {
+            dx = width;
           }
           translateX.setValue(dx);
         },
@@ -129,21 +118,35 @@ export default function SwipeableTabWrapper({
             return;
           }
           const index = tabIndexRef.current;
+          const width = widthRef.current;
           const swipedLeft =
-            gestureState.dx < -64 || gestureState.vx < -0.55;
+            gestureState.dx < -width * 0.22 || gestureState.vx < -0.55;
           const swipedRight =
-            gestureState.dx > 64 || gestureState.vx > 0.55;
+            gestureState.dx > width * 0.22 || gestureState.vx > 0.55;
 
           const goNext = swipedLeft && index < TAB_ROUTES.length - 1;
           const goPrev = swipedRight && index > 0;
 
           if (goNext || goPrev) {
             navigatingRef.current = true;
-            // Destination enters from the side we swiped toward.
-            armTabEnterFrom(goNext ? "right" : "left");
-            router.navigate(TAB_ROUTES[goNext ? index + 1 : index - 1]);
-            // Keep this scene at rest — never slide it into blank chrome.
-            resetPosition();
+            if (goNext) {
+              setShowNext(true);
+            } else {
+              setShowPrev(true);
+            }
+            Animated.timing(translateX, {
+              toValue: goNext ? -width : width,
+              duration: COMMIT_MS,
+              easing: settleEasing,
+              useNativeDriver: true,
+            }).start(({ finished }) => {
+              if (!finished) {
+                resetStrip();
+                return;
+              }
+              router.navigate(TAB_ROUTES[goNext ? index + 1 : index - 1]);
+              resetStrip();
+            });
             return;
           }
 
@@ -152,7 +155,12 @@ export default function SwipeableTabWrapper({
             duration: SNAP_BACK_MS,
             easing: settleEasing,
             useNativeDriver: true,
-          }).start();
+          }).start(({ finished }) => {
+            if (finished) {
+              setShowPrev(false);
+              setShowNext(false);
+            }
+          });
         },
         onPanResponderTerminate: () => {
           if (navigatingRef.current) {
@@ -163,28 +171,64 @@ export default function SwipeableTabWrapper({
             duration: SNAP_BACK_MS,
             easing: settleEasing,
             useNativeDriver: true,
-          }).start();
+          }).start(({ finished }) => {
+            if (finished) {
+              setShowPrev(false);
+              setShowNext(false);
+            }
+          });
         },
       }),
-    [resetPosition, router, translateX]
+    [resetStrip, router, translateX]
   );
 
   if (Platform.OS === "web") {
     return <>{children}</>;
   }
 
+  const index = tabIndex;
+  const Prev = showPrev && index > 0 ? getTabScreen(index - 1) : null;
+  const Next =
+    showNext && index < TAB_ROUTES.length - 1 ? getTabScreen(index + 1) : null;
+  const stripTranslate = Animated.add(baseOffset, translateX);
+
   return (
-    <Animated.View
-      style={[styles.container, { backgroundColor, transform: [{ translateX }] }]}
-      {...panResponder.panHandlers}
-    >
-      {children}
-    </Animated.View>
+    <View style={[styles.clip, { backgroundColor }]} {...panResponder.panHandlers}>
+      <Animated.View
+        style={[
+          styles.strip,
+          {
+            width: pageWidth * 3,
+            backgroundColor,
+            transform: [{ translateX: stripTranslate }],
+          },
+        ]}
+      >
+        <View style={[styles.page, { width: pageWidth, backgroundColor }]}>
+          {Prev ? <Prev /> : null}
+        </View>
+        <View style={[styles.page, { width: pageWidth, backgroundColor }]}>
+          {children}
+        </View>
+        <View style={[styles.page, { width: pageWidth, backgroundColor }]}>
+          {Next ? <Next /> : null}
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  clip: {
     flex: 1,
+    overflow: "hidden",
+  },
+  strip: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  page: {
+    height: "100%",
+    overflow: "hidden",
   },
 });

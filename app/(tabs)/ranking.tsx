@@ -13,10 +13,12 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import InfoButton from "../../components/InfoButton";
 import KeyboardDismissScrollView from "../../components/KeyboardDismissScrollView";
 import PressableFeedback from "../../components/PressableFeedback";
 import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
+import { registerTabScreen } from "../../components/tabs/tabScreenRegistry";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -122,8 +124,23 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [modalVisible, setModalVisible] = useState(false);
   const selectedLabel = options.find((o) => o.value === value)?.label || label;
-  const modalMaxHeight = Math.min(windowHeight * 0.7, 520);
-  const modalWidth = Math.min(windowWidth * 0.9, 360);
+  const modalMaxHeight = Math.min(windowHeight * 0.72, 540);
+  const modalWidth = Math.min(windowWidth * 0.92, 380);
+  const isRank = label === "Rank";
+  const panelShadow =
+    Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: theme === "dark" ? 0.45 : 0.18,
+        shadowRadius: 24,
+      },
+      android: { elevation: 12 },
+      default: {},
+    }) ?? {};
+
+  const close = () => setModalVisible(false);
+
   return (
     <>
       <PressableFeedback
@@ -139,64 +156,104 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
         visible={modalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={close}
       >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <TouchableWithoutFeedback onPress={close}>
           <View style={[styles.modalOverlay, { backgroundColor: colors.modalOverlay }]}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
               <View
                 style={[
-                  label === "Rank" ? styles.modalContentRefined : styles.modalContentEvent,
+                  styles.modalPanel,
+                  panelShadow,
                   {
                     backgroundColor: colors.cardBackground,
+                    borderColor: colors.border,
                     width: modalWidth,
                     maxHeight: modalMaxHeight,
                   },
                 ]}
               >
-                <Text style={[styles.modalPromptRefined, { color: colors.textSecondary }]}>
-                  {label === "Rank" ? "Tap to select a rank" : "Tap to select an event"}
-                </Text>
+                <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>
+                    {isRank ? "Rank" : "Event"}
+                  </Text>
+                  <Text style={[styles.modalSubtitle, { color: colors.textMuted }]}>
+                    {isRank ? "Competition category" : "Combined event"}
+                  </Text>
+                </View>
                 <ScrollView
-                  style={{ maxHeight: modalMaxHeight - scaleSpacing(40) }}
+                  style={{ maxHeight: modalMaxHeight - scaleSpacing(72) }}
                   contentContainerStyle={styles.modalScrollContent}
                   showsVerticalScrollIndicator={false}
                   bounces={false}
                 >
-                {options.map((item) => {
-                // For rank options, split the letter from the description for alignment
-                const isRankOption = label === "Rank";
-                if (isRankOption && item.label.includes(" - ")) {
-                  const [rankLetter, description] = item.label.split(" - ");
-                  return (
-                    <PressableFeedback
-                      key={item.value}
-                      style={[styles.modalOptionRank, { backgroundColor: colors.surfaceSolid, borderColor: colors.border, borderWidth: 1 }]}
-                      onPress={() => {
-                        onSelect(item.value);
-                        setModalVisible(false);
-                      }}
-                    >
-                      <View style={styles.rankOptionRow}>
-                        <Text style={[styles.rankLetter, { color: colors.text }]}>{rankLetter}</Text>
-                        <Text style={[styles.rankDescription, { color: colors.text }]} numberOfLines={undefined}>{description}</Text>
-                      </View>
-                    </PressableFeedback>
-                  );
-                }
-                return (
-                  <PressableFeedback
-                    key={item.value}
-                    style={[styles.modalOptionRank, styles.modalOptionEventButton, { backgroundColor: colors.surfaceSolid, borderColor: colors.border, borderWidth: 1 }]}
-                    onPress={() => {
-                      onSelect(item.value);
-                      setModalVisible(false);
-                    }}
-                  >
-                    <Text style={[styles.modalOptionText, { color: colors.text }]}>{item.label}</Text>
-                  </PressableFeedback>
-                );
-              })}
+                  {options.map((item, index) => {
+                    const selected = item.value === value;
+                    const isLast = index === options.length - 1;
+                    const isRankOption = isRank && item.label.includes(" - ");
+                    const rankLetter = isRankOption ? item.label.split(" - ")[0] : null;
+                    const description = isRankOption
+                      ? item.label.split(" - ").slice(1).join(" - ")
+                      : item.label;
+
+                    return (
+                      <PressableFeedback
+                        key={item.value}
+                        contentAlign="stretch"
+                        style={[
+                          styles.modalRow,
+                          !isLast && {
+                            borderBottomWidth: StyleSheet.hairlineWidth,
+                            borderBottomColor: colors.border,
+                          },
+                          selected && {
+                            backgroundColor:
+                              theme === "dark"
+                                ? "rgba(211, 84, 0, 0.16)"
+                                : "rgba(211, 84, 0, 0.08)",
+                          },
+                        ]}
+                        onPress={() => {
+                          onSelect(item.value);
+                          close();
+                        }}
+                      >
+                        <View style={styles.modalRowMain}>
+                          {rankLetter ? (
+                            <Text
+                              style={[
+                                styles.rankLetter,
+                                { color: selected ? TRACK_COLOR : colors.text },
+                              ]}
+                            >
+                              {rankLetter}
+                            </Text>
+                          ) : null}
+                          <Text
+                            style={[
+                              rankLetter ? styles.rankDescription : styles.modalOptionText,
+                              {
+                                color: colors.text,
+                                fontWeight: selected ? "600" : "400",
+                                textAlign: rankLetter ? "left" : "left",
+                              },
+                            ]}
+                          >
+                            {description}
+                          </Text>
+                        </View>
+                        {selected ? (
+                          <Ionicons
+                            name="checkmark"
+                            size={scaleFont(18)}
+                            color={TRACK_COLOR}
+                          />
+                        ) : (
+                          <View style={styles.modalCheckSpacer} />
+                        )}
+                      </PressableFeedback>
+                    );
+                  })}
                 </ScrollView>
               </View>
             </TouchableWithoutFeedback>
@@ -340,7 +397,7 @@ const EMPTY_RANKINGS_DRAFT: RankingsDraft = {
   points2: "",
 };
 
-export default function RankingsScreen() {
+function RankingsTabBody() {
   const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
@@ -598,11 +655,19 @@ export default function RankingsScreen() {
   );
 
   return (
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
+      {scrollContent}
+    </View>
+  );
+}
+
+registerTabScreen(1, RankingsTabBody);
+
+export default function RankingsScreen() {
+  return (
     <SwipeableTabWrapper tabIndex={1}>
-      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
-        {scrollContent}
-      </View>
+      <RankingsTabBody />
     </SwipeableTabWrapper>
   );
 }
@@ -695,57 +760,62 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: scaleSpacing(20),
   },
-  modalContentRefined: {
-    borderRadius: Radius.md,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  modalPanel: {
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    overflow: "hidden",
     alignItems: "stretch",
   },
-  modalContentEvent: {
-    borderRadius: Radius.md,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    alignItems: "stretch",
+  modalHeader: {
+    paddingHorizontal: scaleSpacing(16),
+    paddingTop: scaleSpacing(14),
+    paddingBottom: scaleSpacing(12),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  modalTitle: {
+    fontSize: scaleFont(17),
+    fontWeight: "700",
+    textAlign: "left",
+  },
+  modalSubtitle: {
+    fontSize: scaleFont(12),
+    marginTop: scaleSpacing(2),
+    textAlign: "left",
   },
   modalScrollContent: {
-    paddingBottom: 8,
+    paddingBottom: scaleSpacing(6),
   },
-  modalPromptRefined: {
-    fontSize: scaleFont(12),
-    textAlign: "center",
-    marginBottom: scaleSpacing(4),
+  modalRow: {
+    minHeight: scaleSpacing(48),
+    paddingVertical: scaleSpacing(12),
+    paddingHorizontal: scaleSpacing(16),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: scaleSpacing(10),
   },
-  modalOptionRank: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    minHeight: 40,
-    width: "100%",
-    borderRadius: Radius.sm,
-    marginVertical: 2,
-    justifyContent: "center",
-  },
-  modalOptionEventButton: {
-    width: "100%",
-    alignSelf: "stretch",
-  },
-  modalOptionText: {
-    fontSize: scaleFont(14),
-    textAlign: "center",
-    flexWrap: "wrap",
-  },
-  rankOptionRow: {
+  modalRowMain: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "flex-start",
-    width: "100%",
+    minWidth: 0,
+  },
+  modalCheckSpacer: {
+    width: scaleFont(18),
+  },
+  modalOptionText: {
+    fontSize: scaleFont(15),
+    flex: 1,
     flexWrap: "wrap",
   },
   rankLetter: {
-    fontSize: scaleFont(14),
-    fontWeight: "bold",
-    width: scaleSpacing(40),
+    fontSize: scaleFont(15),
+    fontWeight: "700",
+    width: scaleSpacing(36),
     textAlign: "left",
-    marginRight: scaleSpacing(8),
+    marginRight: scaleSpacing(10),
     flexShrink: 0,
   },
   rankDescription: {
@@ -754,6 +824,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
     flexShrink: 1,
     minWidth: 0,
+    lineHeight: scaleFont(20),
   },
   inputRow: {
     flexDirection: "row",
