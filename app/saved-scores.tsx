@@ -344,15 +344,7 @@ function ScoreCard({
               </Text>
             </View>
           </View>
-          <View
-            style={[
-              styles.scoreDetails,
-              {
-                backgroundColor: colors.surfaceInset,
-                borderColor: colors.border,
-              },
-            ]}
-          >
+          <View style={[styles.scoreDetails, { borderTopColor: colors.border }]}>
             <View style={styles.scoreRow}>
               <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>Total Score:</Text>
               <Text style={[styles.scoreValue, { color: colors.text }]}>
@@ -825,10 +817,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   scoreDetails: {
-    borderWidth: 1,
-    borderRadius: Radius.sm,
-    paddingVertical: scaleSpacing(10),
-    paddingHorizontal: scaleSpacing(12),
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: scaleSpacing(12),
   },
   scoreRow: {
     flexDirection: "row",
