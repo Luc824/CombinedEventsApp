@@ -15,6 +15,7 @@ import {
   ScreenLayout,
   buttonElevation,
   pillButtonStyle,
+  sectionHeaderStyle,
   tabHubContentOffset,
 } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -85,7 +86,13 @@ export default function EventsScreen() {
                 key={section.title}
                 style={[styles.section, sectionIndex > 0 && styles.sectionSpaced]}
               >
-                <Text style={[styles.sectionHeader, { color: colors.text }]}>
+                <Text
+                  style={[
+                    styles.sectionHeader,
+                    sectionHeaderStyle,
+                    { color: colors.textSecondary },
+                  ]}
+                >
                   {section.title}
                 </Text>
                 <View style={styles.buttonRow}>
@@ -121,7 +128,7 @@ export default function EventsScreen() {
               onPress={openAppStore}
             >
               <Text style={[styles.getAppButtonText, { color: colors.buttonText }]}>
-                📱 Get the App
+                Get the App
               </Text>
             </PressableFeedback>
           )}
@@ -188,11 +195,10 @@ const styles = StyleSheet.create({
     marginTop: scaleSpacing(14),
   },
   sectionHeader: {
-    fontSize: scaleFont(18),
-    fontWeight: "bold",
     textAlign: "center",
     width: "100%",
-    marginBottom: scaleSpacing(12),
+    marginTop: 0,
+    marginBottom: scaleSpacing(10),
   },
   buttonRow: {
     flexDirection: "row",

@@ -37,8 +37,6 @@ import { openAppReview, openAppStore } from "../../utils/openUrl";
 import { scaleFont, scaleSpacing } from "../../utils/uiScale";
 import { useSafePush } from "../../utils/useSafePush";
 
-const FALLBACK_TIERS = ["Amateur", "Pro", "GOAT"] as const;
-
 /** Open PayPal Donate button (any amount). */
 const WEB_PAYPAL_DONATE_URL =
   "https://www.paypal.com/donate/?hosted_button_id=VZWTBDK6CNYQQ";
@@ -208,23 +206,20 @@ export default function MoreScreen() {
     }
 
     return (
-      <View style={styles.donateRow}>
-        {FALLBACK_TIERS.map((tier) => {
-          return (
-            <PressableFeedback
-              key={tier}
-              style={[styles.donateButton, { backgroundColor: TRACK_COLOR, opacity: 0.7 }]}
-              onPress={() =>
-                Alert.alert(
-                  "Tips unavailable",
-                  "In-app tips could not be loaded. Check your connection and try again, or update the app once products are configured in App Store Connect."
-                )
-              }
-            >
-              <Text style={styles.donateTier}>{tier}</Text>
-            </PressableFeedback>
-          );
-        })}
+      <View style={styles.tipsUnavailable}>
+        <Text style={[styles.tipsUnavailableText, { color: colors.textSecondary }]}>
+          Tips couldn’t be loaded. Check your connection and try again.
+        </Text>
+        <PressableFeedback
+          style={[
+            styles.tipsRetryButton,
+            surfacePillButtonStyle,
+            { backgroundColor: colors.surfaceSolid, borderColor: colors.border },
+          ]}
+          onPress={refreshDonationPackages}
+        >
+          <Text style={[styles.linkButtonText, { color: colors.text }]}>Try again</Text>
+        </PressableFeedback>
       </View>
     );
   };
@@ -359,7 +354,7 @@ export default function MoreScreen() {
             ]}
             onPress={handleGetApp}
           >
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>📱 Get the App</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Get the App</Text>
           </PressableFeedback>
         )}
 
@@ -479,6 +474,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: scaleFont(14),
     fontWeight: "400",
+  },
+  tipsUnavailable: {
+    width: "100%",
+    alignItems: "center",
+    gap: scaleSpacing(10),
+    paddingVertical: scaleSpacing(4),
+  },
+  tipsUnavailableText: {
+    fontSize: scaleFont(14),
+    textAlign: "center",
+    lineHeight: scaleFont(20),
+    paddingHorizontal: scaleSpacing(8),
+  },
+  tipsRetryButton: {
+    minWidth: scaleSpacing(140),
+    paddingVertical: scaleSpacing(10),
+    paddingHorizontal: scaleSpacing(20),
   },
   donateMessage: {
     fontSize: scaleFont(13),
