@@ -135,7 +135,7 @@ const TEXT_SECTIONS = [
   {
     id: "rankings",
     title: "World Athletics rankings",
-    body: "In combined events, points from every event are added together to give each athlete a competition total. World Athletics rankings are a separate system. They help decide who qualifies for big championships.\n\nA ranking score has two parts. The result score is how good the performance was, based on the points total from that competition. The placing score is determined by which place you finish in the competition, and how big the competition was. Add them together and you get a performance score.\n\nYour ranking uses your two best performance scores and takes the average. For men, at least one of those has to be a decathlon. For women, at least one has to be a heptathlon. Everyone is then ranked by that average.\n\nUse the Rankings tab in this app to estimate your ranking score.",
+    body: "In combined events, points from every event are added together to give each athlete a competition total. World Athletics rankings are a separate system. They help decide who qualifies for big championships.\n\nA ranking score has two parts. The result score is how good the performance was, based on the points total from that competition. The placing score is determined by which place you finish in the competition, and how big the competition was. Add them together and you get a performance score.\n\nYour ranking uses your two best performance scores and takes the average. For men, at least one of those has to be a decathlon. For women, at least one has to be a heptathlon. Everyone is then ranked by that average.\n\nUse the Rankings calculator in this app to estimate your ranking score.",
   },
 ] as const;
 
