@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Animated,
   Modal,
   Platform,
   ScrollView,
@@ -9,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  type TextInputProps,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
@@ -122,7 +124,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [modalVisible, setModalVisible] = useState(false);
   const selectedLabel = options.find((o) => o.value === value)?.label || label;
-  const modalMaxHeight = Math.min(windowHeight * 0.72, 540);
+  const modalMaxHeight = Math.min(windowHeight * 0.85, 640);
   const modalWidth = Math.min(windowWidth * 0.92, 380);
   const isRank = label === "Rank";
   const panelShadow =
@@ -142,7 +144,15 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
   return (
     <>
       <PressableFeedback
-        style={[styles.dropdown, formDropdownStyle, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder || colors.border }]}
+        style={[
+          styles.dropdown,
+          formDropdownStyle,
+          {
+            backgroundColor: colors.cardBackground,
+            borderColor: colors.border,
+            borderWidth: StyleSheet.hairlineWidth,
+          },
+        ]}
         contentAlign="flex-start"
         onPress={() => setModalVisible(true)}
       >
@@ -175,12 +185,9 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                   <Text style={[styles.modalTitle, { color: colors.text }]}>
                     {isRank ? "Rank" : "Event"}
                   </Text>
-                  <Text style={[styles.modalSubtitle, { color: colors.textMuted }]}>
-                    {isRank ? "Competition category" : "Combined event"}
-                  </Text>
                 </View>
                 <ScrollView
-                  style={{ maxHeight: modalMaxHeight - scaleSpacing(72) }}
+                  style={{ maxHeight: modalMaxHeight - scaleSpacing(44) }}
                   contentContainerStyle={styles.modalScrollContent}
                   showsVerticalScrollIndicator={false}
                   bounces={false}
@@ -233,9 +240,9 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                               {
                                 color: colors.text,
                                 fontWeight: selected ? "600" : "400",
-                                textAlign: rankLetter ? "left" : "left",
                               },
                             ]}
+                            numberOfLines={isRankOption ? 2 : 1}
                           >
                             {description}
                           </Text>
@@ -243,7 +250,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
                         {selected ? (
                           <Ionicons
                             name="checkmark"
-                            size={scaleFont(18)}
+                            size={scaleFont(16)}
                             color={TRACK_COLOR}
                           />
                         ) : (
@@ -259,6 +266,49 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
         </TouchableWithoutFeedback>
       </Modal>
     </>
+  );
+}
+
+/** Same press-language settle as Event/Rank dropdowns when Place/Points gain focus. */
+function FocusField({
+  style,
+  onFocus,
+  onBlur,
+  ...rest
+}: TextInputProps) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  const pulseIn = () => {
+    scale.setValue(0.97);
+    opacity.setValue(0.72);
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 7,
+        tension: 260,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 110,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  return (
+    <Animated.View style={{ width: "100%", transform: [{ scale }], opacity }}>
+      <TextInput
+        {...rest}
+        style={style}
+        onFocus={(event) => {
+          pulseIn();
+          onFocus?.(event);
+        }}
+        onBlur={onBlur}
+      />
+    </Animated.View>
   );
 }
 
@@ -299,15 +349,24 @@ function PerformanceEntry({
     formFieldStyle,
     styles.inputFullWidth,
     {
-      backgroundColor: colors.inputBackground,
+      backgroundColor: colors.cardBackground,
       color: colors.inputText,
-      borderColor: colors.inputBorder || colors.border,
+      borderColor: colors.border,
+      borderWidth: StyleSheet.hairlineWidth,
     },
   ];
 
   return (
-    <View style={[styles.performanceSection, index > 0 && styles.performanceSectionSpaced]}>
-      <Text style={[styles.performanceTitle, { color: colors.text }]}>
+    <View
+      style={[
+        styles.performanceSection,
+        index > 0 && [
+          styles.performanceSectionSpaced,
+          { borderTopColor: colors.border },
+        ],
+      ]}
+    >
+      <Text style={[styles.performanceTitle, { color: colors.textSecondary }]}>
         Performance {index + 1}
       </Text>
       <Dropdown
@@ -327,7 +386,7 @@ function PerformanceEntry({
       />
       <View style={styles.inputRow}>
         <View style={styles.inputHalf}>
-          <TextInput
+          <FocusField
             style={inputStyle}
             value={place}
             onChangeText={setPlace}
@@ -340,7 +399,7 @@ function PerformanceEntry({
           />
         </View>
         <View style={styles.inputHalf}>
-          <TextInput
+          <FocusField
             style={inputStyle}
             value={points}
             onChangeText={setPoints}
@@ -354,18 +413,18 @@ function PerformanceEntry({
         </View>
       </View>
       <View style={styles.scoreSummary}>
-        <Text style={[styles.scoreLine, { color: colors.text }]}>
-          Result Score:{" "}
+        <View style={styles.scoreMetric}>
+          <Text style={[styles.scoreLabel, { color: colors.textMuted }]}>Result</Text>
           <Text style={[styles.scoreValue, { color: TRACK_COLOR }]}>{resultScore}</Text>
-        </Text>
-        <Text style={[styles.scoreLine, { color: colors.text }]}>
-          Placing Score:{" "}
+        </View>
+        <View style={styles.scoreMetric}>
+          <Text style={[styles.scoreLabel, { color: colors.textMuted }]}>Placing</Text>
           <Text style={[styles.scoreValue, { color: TRACK_COLOR }]}>{placingScore}</Text>
-        </Text>
-        <Text style={[styles.scoreLine, { color: colors.text }]}>
-          Performance Score:{" "}
+        </View>
+        <View style={styles.scoreMetric}>
+          <Text style={[styles.scoreLabel, { color: colors.textMuted }]}>Perf</Text>
           <Text style={[styles.scoreValue, { color: TRACK_COLOR }]}>{performanceScore}</Text>
-        </Text>
+        </View>
       </View>
     </View>
   );
@@ -626,8 +685,10 @@ export default function RankingsScreen() {
         placingScore={placingScore2}
         performanceScore={performanceScore2}
       />
-      <View style={[styles.rankingBox, { backgroundColor: colors.surfaceSolid, borderColor: colors.border }]}>
-        <Text style={[styles.rankingLabel, { color: colors.text }]}>Ranking Score</Text>
+      <View style={styles.rankingTotal}>
+        <Text style={[styles.rankingLabel, { color: colors.textSecondary }]}>
+          Ranking Score
+        </Text>
         {genderMismatch ? (
           <Text style={[styles.rankingError, { color: colors.textSecondary }]}>
             Both performances must be the same gender.
@@ -723,11 +784,15 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   performanceSectionSpaced: {
-    marginTop: scaleSpacing(12),
+    marginTop: scaleSpacing(16),
+    paddingTop: scaleSpacing(14),
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   performanceTitle: {
-    fontSize: scaleFont(15),
-    fontWeight: "bold",
+    fontSize: scaleFont(13),
+    fontWeight: "600",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
     marginBottom: scaleSpacing(8),
     textAlign: "center",
   },
@@ -757,67 +822,61 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
   },
   modalHeader: {
-    paddingHorizontal: scaleSpacing(16),
-    paddingTop: scaleSpacing(14),
-    paddingBottom: scaleSpacing(12),
+    paddingHorizontal: scaleSpacing(14),
+    paddingTop: scaleSpacing(10),
+    paddingBottom: scaleSpacing(8),
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   modalTitle: {
-    fontSize: scaleFont(17),
+    fontSize: scaleFont(15),
     fontWeight: "700",
     textAlign: "left",
   },
-  modalSubtitle: {
-    fontSize: scaleFont(12),
-    marginTop: scaleSpacing(2),
-    textAlign: "left",
-  },
   modalScrollContent: {
-    paddingBottom: scaleSpacing(6),
+    paddingBottom: scaleSpacing(2),
   },
   modalRow: {
-    minHeight: scaleSpacing(48),
-    paddingVertical: scaleSpacing(12),
-    paddingHorizontal: scaleSpacing(16),
+    minHeight: scaleSpacing(36),
+    paddingVertical: scaleSpacing(7),
+    paddingHorizontal: scaleSpacing(12),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: scaleSpacing(10),
+    gap: scaleSpacing(8),
   },
   modalRowMain: {
     flex: 1,
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     minWidth: 0,
   },
   modalCheckSpacer: {
-    width: scaleFont(18),
+    width: scaleFont(16),
   },
   modalOptionText: {
-    fontSize: scaleFont(15),
+    fontSize: scaleFont(14),
     flex: 1,
-    flexWrap: "wrap",
   },
   rankLetter: {
-    fontSize: scaleFont(15),
+    fontSize: scaleFont(13),
     fontWeight: "700",
-    width: scaleSpacing(36),
+    width: scaleSpacing(28),
     textAlign: "left",
-    marginRight: scaleSpacing(10),
+    marginRight: scaleSpacing(8),
     flexShrink: 0,
   },
   rankDescription: {
-    fontSize: scaleFont(14),
+    fontSize: scaleFont(12),
     flex: 1,
     textAlign: "left",
     flexShrink: 1,
     minWidth: 0,
-    lineHeight: scaleFont(20),
+    lineHeight: scaleFont(16),
   },
   inputRow: {
     flexDirection: "row",
     gap: scaleSpacing(8),
-    marginBottom: scaleSpacing(6),
+    marginBottom: scaleSpacing(8),
   },
   inputHalf: {
     flex: 1,
@@ -826,35 +885,44 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   scoreSummary: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: scaleSpacing(8),
     marginTop: scaleSpacing(2),
-    marginBottom: scaleSpacing(8),
+    marginBottom: scaleSpacing(4),
+    paddingHorizontal: scaleSpacing(2),
   },
-  scoreLine: {
-    fontSize: scaleFont(12),
-    marginTop: scaleSpacing(1),
+  scoreMetric: {
+    flex: 1,
+    alignItems: "center",
+  },
+  scoreLabel: {
+    fontSize: scaleFont(11),
+    fontWeight: "500",
+    marginBottom: scaleSpacing(2),
   },
   scoreValue: {
-    fontSize: scaleFont(12),
-    fontWeight: "bold",
+    fontSize: scaleFont(14),
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
   },
-  rankingBox: {
-    borderWidth: 1,
-    borderRadius: Radius.md,
-    paddingVertical: scaleSpacing(10),
-    paddingHorizontal: scaleSpacing(12),
+  rankingTotal: {
     alignItems: "center",
-    marginTop: scaleSpacing(20),
-    marginBottom: scaleSpacing(10),
+    marginTop: scaleSpacing(18),
+    marginBottom: scaleSpacing(12),
     width: "100%",
   },
   rankingLabel: {
-    fontSize: scaleFont(14),
+    fontSize: scaleFont(13),
     fontWeight: "600",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
     marginBottom: scaleSpacing(4),
   },
   rankingValue: {
-    fontSize: scaleFont(32),
+    fontSize: scaleFont(36),
     fontWeight: "bold",
+    fontVariant: ["tabular-nums"],
   },
   rankingError: {
     fontSize: scaleFont(14),
