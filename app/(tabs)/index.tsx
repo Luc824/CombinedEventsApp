@@ -9,8 +9,6 @@ import {
 } from "react-native";
 import InfoButton from "../../components/InfoButton";
 import PressableFeedback from "../../components/PressableFeedback";
-import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
-import { registerTabScreen } from "../../components/tabs/tabScreenRegistry";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   ScreenLayout,
@@ -43,7 +41,7 @@ const SECTIONS = [
   },
 ];
 
-function EventsTabBody() {
+export default function EventsScreen() {
   const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
@@ -135,16 +133,6 @@ function EventsTabBody() {
         </View>
       </View>
     </View>
-  );
-}
-
-registerTabScreen(0, EventsTabBody);
-
-export default function EventsScreen() {
-  return (
-    <SwipeableTabWrapper tabIndex={0}>
-      <EventsTabBody />
-    </SwipeableTabWrapper>
   );
 }
 

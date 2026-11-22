@@ -17,8 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import InfoButton from "../../components/InfoButton";
 import KeyboardDismissScrollView from "../../components/KeyboardDismissScrollView";
 import PressableFeedback from "../../components/PressableFeedback";
-import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
-import { registerTabScreen } from "../../components/tabs/tabScreenRegistry";
 import { ThemeColors } from "../../constants/ThemeColors";
 import { Radius, ScreenLayout, TRACK_COLOR, actionButtonStyle, buttonElevation, formDropdownStyle, formFieldStyle } from "../../constants/ui";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -397,7 +395,7 @@ const EMPTY_RANKINGS_DRAFT: RankingsDraft = {
   points2: "",
 };
 
-function RankingsTabBody() {
+export default function RankingsScreen() {
   const safePush = useSafePush();
   const { theme } = useTheme();
   const colors = ThemeColors[theme];
@@ -659,16 +657,6 @@ function RankingsTabBody() {
       <StatusBar barStyle={colors.statusBar as any} backgroundColor={colors.background} />
       {scrollContent}
     </View>
-  );
-}
-
-registerTabScreen(1, RankingsTabBody);
-
-export default function RankingsScreen() {
-  return (
-    <SwipeableTabWrapper tabIndex={1}>
-      <RankingsTabBody />
-    </SwipeableTabWrapper>
   );
 }
 

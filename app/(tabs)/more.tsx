@@ -13,8 +13,6 @@ import {
   View,
 } from "react-native";
 import PressableFeedback from "../../components/PressableFeedback";
-import SwipeableTabWrapper from "../../components/SwipeableTabWrapper";
-import { registerTabScreen } from "../../components/tabs/tabScreenRegistry";
 import { ThemeColors } from "../../constants/ThemeColors";
 import {
   TRACK_COLOR,
@@ -75,7 +73,7 @@ async function openExternalUrl(url: string, label: string) {
   }
 }
 
-function MoreTabBody() {
+export default function MoreScreen() {
   const safePush = useSafePush();
   const { theme, toggleTheme, isDark } = useTheme();
   const colors = ThemeColors[theme];
@@ -366,16 +364,6 @@ function MoreTabBody() {
         </Text>
       </ScrollView>
     </View>
-  );
-}
-
-registerTabScreen(2, MoreTabBody);
-
-export default function MoreScreen() {
-  return (
-    <SwipeableTabWrapper tabIndex={2}>
-      <MoreTabBody />
-    </SwipeableTabWrapper>
   );
 }
 
