@@ -1,5 +1,5 @@
-import { Href, useRouter } from "expo-router";
-import React, { useEffect, useMemo, useRef } from "react";
+import { Href, useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Animated,
   Dimensions,
@@ -21,9 +21,8 @@ type SwipeableTabWrapperProps = {
 
 /**
  * Horizontal swipe between tabs with follow-finger slide, then a short
- * directional exit before navigate — so the change feels like moving
- * between screens, not a hard jump. Thresholds stay strict so Rankings
- * vertical scroll is not stolen.
+ * directional exit before navigate. Native tabs stay mounted, so translate
+ * must reset on blur/focus — otherwise a slid-away tab comes back blank.
  */
 export default function SwipeableTabWrapper({
   tabIndex,
@@ -36,6 +35,12 @@ export default function SwipeableTabWrapper({
   const navigatingRef = useRef(false);
   const widthRef = useRef(Dimensions.get("window").width);
 
+  const resetPosition = useCallback(() => {
+    navigatingRef.current = false;
+    translateX.stopAnimation();
+    translateX.setValue(0);
+  }, [translateX]);
+
   useEffect(() => {
     const sub = Dimensions.addEventListener("change", ({ window }) => {
       widthRef.current = window.width;
@@ -43,12 +48,15 @@ export default function SwipeableTabWrapper({
     return () => sub.remove();
   }, []);
 
-  // New tab mounts at rest after navigation.
-  useEffect(() => {
-    navigatingRef.current = false;
-    translateX.stopAnimation();
-    translateX.setValue(0);
-  }, [tabIndex, translateX]);
+  // NativeTabs keep scenes mounted — always re-center when this tab is focused.
+  useFocusEffect(
+    useCallback(() => {
+      resetPosition();
+      return () => {
+        resetPosition();
+      };
+    }, [resetPosition])
+  );
 
   const panResponder = useMemo(
     () =>
@@ -74,7 +82,6 @@ export default function SwipeableTabWrapper({
           }
           const index = tabIndexRef.current;
           let dx = gestureState.dx;
-          // Resist swiping past the first/last tab.
           if ((index === 0 && dx > 0) || (index === TAB_ROUTES.length - 1 && dx < 0)) {
             dx *= 0.28;
           }
@@ -104,11 +111,13 @@ export default function SwipeableTabWrapper({
               useNativeDriver: true,
             }).start(({ finished }) => {
               if (!finished) {
-                navigatingRef.current = false;
-                translateX.setValue(0);
+                resetPosition();
                 return;
               }
               router.navigate(TAB_ROUTES[goNext ? index + 1 : index - 1]);
+              // Scene stays mounted under NativeTabs — park it back at 0
+              // so returning to this tab is never a blank off-screen view.
+              resetPosition();
             });
             return;
           }
@@ -132,7 +141,7 @@ export default function SwipeableTabWrapper({
           }).start();
         },
       }),
-    [router, translateX]
+    [resetPosition, router, translateX]
   );
 
   if (Platform.OS === "web") {

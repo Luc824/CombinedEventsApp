@@ -13,6 +13,8 @@ type PressableFeedbackProps = Omit<PressableProps, "style"> & {
   pressedScale?: number;
   /** Opacity while pressed. Default 0.72. */
   pressedOpacity?: number;
+  /** Content alignment inside the pressable. Default center (primary pills). */
+  contentAlign?: "center" | "flex-start" | "stretch";
   children: React.ReactNode;
 };
 
@@ -23,6 +25,7 @@ export default function PressableFeedback({
   style,
   pressedScale = 0.97,
   pressedOpacity = 0.72,
+  contentAlign = "center",
   children,
   onPressIn,
   onPressOut,
@@ -67,7 +70,7 @@ export default function PressableFeedback({
       <Animated.View
         style={{
           width: "100%",
-          alignItems: "center",
+          alignItems: contentAlign,
           justifyContent: "center",
           transform: [{ scale }],
           opacity,

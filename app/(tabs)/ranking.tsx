@@ -128,6 +128,7 @@ function Dropdown({ label, value, options, onSelect }: DropdownProps) {
     <>
       <PressableFeedback
         style={[styles.dropdown, formDropdownStyle, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder || colors.border }]}
+        contentAlign="flex-start"
         onPress={() => setModalVisible(true)}
       >
         <Text style={[value ? styles.dropdownText : styles.dropdownPlaceholder, { color: value ? colors.text : colors.textMuted }]}>
@@ -682,9 +683,13 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: scaleFont(13),
+    width: "100%",
+    textAlign: "left",
   },
   dropdownPlaceholder: {
     fontSize: scaleFont(13),
+    width: "100%",
+    textAlign: "left",
   },
   modalOverlay: {
     flex: 1,
