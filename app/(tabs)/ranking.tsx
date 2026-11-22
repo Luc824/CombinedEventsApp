@@ -682,9 +682,13 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: scaleFont(13),
+    width: "100%",
+    textAlign: "left",
   },
   dropdownPlaceholder: {
     fontSize: scaleFont(13),
+    width: "100%",
+    textAlign: "left",
   },
   modalOverlay: {
     flex: 1,
@@ -772,6 +776,7 @@ const styles = StyleSheet.create({
   scoreValue: {
     fontSize: scaleFont(12),
     fontWeight: "bold",
+    fontVariant: ["tabular-nums"],
   },
   rankingBox: {
     borderWidth: 1,
@@ -791,6 +796,7 @@ const styles = StyleSheet.create({
   rankingValue: {
     fontSize: scaleFont(32),
     fontWeight: "bold",
+    fontVariant: ["tabular-nums"],
   },
   rankingError: {
     fontSize: scaleFont(14),

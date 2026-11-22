@@ -34,8 +34,8 @@ import { useSafePush } from "../utils/useSafePush";
 
 const TRACK_COLOR = "#D35400";
 const FALLBACK_STRIDE = scaleSpacing(148);
-const SNAP_MS = 120;
-const SHIFT_MS = 90;
+const SNAP_MS = 160;
+const SHIFT_MS = 110;
 const EDGE_SCROLL_ZONE = scaleSpacing(64);
 const EDGE_SCROLL_MAX_SPEED = scaleSpacing(18);
 const snapEasing = Easing.out(Easing.cubic);
@@ -205,8 +205,8 @@ function ScoreCard({
         });
         onHandleGrantRef.current(indexRef.current, idRef.current);
         Animated.timing(scale, {
-          toValue: 1.03,
-          duration: 80,
+          toValue: 1.02,
+          duration: 70,
           easing: snapEasing,
           useNativeDriver: true,
         }).start();
@@ -315,7 +315,7 @@ function ScoreCard({
         style={[
           styles.scoreCard,
           {
-            backgroundColor: colors.surfaceSolid,
+            backgroundColor: colors.cardBackground,
             borderWidth: 1,
             borderColor: colors.border,
             opacity: dragging || elevated ? 0.98 : 1,
@@ -344,7 +344,15 @@ function ScoreCard({
               </Text>
             </View>
           </View>
-          <View style={[styles.scoreDetails, { borderTopColor: colors.border }]}>
+          <View
+            style={[
+              styles.scoreDetails,
+              {
+                backgroundColor: colors.surfaceInset,
+                borderColor: colors.border,
+              },
+            ]}
+          >
             <View style={styles.scoreRow}>
               <Text style={[styles.scoreLabel, { color: colors.textSecondary }]}>Total Score:</Text>
               <Text style={[styles.scoreValue, { color: colors.text }]}>
@@ -776,15 +784,17 @@ const styles = StyleSheet.create({
   },
   scoreCard: {
     borderRadius: Radius.md,
-    padding: scaleSpacing(16),
-    paddingRight: scaleSpacing(50),
+    paddingTop: scaleSpacing(14),
+    paddingBottom: scaleSpacing(12),
+    paddingLeft: scaleSpacing(12),
+    paddingRight: scaleSpacing(48),
     flexDirection: "row",
     alignItems: "flex-start",
   },
   dragHandle: {
-    paddingRight: scaleSpacing(14),
+    paddingRight: scaleSpacing(12),
     paddingLeft: scaleSpacing(2),
-    paddingVertical: scaleSpacing(18),
+    paddingVertical: scaleSpacing(16),
     justifyContent: "center",
     alignItems: "center",
     minWidth: scaleSpacing(36),
@@ -793,18 +803,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scoreHeader: {
-    marginBottom: scaleSpacing(12),
+    marginBottom: scaleSpacing(10),
+    paddingRight: scaleSpacing(4),
   },
   scoreTitleContainer: {
     flex: 1,
   },
   scoreTitle: {
-    fontSize: scaleFont(18),
+    fontSize: scaleFont(17),
     fontWeight: "bold",
-    marginBottom: scaleSpacing(4),
+    marginBottom: scaleSpacing(3),
   },
   eventType: {
-    fontSize: scaleFont(14),
+    fontSize: scaleFont(13),
     fontWeight: "600",
   },
   deleteButton: {
@@ -814,28 +825,32 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   scoreDetails: {
-    borderTopWidth: 1,
-    paddingTop: scaleSpacing(12),
+    borderWidth: 1,
+    borderRadius: Radius.sm,
+    paddingVertical: scaleSpacing(10),
+    paddingHorizontal: scaleSpacing(12),
   },
   scoreRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scaleSpacing(8),
+    marginBottom: scaleSpacing(6),
   },
   scoreLabel: {
-    fontSize: scaleFont(14),
+    fontSize: scaleFont(13),
   },
   scoreValue: {
-    fontSize: scaleFont(16),
-    fontWeight: "bold",
+    fontSize: scaleFont(15),
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
   },
   resultScoreValue: {
-    fontSize: scaleFont(16),
-    fontWeight: "bold",
+    fontSize: scaleFont(15),
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
   },
   dateText: {
     fontSize: scaleFont(12),
-    marginTop: scaleSpacing(4),
+    marginTop: scaleSpacing(2),
   },
 });
