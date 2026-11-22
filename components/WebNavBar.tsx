@@ -34,7 +34,7 @@ function MenuIcon({ open, color }: { open: boolean; color: string }) {
   useEffect(() => {
     Animated.timing(progress, {
       toValue: open ? 1 : 0,
-      duration: 320,
+      duration: 240,
       easing: Easing.bezier(0.22, 1, 0.36, 1),
       useNativeDriver: true,
     }).start();
@@ -118,7 +118,7 @@ export default function WebNavBar() {
   useEffect(() => {
     Animated.timing(menuProgress, {
       toValue: menuOpen ? 1 : 0,
-      duration: 380,
+      duration: 260,
       easing: Easing.bezier(0.22, 1, 0.36, 1),
       useNativeDriver: true,
     }).start();

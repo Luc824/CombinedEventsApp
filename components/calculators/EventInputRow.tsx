@@ -58,6 +58,7 @@ export default function EventInputRow({
   const pointsScale = useRef(new Animated.Value(1)).current;
   const prevPoints = useRef(pointsValue);
   const mounted = useRef(false);
+  const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!mounted.current) {
@@ -71,21 +72,35 @@ export default function EventInputRow({
     }
     prevPoints.current = pointsValue;
 
-    // Motion only here — haptic is paired with the total spring.
-    pointsScale.setValue(1);
-    Animated.sequence([
-      Animated.timing(pointsScale, {
-        toValue: 1.08,
-        duration: 90,
-        useNativeDriver: true,
-      }),
-      Animated.spring(pointsScale, {
-        toValue: 1,
-        friction: 6,
-        tension: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    // Debounce: meet-day typing updates points every keystroke — pulse once
+    // after the burst settles. TotalScoreCard still springs immediately.
+    if (pulseTimer.current) {
+      clearTimeout(pulseTimer.current);
+    }
+    pulseTimer.current = setTimeout(() => {
+      pulseTimer.current = null;
+      pointsScale.setValue(1);
+      Animated.sequence([
+        Animated.timing(pointsScale, {
+          toValue: 1.06,
+          duration: 80,
+          useNativeDriver: true,
+        }),
+        Animated.spring(pointsScale, {
+          toValue: 1,
+          friction: 7,
+          tension: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 280);
+
+    return () => {
+      if (pulseTimer.current) {
+        clearTimeout(pulseTimer.current);
+        pulseTimer.current = null;
+      }
+    };
   }, [pointsValue, pointsScale]);
 
   return (
