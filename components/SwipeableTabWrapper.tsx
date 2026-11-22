@@ -8,11 +8,18 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
+import { ThemeColors } from "../constants/ThemeColors";
+import { useAppTheme } from "../contexts/ThemeContext";
+import { armTabEnterFrom, takeTabEnterFrom } from "../utils/tabSwipeSignal";
 
 const TAB_ROUTES: Href[] = ["/", "/ranking", "/more"];
-const COMMIT_MS = 180;
-const SNAP_BACK_MS = 160;
-const commitEasing = Easing.out(Easing.cubic);
+/** Never drag far enough to empty the scene into blank NativeTabs chrome. */
+const MAX_PEEK = 0.34;
+/** Destination enters from this fraction of width, then settles. */
+const ENTER_FROM = 0.22;
+const ENTER_MS = 170;
+const SNAP_BACK_MS = 150;
+const settleEasing = Easing.out(Easing.cubic);
 
 type SwipeableTabWrapperProps = {
   tabIndex: 0 | 1 | 2;
@@ -20,15 +27,17 @@ type SwipeableTabWrapperProps = {
 };
 
 /**
- * Horizontal swipe between tabs with follow-finger slide, then a short
- * directional exit before navigate. Native tabs stay mounted, so translate
- * must reset on blur/focus — otherwise a slid-away tab comes back blank.
+ * Directional tab swipe without a blank flash: peek with the finger, navigate
+ * immediately on commit, destination settles in from the swipe side (<200ms).
+ * NativeTabs keep scenes mounted — never slide a tab fully off-screen.
  */
 export default function SwipeableTabWrapper({
   tabIndex,
   children,
 }: SwipeableTabWrapperProps) {
   const router = useRouter();
+  const theme = useAppTheme();
+  const backgroundColor = ThemeColors[theme].background;
   const tabIndexRef = useRef(tabIndex);
   tabIndexRef.current = tabIndex;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -41,6 +50,25 @@ export default function SwipeableTabWrapper({
     translateX.setValue(0);
   }, [translateX]);
 
+  const playEnterIfArmed = useCallback(() => {
+    const from = takeTabEnterFrom();
+    if (!from) {
+      resetPosition();
+      return;
+    }
+    const width = widthRef.current;
+    const startX = from === "right" ? width * ENTER_FROM : -width * ENTER_FROM;
+    navigatingRef.current = false;
+    translateX.stopAnimation();
+    translateX.setValue(startX);
+    Animated.timing(translateX, {
+      toValue: 0,
+      duration: ENTER_MS,
+      easing: settleEasing,
+      useNativeDriver: true,
+    }).start();
+  }, [resetPosition, translateX]);
+
   useEffect(() => {
     const sub = Dimensions.addEventListener("change", ({ window }) => {
       widthRef.current = window.width;
@@ -48,14 +76,16 @@ export default function SwipeableTabWrapper({
     return () => sub.remove();
   }, []);
 
-  // NativeTabs keep scenes mounted — always re-center when this tab is focused.
   useFocusEffect(
     useCallback(() => {
-      resetPosition();
+      playEnterIfArmed();
       return () => {
-        resetPosition();
+        // Leaving: park at rest so a remounted/refocused scene is never blank.
+        translateX.stopAnimation();
+        translateX.setValue(0);
+        navigatingRef.current = false;
       };
-    }, [resetPosition])
+    }, [playEnterIfArmed, translateX])
   );
 
   const panResponder = useMemo(
@@ -81,9 +111,16 @@ export default function SwipeableTabWrapper({
             return;
           }
           const index = tabIndexRef.current;
+          const width = widthRef.current;
+          const max = width * MAX_PEEK;
           let dx = gestureState.dx;
           if ((index === 0 && dx > 0) || (index === TAB_ROUTES.length - 1 && dx < 0)) {
             dx *= 0.28;
+          }
+          if (dx > max) {
+            dx = max + (dx - max) * 0.18;
+          } else if (dx < -max) {
+            dx = -max + (dx + max) * 0.18;
           }
           translateX.setValue(dx);
         },
@@ -92,7 +129,6 @@ export default function SwipeableTabWrapper({
             return;
           }
           const index = tabIndexRef.current;
-          const width = widthRef.current;
           const swipedLeft =
             gestureState.dx < -64 || gestureState.vx < -0.55;
           const swipedRight =
@@ -103,29 +139,18 @@ export default function SwipeableTabWrapper({
 
           if (goNext || goPrev) {
             navigatingRef.current = true;
-            const targetX = goNext ? -width : width;
-            Animated.timing(translateX, {
-              toValue: targetX,
-              duration: COMMIT_MS,
-              easing: commitEasing,
-              useNativeDriver: true,
-            }).start(({ finished }) => {
-              if (!finished) {
-                resetPosition();
-                return;
-              }
-              router.navigate(TAB_ROUTES[goNext ? index + 1 : index - 1]);
-              // Scene stays mounted under NativeTabs — park it back at 0
-              // so returning to this tab is never a blank off-screen view.
-              resetPosition();
-            });
+            // Destination enters from the side we swiped toward.
+            armTabEnterFrom(goNext ? "right" : "left");
+            router.navigate(TAB_ROUTES[goNext ? index + 1 : index - 1]);
+            // Keep this scene at rest — never slide it into blank chrome.
+            resetPosition();
             return;
           }
 
           Animated.timing(translateX, {
             toValue: 0,
             duration: SNAP_BACK_MS,
-            easing: commitEasing,
+            easing: settleEasing,
             useNativeDriver: true,
           }).start();
         },
@@ -136,7 +161,7 @@ export default function SwipeableTabWrapper({
           Animated.timing(translateX, {
             toValue: 0,
             duration: SNAP_BACK_MS,
-            easing: commitEasing,
+            easing: settleEasing,
             useNativeDriver: true,
           }).start();
         },
@@ -150,7 +175,7 @@ export default function SwipeableTabWrapper({
 
   return (
     <Animated.View
-      style={[styles.container, { transform: [{ translateX }] }]}
+      style={[styles.container, { backgroundColor, transform: [{ translateX }] }]}
       {...panResponder.panHandlers}
     >
       {children}
